@@ -5,7 +5,9 @@ execute:
   warning: false
 format:
   html:
-    page-layout: article
+    grid:
+      sidebar-width: 0px
+      margin-width: 400px
     theme: zephyr
 ---
 
@@ -28,10 +30,10 @@ source("maps.R")
 source("helper_funcs.R")
 # set the following variables and run
 db_path <- "ptaxsim-2021.0.4.db"
-# pin_14 <- "20114070180000" # Hyde Park, Chicago
+pin_14 <- "20114070180000" # Hyde Park, Chicago
 # pin_14 <- "15361000280000" # Riverside
 # pin_14 <- "16291280010000" # Cicero
-pin_14 <- "14294070931001" # Wrightwood, Chicago - TIF
+# pin_14 <- "14294070931001" # Wrightwood, Chicago - TIF
 # pin_14 <- "16123090200000" # Kinzie - TIF
 year <- 2021
 
@@ -61,7 +63,8 @@ tax_bill_data <- tax_bill(
     mutate(tif_agency_name = str_replace_all(tif_agency_name, "TIF - ", "")) %>%
     mutate(tif_agency_name = str_replace_all(tif_agency_name, "RPM1", "Red-Purple Modernisation Phase 1")) %>%
     mutate(tif_agency_name = str_to_title(tif_agency_name)) %>%
-    mutate(agency_name = str_to_title(agency_name))
+    mutate(agency_name = str_to_title(agency_name)) %>%
+    filter(agency_total_ext > 0)
 
 cook_county_max_ext <- tax_bill_data %>%
     filter(agency_major_type == "Cook County") %>%
@@ -128,6 +131,14 @@ missing_dis_school <- get_missing_dis(shp_bnd_all_schools, "School")
 missing_dis_others <- get_missing_dis(shp_bnd_all_others, "Miscellaneous")
 
 missing_dis <- c(missing_dis_school, missing_dis_others)
+
+small_school <- shp_bnd_all_schools %>%
+    slice_min(shape_area) %>%
+    left_join(tax_bill_data, by = join_by(AGENCY_DESC == agency_name))
+
+other_schools <- shp_bnd_all_schools %>%
+    filter(!AGENCY_DESC %in% small_school$AGENCY_DESC)
+
 ```
 
 ```{r defaults}
@@ -171,15 +182,41 @@ The Cook County Assessor's Office, the State, and county taxing districts (schoo
 
 The property taxes are collected centrally and then distributed to each district
 
-## Breaking the bill down - The tax districts
+## Breaking the bill down - Your local school district!
 
-We will dive into the property bill for `r render_name(render_pin14)` in `r year`. This is the first line item of the bill -
+One of these districts is your local school district - `r render_name(small_school$AGENCY_DESC)`! A portion of your taxes is sent to the agency to ensure it can continue operations.
+
+
+::: {.column-margin}
+
+> Generally, these districts fund the local elementary, middle and high schools, along with community colleges in the area.
+>
+`r if(!"Board Of Education" == small_school$AGENCY_DESC) {"<!--"}`
+> The `r render_name("Board Of Education")` is partially funded by property taxes and runs the Chicago Public Schools system, a K-12 system in the City of Chicago.
+> 
+> [Chicago Public Schools, Revenue, 2023](https://www.cps.edu/about/finance/budget/budget-2023/revenue/)
+`r if(!"Board Of Education" == small_school$AGENCY_DESC) {"-->"}`
+`r if(!"Chicago Community College District 508" == small_school$AGENCY_DESC) {"<!--"}`
+> `r render_name("Chicago Community College District 508")` is partially funded by property taxes and runs the City Colleges of Chicago, a system of seven accredited colleges across the City of Chicago
+> 
+> [City Colleges of Chicago, Final Budget, FY 22](https://www.ccc.edu/departments/Documents/Finance%20Documents/FY2022%20Final%20Annual%20Operating%20Budget%20Book.pdf)
+`r if(!"Chicago Community College District 508" == small_school$AGENCY_DESC) {"-->"}`
+
+:::
+
+```{r init-map}
+shp_bnd_all_schools %>%
+    filter(AGENCY_DESC == small_school$AGENCY_DESC) %>%
+    map_dist()
+```
+
+Now, let's look at the line item of the bill for `r render_name(render_pin14)` in `r year` for `r render_name(small_school$AGENCY_DESC)` -
 
 ```{r increment-tax-bill-1}
 tax_bill_data %>%
-    filter(agency_name %in% cook_county_max_ext$agency_name) %>%
+    filter(agency_name == small_school$AGENCY_DESC) %>%
     render_bill(
-        c("Cook County")
+        c("School")
     ) %>%
     tab_style(
         style = cell_text(weight = "bold"),
@@ -190,10 +227,387 @@ tax_bill_data %>%
         )
     ) %>%
     tab_style(
-        style = cell_fill(color = css_colors["Cook County"]),
+        style = cell_fill(color = css_colors[small_school$AGENCY_DESC]),
         locations = cells_body()
     )
 ```
+
+For the purpose of operating `r render_name(small_school$AGENCY_DESC)`, in `r year`, it needs to collect `r small_school %>% pull(agency_total_ext) %>% label_dol_amt() %>% render_name(small_school$AGENCY_DESC)` in order to provide services.
+
+```{r increment-tax-bill-1-1}
+tax_bill_data %>%
+    filter(agency_name == small_school$AGENCY_DESC) %>%
+    render_bill(
+        c("School")
+    ) %>%
+    tab_style(
+        style = cell_text(weight = "bold"),
+        locations = list(
+            cells_column_labels(columns = agency_total_ext),
+            cells_body(columns = agency_total_ext)
+        )
+    ) %>%
+    tab_style(
+        style = cell_fill(color = css_colors[small_school$AGENCY_DESC]),
+        locations = cells_body()
+    )
+```
+
+But where can `r render_name(small_school$AGENCY_DESC)` raise the money from? From all the properties within the district boundaries!  
+The total taxable value of all properties falling in `r render_name(small_school$AGENCY_DESC)` make up its **tax base**. 
+For `r year`, this was `r small_school %>% pull(agency_total_eav) %>% label_dol_amt() %>% render_name(small_school$AGENCY_DESC)`
+
+```{r increment-tax-bill-1-2}
+tax_bill_data %>%
+    filter(agency_name == small_school$AGENCY_DESC) %>%
+    render_bill(
+        c("School")
+    ) %>%
+    tab_style(
+        style = cell_text(weight = "bold"),
+        locations = list(
+            cells_column_labels(columns = agency_total_eav),
+            cells_body(columns = agency_total_eav)
+        )
+    ) %>%
+    tab_style(
+        style = cell_fill(color = css_colors[small_school$AGENCY_DESC]),
+        locations = cells_body()
+    )
+```
+
+The cost of services of `r render_name(small_school$AGENCY_DESC)` is therefore divided amongst all the property owners, and `r render_name(small_school$AGENCY_DESC)` sets its agency tax rate equal to: 
+
+$$
+\mathrm{{Levy \over Base} = Tax \hspace{0.1cm} rate}
+$$
+
+Using real numbers, the tax rate equals: 
+$$
+\mathrm{`r label_dol_amt(small_school$agency_total_ext)` \over `r label_dol_amt(small_school$agency_total_eav)`} = `r label_p_ltx(small_school$agency_tax_rate)`
+$$
+
+```{r increment-tax-bill-1-3}
+tax_bill_data %>%
+    filter(agency_name == small_school$AGENCY_DESC) %>%
+    render_bill(
+        c("School")
+    ) %>%
+    tab_style(
+        style = cell_text(weight = "bold"),
+        locations = list(
+            cells_column_labels(columns = agency_tax_rate),
+            cells_body(columns = agency_tax_rate)
+        )
+    ) %>%
+    tab_style(
+        style = cell_fill(color = css_colors[small_school$AGENCY_DESC]),
+        locations = cells_body()
+    )
+```
+
+#### How much do you owe `r render_name(small_school$AGENCY_DESC)`?
+
+As the owner of `r render_name(render_pin14)`, in the year `r year` your property is worth `r render_name(label_dol_amt(pin_details$av*10), render_pin14)`, of that, your taxable amount (or addition to the tax base) is `r render_name(label_dol_amt(pin_details$eav - pin_exe_total), render_pin14)`[^exemptionnote].
+
+The previously calculated `r render_name("rate", small_school$AGENCY_DESC)` is then applied to your `r render_name("addition to the tax base", render_pin14)`:
+
+$$
+(`r label_dol_amt(pin_details$eav - pin_exe_total)` * `r label_p_ltx(small_school$agency_tax_rate)`) = `r label_dol_amt((pin_details$eav - pin_exe_total)*small_school$agency_tax_rate)`
+$$
+
+This is the total tax amount you owe to `r render_name(small_school$AGENCY_DESC)`
+
+
+[^exemptionnote]:  
+    `r if(pin_exe_total == 0) {"<!--"}` 
+    This is taking into account the exemptions that your property qualifies for.
+    This property qualifies for the following - 
+
+    ```{r exe-det}
+    pin_exe_details %>%
+        filter(value > 0) %>%
+        select(name) %>%
+        gt() %>%
+        cols_label(
+            name = "Exemption Type",
+        #    value = "Exemption Amount"
+        ) %>%
+        #fmt_currency(value) %>%
+        fmt(columns = name, fns = exe_clean)
+    ```
+
+    The total exemption value is `r render_name(label_dol_amt(pin_exe_total), render_pin14)`
+    `r if(pin_exe_total == 0) {"-->"}`
+    `r if(pin_exe_total != 0) {"<!--"}`  
+    This house qualifies for no exemptions
+    `r if(pin_exe_total != 0) {"-->"}`  
+
+```{r increment-tax-bill-1-5}
+tax_bill_data %>%
+    filter(agency_name == small_school$AGENCY_DESC) %>%
+    render_bill(
+        c("School")
+    ) %>%
+    tab_style(
+        style = cell_text(weight = "bold"),
+        locations = list(
+            cells_column_labels(columns = tax_amt_post_exe),
+            cells_body(columns = tax_amt_post_exe)
+        )
+    ) %>%
+    tab_style(
+        style = cell_fill(color = css_colors[small_school$AGENCY_DESC]),
+        locations = cells_body()
+    )
+```
+
+That was the whole first line!
+
+### Other School Districts
+
+Now, the PIN, `r render_name(render_pin14)` also has other school districts that need their own funds, these are as follows -
+
+::: {.column-margin}
+
+`r if(!"Board Of Education" %in% other_schools$AGENCY_DESC) {"<!--"}`
+> The `r render_name("Board Of Education")` is partially funded by property taxes and runs the Chicago Public Schools system, a K-12 system in the City of Chicago.
+> 
+> [Chicago Public Schools, Revenue, 2023](https://www.cps.edu/about/finance/budget/budget-2023/revenue/)
+`r if(!"Board Of Education" %in% other_schools$AGENCY_DESC) {"-->"}`
+`r if(!"Chicago Community College District 508" %in% other_schools$AGENCY_DESC) {"<!--"}`
+> `r render_name("Chicago Community College District 508")` is partially funded by property taxes and runs the City Colleges of Chicago, a system of seven accredited colleges across the City of Chicago
+> 
+> [City Colleges of Chicago, Final Budget, FY 22](https://www.ccc.edu/departments/Documents/Finance%20Documents/FY2022%20Final%20Annual%20Operating%20Budget%20Book.pdf)
+`r if(!"Chicago Community College District 508" %in% other_schools$AGENCY_DESC) {"-->"}`
+
+:::
+
+```{r school-map-indi}
+plt_lst <- list()
+for (i in 1:nrow(other_schools)) {
+    plt_lst[[i]] <- map_dist(other_schools[i, ])
+}
+
+Reduce("+", plt_lst) +
+    plot_layout(guides = "collect") &
+    theme(legend.position = "bottom")
+```
+
+These school districts also add their own line items to the bill - 
+
+```{r increment-tax-bill-5}
+tax_bill_data %>%
+    filter(
+        agency_major_type == "School"
+    ) %>%
+    render_bill(
+        c("School")
+    ) %>%
+    tab_style(
+        style = cell_text(weight = "bold"),
+        locations = cells_body(rows = agency_name %in% other_schools$AGENCY_DESC)
+    ) %>%
+    data_color(
+        method = "factor",
+        rows = agency_major_type == "School",
+        columns = agency_name,
+        target_columns = everything(),
+        fn = css_get_colors,
+        autocolor_text = FALSE
+    )
+```
+
+
+But school districts aren't the only local government you must pay taxes to...
+
+### The Township and the Municipality
+
+Illinois is a state that also has a sub-county level of local government known as the township. This could be distinct from the municipality of your parcel!
+
+::: {.column-margin}
+
+`r if(!"CITY OF CHICAGO" %in% tax_bill_data$agency_name) {"<!--"}`
+> The `r render_twn_muni()` uses the property tax levy for - 
+> 
+>  - Servicing long term debt (partially)
+>  - The Annuity and Benefit Funds for the police, firefighters, municipal employees, and laborers and retirement board employees (partially)
+> 
+> [City of Chicago, Budget Overview, 2023](https://www.chicago.gov/content/dam/city/depts/obm/supp_info/2023Budget/2023-OVERVIEW.pdf)
+`r if(!"CITY OF CHICAGO" %in% tax_bill_data$agency_name) {"-->"}`
+
+`r if("CITY OF CHICAGO" %in% tax_bill_data$agency_name) {"<!--"}`
+>  `r render_twn_muni()` could use these funds for generally running city services including water, police, street maintenance etc.
+`r if("CITY OF CHICAGO" %in% tax_bill_data$agency_name) {"-->"}`
+
+:::
+
+`r render_name(render_pin14)` belongs to the following - 
+```{r town-muni-data}
+tax_bill_data %>%
+    filter(agency_minor_type %in% c("MUNI", "TOWNSHIP")) %>%
+    select(agency_minor_type, agency_name) %>%
+    mutate(agency_minor_type = ifelse(agency_minor_type == "MUNI", "MUNICIPALITY", agency_minor_type)) %>%
+    gt() %>%
+    cols_label(
+        agency_minor_type = "Local Government Level",
+        agency_name = "Taxing Agency Name"
+    ) %>%
+    fmt(c(agency_name, agency_minor_type), fns = str_to_title) %>%
+    data_color(
+        method = "factor",
+        columns = agency_name,
+        target_columns = everything(),
+        fn = css_get_colors,
+        apply_to = "fill",
+        autocolor_text = FALSE
+    )
+```
+
+These are often named quite similarly, and are even coterminous in a few cases.
+
+Let's see boundaries of `r render_twn_muni()`, and where the parcel falls in them!
+
+```{r town-muni-map}
+plt_lst <- list()
+for (i in 1:nrow(shp_bnd_twn_muni)) {
+    plt_lst[[i]] <- map_dist(shp_bnd_twn_muni[i, ])
+}
+
+Reduce("+", plt_lst) +
+    plot_layout(guides = "collect") &
+    theme(legend.position = "bottom")
+```
+
+These add other line items to your tax bill...
+
+```{r increment-tax-bill-3}
+tax_bill_data %>%
+    filter(
+        agency_major_type == "School" |
+            agency_minor_type == "MUNI" |
+            agency_minor_type == "TOWNSHIP"
+    ) %>%
+    render_bill(
+        c("School", "Municipality/Township")
+    ) %>%
+    tab_style(
+        style = cell_text(weight = "bold"),
+        locations = cells_body(rows = agency_major_type != "School")
+    ) %>%
+    data_color(
+        method = "factor",
+        rows = agency_major_type != "School",
+        columns = agency_name,
+        target_columns = everything(),
+        fn = css_get_colors,
+        autocolor_text = FALSE
+    )
+
+```
+
+Within `r render_twn_muni()`, there are also other districts that your property belongs to. These are run by the respective agency but collect tax separately. These are as follows -
+
+```{r increment-tax-bill-4, echo=F}
+tax_bill_data %>%
+    filter(
+        agency_major_type %in% c("School", "Municipality/Township")
+    ) %>%
+    render_bill(
+        c("School", "Municipality/Township")
+    ) %>%
+    tab_style(
+        style = cell_text(weight = "bold"),
+        locations = cells_body(
+            rows =
+                (agency_major_type != "School") &
+                    !(agency_name %in% (tax_bill_data %>%
+                        filter(agency_minor_type %in% c("MUNI", "TOWNSHIP")) %>%
+                        pull(agency_name))
+                    )
+        )
+    ) %>%
+    data_color(
+        method = "factor",
+        rows = (agency_major_type != "School") &
+            !(agency_name %in% (tax_bill_data %>%
+                filter(agency_minor_type %in% c("MUNI", "TOWNSHIP")) %>%
+                pull(agency_name))
+            ),
+        columns = agency_name,
+        target_columns = everything(),
+        fn = css_get_colors,
+        autocolor_text = FALSE
+    )
+```
+
+::: {.column-margin}
+
+`r if(!"City Of Chicago" %in% tax_bill_data$agency_name) {"<!--"}`
+> Here, there is a more direct funding of the Chicago Public Library System through the City of Chicago Library Fund, and of the Chicago Public School System through the City Of Chicago School Building & Improvement Fund.
+`r if(!"City Of Chicago" %in% tax_bill_data$agency_name) {"-->"}`
+
+`r if("City Of Chicago" %in% tax_bill_data$agency_name) {"<!--"}`
+> Here, there is a more direct funding of other systems in a municipality like its libraries, roads, etc.
+`r if("City Of Chicago" %in% tax_bill_data$agency_name) {"-->"}`
+
+:::
+
+Similarly, there are also other special purpose tax districts as follows - 
+
+### Special districts 
+
+Similarly, there are a few other miscellaneous districts
+
+```{r others-map-indi}
+plt_lst <- list()
+for (i in 1:nrow(shp_bnd_all_others)) {
+    plt_lst[[i]] <- map_dist(shp_bnd_all_others[i, ])
+}
+
+Reduce("+", plt_lst) +
+    plot_layout(guides = "collect") &
+    theme(legend.position = "bottom")
+```
+
+All of these also add their own line items to the tax bill - 
+
+```{r increment-tax-bill-6}
+tax_bill_data %>%
+    filter(agency_major_type != "Cook County") %>%
+    render_bill(
+        c("School", "Municipality/Township", "Miscellaneous")
+    ) %>%
+    tab_style(
+        style = cell_text(weight = "bold"),
+        locations = cells_body(rows = !(agency_major_type %in% c("Municipality/Township", "School")))
+    ) %>%
+    data_color(
+        method = "factor",
+        rows = !(agency_major_type %in% c("Municipality/Township", "School")),
+        columns = agency_name,
+        target_columns = everything(),
+        fn = css_get_colors,
+        autocolor_text = FALSE
+    )
+```
+
+::: {.column-margin}
+
+`r if(!"Metro Water Reclamation District Of Greater Chicago" %in% tax_bill_data$agency_name) {"<!--"}`
+> The `r render_name("Metro Water Reclamation District Of Greater Chicago")` is funded substantially by property taxes, and it uses the funds towards sewage, wastewater, and stormwater management. It maintains the "TARP" underneath Chicago, and reversed the flow of the rivers away from Lake Michigan.
+`r if(!"Metro Water Reclamation District Of Greater Chicago" %in% tax_bill_data$agency_name) {"-->"}`
+`r if(!"Chicago Park District" %in% tax_bill_data$agency_name) {"<!--"}`
+> The `r render_name("Chicago Park District")` is also substantially funded by property taxes. Along with running all Chicago Park District parks across the City of Chicago, it further funds the operations of -
+> 
+>  - The maintenance and upkeep of Soldier Field and, Northerly Island
+>  - Remittance to Lincoln Park Zoo, and Shedd Aquarium
+>  - Remittance to museums located in CPD land including Adler Planetarium, The Art Institute of Chicago, Chicago History Museum, DuSable Museum of African American History, The Field Museum, Museum of Contemporary Art, and Museum of Science and Industry amongst others
+>   - The Garfield Park Conservatory Alliance 
+>   - The management of MLK Center
+`r if(!"Chicago Park District" %in% tax_bill_data$agency_name) {"-->"}`
+
+:::
 
 ::: {.column-margin}
 
@@ -215,12 +629,9 @@ tax_bill_data %>%
 
 ### Cook County tax district
 
-`r render_name("Cook County")` is one of the local government bodies that `r render_name(render_pin14)` falls in.
+Similarly, `r render_name("Cook County")` is one of the local government bodies that `r render_name(render_pin14)` falls in, with it's own set of tax districts. 
 
-```{r init-map}
-## | fig-cap:
-## |   - "Map of Cook County, with the neighborhood and the location of the parcel"
-
+```{r init-map-old}
 pin_bbox <- st_bbox(shp_bnd_pin)
 pin_xlim <- c(pin_bbox$xmin - 0.02, pin_bbox$xmax + 0.02)
 pin_ylim <- c(pin_bbox$ymin - 0.015, pin_bbox$ymax + 0.015)
@@ -268,197 +679,24 @@ main_map +
     inset_element(inset_map, -0.1, 0, 0.37, 0.4, align_to = "full")
 ```
 
-For the purpose of operating `r render_name(cook_county_max_ext$agency_name,"Cook County")`, in `r year`, Cook County needs to collect `r render_name(cook_county_max_ext$agency_total_ext, "Cook County")` in order to provide services.
-
-
-```{r increment-tax-bill-1-1}
-tax_bill_data %>%
-    filter(agency_name %in% cook_county_max_ext$agency_name) %>%
-    render_bill(
-        c("Cook County")
-    ) %>%
-    tab_style(
-        style = cell_text(weight = "bold"),
-        locations = list(
-            cells_column_labels(columns = agency_total_ext),
-            cells_body(columns = agency_total_ext)
-        )
-    ) %>%
-    tab_style(
-        style = cell_fill(color = css_colors["Cook County"]),
-        locations = cells_body()
-    )
-```
-
-The total taxable value of all properties falling in `r render_name(cook_county_max_ext$agency_name,"Cook County")` make up its **tax base**. 
-For `r year`, this was `r render_name(cook_county_max_ext$agency_total_eav, "Cook County")`
-
-```{r increment-tax-bill-1-2}
-tax_bill_data %>%
-    filter(agency_name %in% cook_county_max_ext$agency_name) %>%
-    render_bill(
-        c("Cook County")
-    ) %>%
-    tab_style(
-        style = cell_text(weight = "bold"),
-        locations = list(
-            cells_column_labels(columns = agency_total_eav),
-            cells_body(columns = agency_total_eav)
-        )
-    ) %>%
-    tab_style(
-        style = cell_fill(color = css_colors["Cook County"]),
-        locations = cells_body()
-    )
-```
-
-To divide the cost of services among all property owners, `r render_name(cook_county_max_ext$agency_name,"Cook County")` sets its agency tax rate equal to: 
-$$
-\mathrm{{Levy \over Base} = Tax \hspace{0.1cm} rate}
-$$
-
-Using real numbers, the tax rate equals: 
-$$
-\mathrm{`r cook_county_max_ext$agency_total_ext` \over `r cook_county_max_ext$agency_total_eav`} = `r label_p_ltx(cook_county_max_ext$agency_tax_rate)`
-$$
-
-```{r increment-tax-bill-1-3}
-tax_bill_data %>%
-    filter(agency_name %in% cook_county_max_ext$agency_name) %>%
-    render_bill(
-        c("Cook County")
-    ) %>%
-    tab_style(
-        style = cell_text(weight = "bold"),
-        locations = list(
-            cells_column_labels(columns = agency_tax_rate),
-            cells_body(columns = agency_tax_rate)
-        )
-    ) %>%
-    tab_style(
-        style = cell_fill(color = css_colors["Cook County"]),
-        locations = cells_body()
-    )
-```
-
-#### How much of do you owe Cook County?
-
-As the owner of `r render_name(render_pin14)`, in the year `r year` your property is worth `r render_name(label_dol_amt(pin_details$av*10), render_pin14)`, and your addition to the tax base  of `r render_name(cook_county_max_ext$agency_name,"Cook County")` is `r render_name(label_dol_amt(pin_details$eav), render_pin14)`.
-
-The previously calculated `r render_name("rate", "Cook County")` is then applied to your `r render_name("addition to the tax base", "Cook County")`:
-
-$$
-(`r label_dol_amt(pin_details$eav)` * `r label_p_ltx(cook_county_max_ext$agency_tax_rate)`) = `r label_dol_amt(pin_details$eav*cook_county_max_ext$agency_tax_rate)`
-$$
-
-This is the total tax amount you owe to `r render_name("Cook County")`
-
-`r if(pin_exe_total == 0) {"<!--"}` 
-
-```{r increment-tax-bill-1-4}
-tax_bill_data %>%
-    filter(agency_name %in% cook_county_max_ext$agency_name) %>%
-    render_bill(
-        c("Cook County")
-    ) %>%
-    tab_style(
-        style = cell_text(weight = "bold"),
-        locations = list(
-            cells_column_labels(columns = tax_amt_pre_exe),
-            cells_body(columns = tax_amt_pre_exe)
-        )
-    ) %>%
-    tab_style(
-        style = cell_fill(color = css_colors["Cook County"]),
-        locations = cells_body()
-    )
-```
-
-This home qualifies for the following exemptions 
-
-```{r exe-det}
-pin_exe_details %>%
-    filter(value > 0) %>%
-    gt() %>%
-    cols_label(
-        name = "Exemption Type",
-        value = "Exemption Amount"
-    ) %>%
-    fmt_currency(value) %>%
-    fmt(columns = name, fns = exe_clean)
-```
-
-Summing this, the total exemption value is `r render_name(label_dol_amt(pin_exe_total), render_pin14)`. We multiply this by the tax rate, `r render_name(label_p_ltx(cook_county_max_ext$agency_tax_rate), "Cook County")`, to get `r label_dol_amt(cook_county_max_ext$agency_tax_rate*pin_exe_total)` .  
-This is the total tax exemption for the `r render_name("Cook County")`
-
-We can subtract this from the previously calculated tax to get the final tax amount - 
-
-$$
-`r label_dol_amt(pin_details$eav*cook_county_max_ext$agency_tax_rate)` - `r label_dol_amt(cook_county_max_ext$agency_tax_rate*pin_exe_total)` = `r cook_county_max_ext$agency_tax_amount`
-$$
-
-```{r increment-tax-bill-1-5-exe}
-tax_bill_data %>%
-    filter(agency_name %in% cook_county_max_ext$agency_name) %>%
-    render_bill(
-        c("Cook County")
-    ) %>%
-    tab_style(
-        style = cell_text(weight = "bold"),
-        locations = list(
-            cells_column_labels(columns = tax_amt_post_exe),
-            cells_body(columns = tax_amt_post_exe)
-        )
-    ) %>%
-    tab_style(
-        style = cell_fill(color = css_colors["Cook County"]),
-        locations = cells_body()
-    )
-```
-
-`r if(pin_exe_total == 0) {"-->"}` 
-
-`r if(pin_exe_total != 0) {"<!--"}`
-This parcel has no qualified exemptions, and therefore the final owed amount is the same! 
-
-```{r increment-tax-bill-1-5-noexe}
-tax_bill_data %>%
-    filter(agency_name %in% cook_county_max_ext$agency_name) %>%
-    render_bill(
-        c("Cook County")
-    ) %>%
-    tab_style(
-        style = cell_text(weight = "bold"),
-        locations = list(
-            cells_column_labels(columns = c(tax_amt_post_exe, tax_amt_pre_exe)),
-            cells_body(columns = c(tax_amt_post_exe, tax_amt_pre_exe))
-        )
-    ) %>%
-    tab_style(
-        style = cell_fill(color = css_colors["Cook County"]),
-        locations = cells_body()
-    )
-```
-
-`r if(pin_exe_total != 0) {"-->"}` 
-
-That was the whole first line!
-
-Now, the Cook County also has other tax districts that need their own funds, these are as follows -
+Now, `r render_name("Cook County")` and its tax districts add the following lines to the tax bill, resulting in the complete bill! -
 
 ```{r increment-tax-bill-2}
 tax_bill_data %>%
-    filter(agency_major_type == "Cook County") %>%
     render_bill(
-        c("Cook County")
+        c("School", "Municipality/Township", "Miscellaneous", "Cook County")
     ) %>%
     tab_style(
         style = cell_text(weight = "bold"),
-        locations = cells_body(rows = agency_name != cook_county_max_ext$agency_name)
+        locations = cells_body(rows = (agency_major_type %in% c("Cook County")))
     ) %>%
-    tab_style(
-        style = cell_fill(color = css_colors["Cook County"]),
-        locations = cells_body(rows = agency_name != cook_county_max_ext$agency_name)
+    data_color(
+        method = "factor",
+        rows = (agency_major_type %in% c("Cook County")),
+        columns = agency_name,
+        target_columns = everything(),
+        fn = css_get_colors,
+        autocolor_text = FALSE
     )
 ```
 
@@ -470,260 +708,6 @@ tax_bill_data %>%
 >  - The Chicago Horticulture Society (Chicago Botanic Garden)
 > 
 > [FPCC Budget Appropriation, FY23](https://fpdcc.com/downloads/budget/2023/FPCC-2023-Budget-Appropriation-Ordinance-012523.pdf)
-
-:::
-
-But `r render_name("Cook County")` isn't the only local government you must pay taxes to...
-
-### The Township and the Municipality
-
-Illinois is a state that also has a sub-county level of local government known as the township. This could be distinct from the municipality of your parcel!
-
-`r render_name(render_pin14)` belongs to the following - 
-```{r town-muni-data}
-tax_bill_data %>%
-    filter(agency_minor_type %in% c("MUNI", "TOWNSHIP")) %>%
-    select(agency_minor_type, agency_name) %>%
-    mutate(agency_minor_type = ifelse(agency_minor_type == "MUNI", "MUNICIPALITY", agency_minor_type)) %>%
-    gt() %>%
-    cols_label(
-        agency_minor_type = "Local Government Level",
-        agency_name = "Taxing Agency Name"
-    ) %>%
-    fmt(c(agency_name, agency_minor_type), fns = str_to_title) %>%
-    data_color(
-        method = "factor",
-        columns = agency_name,
-        target_columns = everything(),
-        fn = css_get_colors,
-        apply_to = "fill",
-        autocolor_text = FALSE
-    )
-```
-
-These are often named quite similarly, and are even coterminous in a few cases.
-
-Let's see boundaries of `r render_twn_muni()`, and where the parcel falls in them!
-
-```{r town-muni-map}
-## | fig-cap:
-## |   - "Map of the municipality/township that the parcel belongs to"
-
-plt_lst <- list()
-for (i in 1:nrow(shp_bnd_twn_muni)) {
-    plt_lst[[i]] <- map_dist(shp_bnd_twn_muni[i, ])
-}
-
-Reduce("+", plt_lst) +
-    plot_layout(guides = "collect") &
-    theme(legend.position = "bottom")
-```
-
-These add other line items to your tax bill...
-
-```{r increment-tax-bill-3}
-tax_bill_data %>%
-    filter(
-        agency_major_type == "Cook County" |
-            agency_minor_type == "MUNI" |
-            agency_minor_type == "TOWNSHIP"
-    ) %>%
-    render_bill(
-        c("Cook County", "Municipality/Township")
-    ) %>%
-    tab_style(
-        style = cell_text(weight = "bold"),
-        locations = cells_body(rows = agency_major_type != "Cook County")
-    ) %>%
-    data_color(
-        method = "factor",
-        rows = agency_major_type != "Cook County",
-        columns = agency_name,
-        target_columns = everything(),
-        fn = css_get_colors,
-        autocolor_text = FALSE
-    )
-
-```
-
-::: {.column-margin}
-
-`r if(!"CITY OF CHICAGO" %in% tax_bill_data$agency_name) {"<!--"}`
-> The `r render_twn_muni()` uses the property tax levy for - 
-> 
->  - Servicing long term debt (partially)
->  - The Annuity and Benefit Funds for the police, firefighters, municipal employees, and laborers and retirement board employees (partially)
-> 
-> [City of Chicago, Budget Overview, 2023](https://www.chicago.gov/content/dam/city/depts/obm/supp_info/2023Budget/2023-OVERVIEW.pdf)
-`r if(!"CITY OF CHICAGO" %in% tax_bill_data$agency_name) {"-->"}`
-
-`r if("CITY OF CHICAGO" %in% tax_bill_data$agency_name) {"<!--"}`
->  `r render_twn_muni()` could use these funds for generally running city services including water, police, street maintenance etc.
-`r if("CITY OF CHICAGO" %in% tax_bill_data$agency_name) {"-->"}`
-
-:::
-
-Similarly to `r render_name("Cook County")`, 
-there also exist other tax districts in 
-`r render_twn_muni()`, these are as follows -
-
-```{r increment-tax-bill-4, echo=F}
-tax_bill_data %>%
-    filter(
-        agency_major_type %in% c("Cook County", "Municipality/Township")
-    ) %>%
-    render_bill(
-        c("Cook County", "Municipality/Township")
-    ) %>%
-    tab_style(
-        style = cell_text(weight = "bold"),
-        locations = cells_body(
-            rows =
-                (agency_major_type != "Cook County") &
-                    !(agency_name %in% (tax_bill_data %>%
-                        filter(agency_minor_type %in% c("MUNI", "TOWNSHIP")) %>%
-                        pull(agency_name))
-                    )
-        )
-    ) %>%
-    data_color(
-        method = "factor",
-        rows = (agency_major_type != "Cook County") &
-            !(agency_name %in% (tax_bill_data %>%
-                filter(agency_minor_type %in% c("MUNI", "TOWNSHIP")) %>%
-                pull(agency_name))
-            ),
-        columns = agency_name,
-        target_columns = everything(),
-        fn = css_get_colors,
-        autocolor_text = FALSE
-    )
-```
-
-::: {.column-margin}
-
-`r if(!"City Of Chicago" %in% tax_bill_data$agency_name) {"<!--"}`
-> Here, there is a more direct funding of the Chicago Public Library System through the City of Chicago Library Fund, and of the Chicago Public School System through the City Of Chicago School Building & Improvement Fund.
-`r if(!"City Of Chicago" %in% tax_bill_data$agency_name) {"-->"}`
-
-`r if("City Of Chicago" %in% tax_bill_data$agency_name) {"<!--"}`
-> Here, there is a more direct funding of other systems in a municipality like its libraries, roads, etc.
-`r if("City Of Chicago" %in% tax_bill_data$agency_name) {"-->"}`
-
-:::
-
-### School Tax Districts
-
-Now, let's look at all the school districts that this PIN falls under.
-
-```{r school-map-indi}
-## | fig-cap:
-## |   - "Map of the individual school districts"
-
-plt_lst <- list()
-for (i in 1:nrow(shp_bnd_all_schools)) {
-    plt_lst[[i]] <- map_dist(shp_bnd_all_schools[i, ])
-}
-
-Reduce("+", plt_lst) +
-    plot_layout(guides = "collect") &
-    theme(legend.position = "bottom")
-```
-
-Each of these school districts also adds a line item to the bill -
-
-```{r increment-tax-bill-5}
-tax_bill_data %>%
-    filter(
-        agency_major_type %in% c("Cook County", "Municipality/Township", "School")
-    ) %>%
-    render_bill(
-        c("Cook County", "Municipality/Township", "School")
-    ) %>%
-    tab_style(
-        style = cell_text(weight = "bold"),
-        locations = cells_body(rows = agency_major_type == "School")
-    ) %>%
-    data_color(
-        method = "factor",
-        rows = agency_major_type == "School",
-        columns = agency_name,
-        target_columns = everything(),
-        fn = css_get_colors,
-        autocolor_text = FALSE
-    )
-```
-
-::: {.column-margin}
-
-> Generally, these districts fund the local elementary, middle and high schools, along with community colleges in the area.
->
-`r if(!"Board Of Education" %in% tax_bill_data$agency_name) {"<!--"}`
-> The `r render_name("Board Of Education")` is partially funded by property taxes and runs the Chicago Public Schools system, a K-12 system in the City of Chicago.
-> 
-> [Chicago Public Schools, Revenue, 2023](https://www.cps.edu/about/finance/budget/budget-2023/revenue/)
-`r if(!"Board Of Education" %in% tax_bill_data$agency_name) {"-->"}`
-`r if(!"Chicago Community College District 508" %in% tax_bill_data$agency_name) {"<!--"}`
-> `r render_name("Chicago Community College District 508")` is partially funded by property taxes and runs the City Colleges of Chicago, a system of seven accredited colleges across the City of Chicago
-> 
-> [City Colleges of Chicago, Final Budget, FY 22](https://www.ccc.edu/departments/Documents/Finance%20Documents/FY2022%20Final%20Annual%20Operating%20Budget%20Book.pdf)
-`r if(!"Chicago Community College District 508" %in% tax_bill_data$agency_name) {"-->"}`
-
-:::
-
-### Other districts 
-
-Similarly, there are a few other miscellaneous districts
-
-```{r others-map-indi}
-## | fig-cap:
-## |   - "Map of the individual other misc districts"
-
-plt_lst <- list()
-for (i in 1:nrow(shp_bnd_all_others)) {
-    plt_lst[[i]] <- map_dist(shp_bnd_all_others[i, ])
-}
-
-Reduce("+", plt_lst) +
-    plot_layout(guides = "collect") &
-    theme(legend.position = "bottom")
-```
-
-All of these also add their own line items to the tax bill, and this finally ends up in our complete tax bill!
-
-```{r increment-tax-bill-6}
-tax_bill_data %>%
-    render_bill(
-        c("Cook County", "Municipality/Township", "School", "Miscellaneous")
-    ) %>%
-    tab_style(
-        style = cell_text(weight = "bold"),
-        locations = cells_body(rows = !(agency_major_type %in% c("Cook County", "Municipality/Township", "School")))
-    ) %>%
-    data_color(
-        method = "factor",
-        rows = !(agency_major_type %in% c("Cook County", "Municipality/Township", "School")),
-        columns = agency_name,
-        target_columns = everything(),
-        fn = css_get_colors,
-        autocolor_text = FALSE
-    )
-```
-
-::: {.column-margin}
-
-`r if(!"Metro Water Reclamation District Of Greater Chicago" %in% tax_bill_data$agency_name) {"<!--"}`
-> The `r render_name("Metro Water Reclamation District Of Greater Chicago")` is funded substantially by property taxes, and it uses the funds towards sewage, wastewater, and stormwater management. It maintains the "TARP" underneath Chicago, and reversed the flow of the rivers away from Lake Michigan.
-`r if(!"Metro Water Reclamation District Of Greater Chicago" %in% tax_bill_data$agency_name) {"-->"}`
-`r if(!"Chicago Park District" %in% tax_bill_data$agency_name) {"<!--"}`
-> The `r render_name("Chicago Park District")` is also substantially funded by property taxes. Along with running all Chicago Park District parks across the City of Chicago, it further funds the operations of -
-> 
->  - The maintenance and upkeep of Soldier Field and, Northerly Island
->  - Remittance to Lincoln Park Zoo, and Shedd Aquarium
->  - Remittance to museums located in CPD land including Adler Planetarium, The Art Institute of Chicago, Chicago History Museum, DuSable Museum of African American History, The Field Museum, Museum of Contemporary Art, and Museum of Science and Industry amongst others
->   - The Garfield Park Conservatory Alliance 
->   - The management of MLK Center
-`r if(!"Chicago Park District" %in% tax_bill_data$agency_name) {"-->"}`
 
 :::
 
@@ -758,9 +742,6 @@ tax_bill_data %>%
 ```
 
 ```{r tif-map-indi, eval = isTRUE(nchar(tif_agency_nums) > 0)}
-## | fig-cap:
-## |   - "Map of the TIFs"
-
 plt_lst <- list()
 for (i in 1:nrow(shp_bnd_tifs)) {
     plt_lst[[i]] <- map_dist(shp_bnd_tifs[i, ])
@@ -943,9 +924,4 @@ tax_bill_data %>%
 `r if(length(missing_dis) > 0) {paste0("_NOTE: The following districts were not shown on the maps above - ", glue("{paste(str_to_title(missing_dis), collapse = '; ')}"), "_")}`
 
 
-<!-- 
-text for tax base 
-map changes
-flow - school -> muni/twn -> other -> county -> tif
-exemption bottom
--->
+v1.0
