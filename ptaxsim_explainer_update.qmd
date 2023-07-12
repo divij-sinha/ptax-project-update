@@ -30,7 +30,8 @@ source("maps.R")
 source("helper_funcs.R")
 # set the following variables and run
 db_path <- "ptaxsim-2021.0.4.db"
-pin_14 <- "20114070180000" # Hyde Park, Chicago
+pin_14 <- "16123090200000"
+# pin_14 <- "20114070180000" # Hyde Park, Chicago
 # pin_14 <- "15361000280000" # Riverside
 # pin_14 <- "16291280010000" # Cicero
 # pin_14 <- "14294070931001" # Wrightwood, Chicago - TIF
@@ -134,7 +135,7 @@ missing_dis <- c(missing_dis_school, missing_dis_others)
 
 small_school <- shp_bnd_all_schools %>%
     slice_min(shape_area) %>%
-    left_join(tax_bill_data, by = join_by(AGENCY_DESC == agency_name))
+    left_join(tax_bill_data, by = join_by(AGENCY == agency_num, agency_name))
 
 other_schools <- shp_bnd_all_schools %>%
     filter(!AGENCY_DESC %in% small_school$AGENCY_DESC)
@@ -184,37 +185,36 @@ The property taxes are collected centrally and then distributed to each district
 
 ## Breaking the bill down - Your local school district!
 
-One of these districts is your local school district - `r render_name(small_school$AGENCY_DESC)`! A portion of your taxes is sent to the agency to ensure it can continue operations.
+One of these districts is your local school district - `r render_name(small_school$agency_name)`! A portion of your taxes is sent to the agency to ensure it can continue operations.
 
 
 ::: {.column-margin}
 
 > Generally, these districts fund the local elementary, middle and high schools, along with community colleges in the area.
 >
-`r if(!"Board Of Education" == small_school$AGENCY_DESC) {"<!--"}`
+`r if(!"Board Of Education" == small_school$agency_name) {"<!--"}`
 > The `r render_name("Board Of Education")` is partially funded by property taxes and runs the Chicago Public Schools system, a K-12 system in the City of Chicago.
 > 
 > [Chicago Public Schools, Revenue, 2023](https://www.cps.edu/about/finance/budget/budget-2023/revenue/)
-`r if(!"Board Of Education" == small_school$AGENCY_DESC) {"-->"}`
-`r if(!"Chicago Community College District 508" == small_school$AGENCY_DESC) {"<!--"}`
+`r if(!"Board Of Education" == small_school$agency_name) {"-->"}`
+`r if(!"Chicago Community College District 508" == small_school$agency_name) {"<!--"}`
 > `r render_name("Chicago Community College District 508")` is partially funded by property taxes and runs the City Colleges of Chicago, a system of seven accredited colleges across the City of Chicago
 > 
 > [City Colleges of Chicago, Final Budget, FY 22](https://www.ccc.edu/departments/Documents/Finance%20Documents/FY2022%20Final%20Annual%20Operating%20Budget%20Book.pdf)
-`r if(!"Chicago Community College District 508" == small_school$AGENCY_DESC) {"-->"}`
+`r if(!"Chicago Community College District 508" == small_school$agency_name) {"-->"}`
 
 :::
 
 ```{r init-map}
-shp_bnd_all_schools %>%
-    filter(AGENCY_DESC == small_school$AGENCY_DESC) %>%
+small_school %>%
     map_dist()
 ```
 
-Now, let's look at the line item of the bill for `r render_name(render_pin14)` in `r year` for `r render_name(small_school$AGENCY_DESC)` -
+Now, let's look at the line item of the bill for `r render_name(render_pin14)` in `r year` for `r render_name(small_school$agency_name)` -
 
 ```{r increment-tax-bill-1}
 tax_bill_data %>%
-    filter(agency_name == small_school$AGENCY_DESC) %>%
+    filter(agency_num == small_school$AGENCY) %>%
     render_bill(
         c("School")
     ) %>%
@@ -227,16 +227,16 @@ tax_bill_data %>%
         )
     ) %>%
     tab_style(
-        style = cell_fill(color = css_colors[small_school$AGENCY_DESC]),
+        style = cell_fill(color = css_colors[small_school$agency_name]),
         locations = cells_body()
     )
 ```
 
-For the purpose of operating `r render_name(small_school$AGENCY_DESC)`, in `r year`, it needs to collect `r small_school %>% pull(agency_total_ext) %>% label_dol_amt() %>% render_name(small_school$AGENCY_DESC)` in order to provide services.
+For the purpose of operating `r render_name(small_school$agency_name)`, in `r year`, it needs to collect `r small_school %>% pull(agency_total_ext) %>% label_dol_amt() %>% render_name(small_school$agency_name)` in order to provide services.
 
 ```{r increment-tax-bill-1-1}
 tax_bill_data %>%
-    filter(agency_name == small_school$AGENCY_DESC) %>%
+    filter(agency_name == small_school$agency_name) %>%
     render_bill(
         c("School")
     ) %>%
@@ -248,18 +248,18 @@ tax_bill_data %>%
         )
     ) %>%
     tab_style(
-        style = cell_fill(color = css_colors[small_school$AGENCY_DESC]),
+        style = cell_fill(color = css_colors[small_school$agency_name]),
         locations = cells_body()
     )
 ```
 
-But where can `r render_name(small_school$AGENCY_DESC)` raise the money from? From all the properties within the district boundaries!  
-The total taxable value of all properties falling in `r render_name(small_school$AGENCY_DESC)` make up its **tax base**. 
-For `r year`, this was `r small_school %>% pull(agency_total_eav) %>% label_dol_amt() %>% render_name(small_school$AGENCY_DESC)`
+But where can `r render_name(small_school$agency_name)` raise the money from? From all the properties within the district boundaries!  
+The total taxable value of all properties falling in `r render_name(small_school$agency_name)` make up its **tax base**. 
+For `r year`, this was `r small_school %>% pull(agency_total_eav) %>% label_dol_amt() %>% render_name(small_school$agency_name)`
 
 ```{r increment-tax-bill-1-2}
 tax_bill_data %>%
-    filter(agency_name == small_school$AGENCY_DESC) %>%
+    filter(agency_name == small_school$agency_name) %>%
     render_bill(
         c("School")
     ) %>%
@@ -271,12 +271,12 @@ tax_bill_data %>%
         )
     ) %>%
     tab_style(
-        style = cell_fill(color = css_colors[small_school$AGENCY_DESC]),
+        style = cell_fill(color = css_colors[small_school$agency_name]),
         locations = cells_body()
     )
 ```
 
-The cost of services of `r render_name(small_school$AGENCY_DESC)` is therefore divided amongst all the property owners, and `r render_name(small_school$AGENCY_DESC)` sets its agency tax rate equal to: 
+The cost of services of `r render_name(small_school$agency_name)` is therefore divided amongst all the property owners, and `r render_name(small_school$agency_name)` sets its agency tax rate equal to: 
 
 $$
 \mathrm{{Levy \over Base} = Tax \hspace{0.1cm} rate}
@@ -289,7 +289,7 @@ $$
 
 ```{r increment-tax-bill-1-3}
 tax_bill_data %>%
-    filter(agency_name == small_school$AGENCY_DESC) %>%
+    filter(agency_num == small_school$AGENCY) %>%
     render_bill(
         c("School")
     ) %>%
@@ -301,22 +301,22 @@ tax_bill_data %>%
         )
     ) %>%
     tab_style(
-        style = cell_fill(color = css_colors[small_school$AGENCY_DESC]),
+        style = cell_fill(color = css_colors[small_school$agency_name]),
         locations = cells_body()
     )
 ```
 
-#### How much do you owe `r render_name(small_school$AGENCY_DESC)`?
+#### How much do you owe `r render_name(small_school$agency_name)`?
 
 As the owner of `r render_name(render_pin14)`, in the year `r year` your property is worth `r render_name(label_dol_amt(pin_details$av*10), render_pin14)`, of that, your taxable amount (or addition to the tax base) is `r render_name(label_dol_amt(pin_details$eav - pin_exe_total), render_pin14)`[^exemptionnote].
 
-The previously calculated `r render_name("rate", small_school$AGENCY_DESC)` is then applied to your `r render_name("addition to the tax base", render_pin14)`:
+The previously calculated `r render_name("rate", small_school$agency_name)` is then applied to your `r render_name("addition to the tax base", render_pin14)`:
 
 $$
 (`r label_dol_amt(pin_details$eav - pin_exe_total)` * `r label_p_ltx(small_school$agency_tax_rate)`) = `r label_dol_amt((pin_details$eav - pin_exe_total)*small_school$agency_tax_rate)`
 $$
 
-This is the total tax amount you owe to `r render_name(small_school$AGENCY_DESC)`
+This is the total tax amount you owe to `r render_name(small_school$agency_name)`
 
 
 [^exemptionnote]:  
@@ -345,7 +345,7 @@ This is the total tax amount you owe to `r render_name(small_school$AGENCY_DESC)
 
 ```{r increment-tax-bill-1-5}
 tax_bill_data %>%
-    filter(agency_name == small_school$AGENCY_DESC) %>%
+    filter(agency_name == small_school$agency_name) %>%
     render_bill(
         c("School")
     ) %>%
@@ -357,7 +357,7 @@ tax_bill_data %>%
         )
     ) %>%
     tab_style(
-        style = cell_fill(color = css_colors[small_school$AGENCY_DESC]),
+        style = cell_fill(color = css_colors[small_school$agency_name]),
         locations = cells_body()
     )
 ```
@@ -924,4 +924,4 @@ tax_bill_data %>%
 `r if(length(missing_dis) > 0) {paste0("_NOTE: The following districts were not shown on the maps above - ", glue("{paste(str_to_title(missing_dis), collapse = '; ')}"), "_")}`
 
 
-v1.0
+v1.1
