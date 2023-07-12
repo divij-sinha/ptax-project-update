@@ -95,23 +95,25 @@ map_dist <- function(shp_bnd) {
 render_bill <- function(df, group_order) {
     df %>%
         select(
-            c(agency_name, agency_major_type, agency_total_eav, agency_total_ext, agency_tax_rate, tax_amt_pre_exe, tax_amt_post_exe)
+            # c(agency_name, agency_major_type, agency_total_eav, agency_total_ext, agency_tax_rate, tax_amt_pre_exe, tax_amt_post_exe)
+            c(agency_name, agency_major_type, agency_total_eav, agency_total_ext, agency_tax_rate, tax_amt_post_exe)
         ) %>%
         # mutate(agency_major_type = str_to_title(agency_major_type)) %>%
         group_by(agency_major_type) %>%
-        arrange(desc(tax_amt_pre_exe), .by_group = T) %>%
+        arrange(desc(tax_amt_post_exe), .by_group = T) %>%
         gt() %>%
         cols_label(
             agency_name = "Tax District",
             agency_total_eav = "Agency Tax Base",
             agency_total_ext = "Agency Tax Levy",
             agency_tax_rate = "Agency Tax Rate",
-            tax_amt_pre_exe = "Tax Pre-exemption",
+            # tax_amt_pre_exe = "Tax Pre-exemption",
             tax_amt_post_exe = "Final Tax Owed"
         ) %>%
         row_group_order(group_order) %>%
         fmt(agency_name, fns = str_to_title) %>%
-        fmt_currency(c(tax_amt_pre_exe, tax_amt_post_exe)) %>%
+        # fmt_currency(c(tax_amt_pre_exe, tax_amt_post_exe)) %>%
+        fmt_currency(c(tax_amt_post_exe)) %>%
         fmt_currency(c(agency_total_eav, agency_total_ext), suffixing = T) %>%
         fmt_percent(agency_tax_rate) %>%
         tab_options(row_group.as_column = T)
