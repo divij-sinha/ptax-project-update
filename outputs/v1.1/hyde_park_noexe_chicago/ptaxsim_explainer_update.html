@@ -1,0 +1,7099 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.36">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>PTAXSIM Tax Explainer</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+<script src="ptaxsim_explainer_update_files/libs/clipboard/clipboard.min.js"></script>
+<script src="ptaxsim_explainer_update_files/libs/quarto-html/quarto.js"></script>
+<script src="ptaxsim_explainer_update_files/libs/quarto-html/popper.min.js"></script>
+<script src="ptaxsim_explainer_update_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="ptaxsim_explainer_update_files/libs/quarto-html/anchor.min.js"></script>
+<link href="ptaxsim_explainer_update_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="ptaxsim_explainer_update_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="ptaxsim_explainer_update_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="ptaxsim_explainer_update_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="ptaxsim_explainer_update_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+</div>
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">PTAXSIM Tax Explainer</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    
+  </div>
+  
+
+</header>
+
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<section id="what-are-property-taxes" class="level2">
+<h2 class="anchored" data-anchor-id="what-are-property-taxes">What are property taxes?</h2>
+<p>Property tax is owed by property owners annually, for both residential and commercial properties.</p>
+<p>These liabilities are decided per <span style="background-color: #88CCEE44;"><strong>Property Parcel</strong></span>, and each parcel is uniquely identifiable with a 14-digit <span style="background-color: #88CCEE44;"><strong>Property Index Number</strong></span> or <span style="background-color: #88CCEE44;"><strong>PIN</strong></span></p>
+<p>Every <span style="background-color: #88CCEE44;"><strong>PIN</strong></span> belongs to multiple tax districts (local government bodies), that need funds for their purposes.</p>
+<p>The Cook County Assessor’s Office, the State, and county taxing districts (schools, parks, etc.) work together to calculate fair property taxes for residents.</p>
+<p>The property taxes are collected centrally and then distributed to each district</p>
+</section>
+<section id="breaking-the-bill-down---your-local-school-district" class="level2 page-columns page-full">
+<h2 class="anchored" data-anchor-id="breaking-the-bill-down---your-local-school-district">Breaking the bill down - Your local school district!</h2>
+<p>One of these districts is your local school district - <span style="background-color: #11773344;"><strong>Chicago Community College District 508</strong></span>! A portion of your taxes is sent to the agency to ensure it can continue operations.</p>
+
+<div class="no-row-height column-margin column-container"><div class="">
+<blockquote class="blockquote">
+<p>Generally, these districts fund the local elementary, middle and high schools, along with community colleges in the area.</p>
+<!--
+The [**Board Of Education**]{style="background-color: #33228844;"} is partially funded by property taxes and runs the Chicago Public Schools system, a K-12 system in the City of Chicago.
+
+[Chicago Public Schools, Revenue, 2023](https://www.cps.edu/about/finance/budget/budget-2023/revenue/)
+-->
+</blockquote>
+<blockquote class="blockquote">
+<p><span style="background-color: #11773344;"><strong>Chicago Community College District 508</strong></span> is partially funded by property taxes and runs the City Colleges of Chicago, a system of seven accredited colleges across the City of Chicago</p>
+<p><a href="https://www.ccc.edu/departments/Documents/Finance%20Documents/FY2022%20Final%20Annual%20Operating%20Budget%20Book.pdf">City Colleges of Chicago, Final Budget, FY 22</a></p>
+</blockquote>
+</div></div><div class="cell">
+<div class="cell-output-display">
+<p><img src="ptaxsim_explainer_update_files/figure-html/init-map-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Now, let’s look at the line item of the bill for <span style="background-color: #88CCEE44;"><strong>Parcel (20-11-407-018-0000)</strong></span> in 2021 for <span style="background-color: #11773344;"><strong>Chicago Community College District 508</strong></span> -</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<div id="qirwbqheja" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#qirwbqheja table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#qirwbqheja thead, #qirwbqheja tbody, #qirwbqheja tfoot, #qirwbqheja tr, #qirwbqheja td, #qirwbqheja th {
+  border-style: none;
+}
+
+#qirwbqheja p {
+  margin: 0;
+  padding: 0;
+}
+
+#qirwbqheja .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#qirwbqheja .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#qirwbqheja .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#qirwbqheja .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#qirwbqheja .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#qirwbqheja .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qirwbqheja .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#qirwbqheja .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#qirwbqheja .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#qirwbqheja .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#qirwbqheja .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#qirwbqheja .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#qirwbqheja .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#qirwbqheja .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#qirwbqheja .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#qirwbqheja .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#qirwbqheja .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#qirwbqheja .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#qirwbqheja .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qirwbqheja .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#qirwbqheja .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#qirwbqheja .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#qirwbqheja .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qirwbqheja .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#qirwbqheja .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#qirwbqheja .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qirwbqheja .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qirwbqheja .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#qirwbqheja .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qirwbqheja .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#qirwbqheja .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qirwbqheja .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#qirwbqheja .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qirwbqheja .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#qirwbqheja .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qirwbqheja .gt_left {
+  text-align: left;
+}
+
+#qirwbqheja .gt_center {
+  text-align: center;
+}
+
+#qirwbqheja .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#qirwbqheja .gt_font_normal {
+  font-weight: normal;
+}
+
+#qirwbqheja .gt_font_bold {
+  font-weight: bold;
+}
+
+#qirwbqheja .gt_font_italic {
+  font-style: italic;
+}
+
+#qirwbqheja .gt_super {
+  font-size: 65%;
+}
+
+#qirwbqheja .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#qirwbqheja .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#qirwbqheja .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#qirwbqheja .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#qirwbqheja .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#qirwbqheja .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#qirwbqheja .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="Tax District">Tax District</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Base">Agency Tax Base</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Levy">Agency Tax Levy</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Rate">Agency Tax Rate</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Final Tax Owed">Final Tax Owed</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr class="gt_row_group_first"><td headers="School stub_1_1 stub_1" rowspan="1" class="gt_row gt_left gt_stub_row_group" style="font-weight: bold;">School</td>
+<td headers="School stub_1_1 agency_name" class="gt_row gt_left" style="font-weight: bold; background-color: rgba(17,119,51,0.27);">Chicago Community College District 508</td>
+<td headers="School stub_1_1 agency_total_eav" class="gt_row gt_right" style="background-color: rgba(17,119,51,0.27);">$96.86B</td>
+<td headers="School stub_1_1 agency_total_ext" class="gt_row gt_right" style="background-color: rgba(17,119,51,0.27);">$140.45M</td>
+<td headers="School stub_1_1 agency_tax_rate" class="gt_row gt_right" style="background-color: rgba(17,119,51,0.27);">0.14%</td>
+<td headers="School stub_1_1 tax_amt_post_exe" class="gt_row gt_right" style="background-color: rgba(17,119,51,0.27);">$631.32</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+</div>
+</div>
+<p>For the purpose of operating <span style="background-color: #11773344;"><strong>Chicago Community College District 508</strong></span>, in 2021, it needs to collect <span style="background-color: #11773344;"><strong>$140.45m</strong></span> in order to provide services.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<div id="igopzubvzf" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#igopzubvzf table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#igopzubvzf thead, #igopzubvzf tbody, #igopzubvzf tfoot, #igopzubvzf tr, #igopzubvzf td, #igopzubvzf th {
+  border-style: none;
+}
+
+#igopzubvzf p {
+  margin: 0;
+  padding: 0;
+}
+
+#igopzubvzf .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#igopzubvzf .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#igopzubvzf .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#igopzubvzf .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#igopzubvzf .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#igopzubvzf .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#igopzubvzf .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#igopzubvzf .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#igopzubvzf .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#igopzubvzf .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#igopzubvzf .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#igopzubvzf .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#igopzubvzf .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#igopzubvzf .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#igopzubvzf .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#igopzubvzf .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#igopzubvzf .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#igopzubvzf .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#igopzubvzf .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#igopzubvzf .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#igopzubvzf .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#igopzubvzf .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#igopzubvzf .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#igopzubvzf .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#igopzubvzf .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#igopzubvzf .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#igopzubvzf .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#igopzubvzf .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#igopzubvzf .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#igopzubvzf .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#igopzubvzf .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#igopzubvzf .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#igopzubvzf .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#igopzubvzf .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#igopzubvzf .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#igopzubvzf .gt_left {
+  text-align: left;
+}
+
+#igopzubvzf .gt_center {
+  text-align: center;
+}
+
+#igopzubvzf .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#igopzubvzf .gt_font_normal {
+  font-weight: normal;
+}
+
+#igopzubvzf .gt_font_bold {
+  font-weight: bold;
+}
+
+#igopzubvzf .gt_font_italic {
+  font-style: italic;
+}
+
+#igopzubvzf .gt_super {
+  font-size: 65%;
+}
+
+#igopzubvzf .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#igopzubvzf .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#igopzubvzf .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#igopzubvzf .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#igopzubvzf .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#igopzubvzf .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#igopzubvzf .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Tax District">Tax District</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Base">Agency Tax Base</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="Agency Tax Levy">Agency Tax Levy</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Rate">Agency Tax Rate</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Final Tax Owed">Final Tax Owed</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr class="gt_row_group_first"><td headers="School stub_1_1 stub_1" rowspan="1" class="gt_row gt_left gt_stub_row_group">School</td>
+<td headers="School stub_1_1 agency_name" class="gt_row gt_left" style="background-color: rgba(17,119,51,0.27);">Chicago Community College District 508</td>
+<td headers="School stub_1_1 agency_total_eav" class="gt_row gt_right" style="background-color: rgba(17,119,51,0.27);">$96.86B</td>
+<td headers="School stub_1_1 agency_total_ext" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(17,119,51,0.27);">$140.45M</td>
+<td headers="School stub_1_1 agency_tax_rate" class="gt_row gt_right" style="background-color: rgba(17,119,51,0.27);">0.14%</td>
+<td headers="School stub_1_1 tax_amt_post_exe" class="gt_row gt_right" style="background-color: rgba(17,119,51,0.27);">$631.32</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+</div>
+</div>
+<p>But where can <span style="background-color: #11773344;"><strong>Chicago Community College District 508</strong></span> raise the money from? From all the properties within the district boundaries!<br>
+The total taxable value of all properties falling in <span style="background-color: #11773344;"><strong>Chicago Community College District 508</strong></span> make up its <strong>tax base</strong>. For 2021, this was <span style="background-color: #11773344;"><strong>$96.86b</strong></span></p>
+<div class="cell">
+<div class="cell-output-display">
+
+<div id="vzctxxantm" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#vzctxxantm table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#vzctxxantm thead, #vzctxxantm tbody, #vzctxxantm tfoot, #vzctxxantm tr, #vzctxxantm td, #vzctxxantm th {
+  border-style: none;
+}
+
+#vzctxxantm p {
+  margin: 0;
+  padding: 0;
+}
+
+#vzctxxantm .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#vzctxxantm .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#vzctxxantm .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#vzctxxantm .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#vzctxxantm .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#vzctxxantm .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#vzctxxantm .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#vzctxxantm .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#vzctxxantm .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#vzctxxantm .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#vzctxxantm .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#vzctxxantm .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#vzctxxantm .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#vzctxxantm .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#vzctxxantm .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#vzctxxantm .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#vzctxxantm .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#vzctxxantm .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#vzctxxantm .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#vzctxxantm .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#vzctxxantm .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#vzctxxantm .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#vzctxxantm .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#vzctxxantm .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#vzctxxantm .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#vzctxxantm .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#vzctxxantm .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#vzctxxantm .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#vzctxxantm .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#vzctxxantm .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#vzctxxantm .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#vzctxxantm .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#vzctxxantm .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#vzctxxantm .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#vzctxxantm .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#vzctxxantm .gt_left {
+  text-align: left;
+}
+
+#vzctxxantm .gt_center {
+  text-align: center;
+}
+
+#vzctxxantm .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#vzctxxantm .gt_font_normal {
+  font-weight: normal;
+}
+
+#vzctxxantm .gt_font_bold {
+  font-weight: bold;
+}
+
+#vzctxxantm .gt_font_italic {
+  font-style: italic;
+}
+
+#vzctxxantm .gt_super {
+  font-size: 65%;
+}
+
+#vzctxxantm .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#vzctxxantm .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#vzctxxantm .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#vzctxxantm .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#vzctxxantm .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#vzctxxantm .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#vzctxxantm .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Tax District">Tax District</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="Agency Tax Base">Agency Tax Base</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Levy">Agency Tax Levy</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Rate">Agency Tax Rate</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Final Tax Owed">Final Tax Owed</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr class="gt_row_group_first"><td headers="School stub_1_1 stub_1" rowspan="1" class="gt_row gt_left gt_stub_row_group">School</td>
+<td headers="School stub_1_1 agency_name" class="gt_row gt_left" style="background-color: rgba(17,119,51,0.27);">Chicago Community College District 508</td>
+<td headers="School stub_1_1 agency_total_eav" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(17,119,51,0.27);">$96.86B</td>
+<td headers="School stub_1_1 agency_total_ext" class="gt_row gt_right" style="background-color: rgba(17,119,51,0.27);">$140.45M</td>
+<td headers="School stub_1_1 agency_tax_rate" class="gt_row gt_right" style="background-color: rgba(17,119,51,0.27);">0.14%</td>
+<td headers="School stub_1_1 tax_amt_post_exe" class="gt_row gt_right" style="background-color: rgba(17,119,51,0.27);">$631.32</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+</div>
+</div>
+<p>The cost of services of <span style="background-color: #11773344;"><strong>Chicago Community College District 508</strong></span> is therefore divided amongst all the property owners, and <span style="background-color: #11773344;"><strong>Chicago Community College District 508</strong></span> sets its agency tax rate equal to:</p>
+<p><span class="math display">\[
+\mathrm{{Levy \over Base} = Tax \hspace{0.1cm} rate}
+\]</span></p>
+<p>Using real numbers, the tax rate equals:</p>
+<p><span class="math display">\[
+\mathrm{\$140.45M \over \$96.86B} = 0.14\%
+\]</span></p>
+<div class="cell">
+<div class="cell-output-display">
+
+<div id="lzwgxergfh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#lzwgxergfh table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#lzwgxergfh thead, #lzwgxergfh tbody, #lzwgxergfh tfoot, #lzwgxergfh tr, #lzwgxergfh td, #lzwgxergfh th {
+  border-style: none;
+}
+
+#lzwgxergfh p {
+  margin: 0;
+  padding: 0;
+}
+
+#lzwgxergfh .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#lzwgxergfh .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#lzwgxergfh .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#lzwgxergfh .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#lzwgxergfh .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#lzwgxergfh .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lzwgxergfh .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#lzwgxergfh .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#lzwgxergfh .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#lzwgxergfh .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#lzwgxergfh .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#lzwgxergfh .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#lzwgxergfh .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#lzwgxergfh .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#lzwgxergfh .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#lzwgxergfh .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#lzwgxergfh .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#lzwgxergfh .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#lzwgxergfh .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lzwgxergfh .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#lzwgxergfh .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#lzwgxergfh .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#lzwgxergfh .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lzwgxergfh .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#lzwgxergfh .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#lzwgxergfh .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lzwgxergfh .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lzwgxergfh .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#lzwgxergfh .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lzwgxergfh .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#lzwgxergfh .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lzwgxergfh .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#lzwgxergfh .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lzwgxergfh .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#lzwgxergfh .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lzwgxergfh .gt_left {
+  text-align: left;
+}
+
+#lzwgxergfh .gt_center {
+  text-align: center;
+}
+
+#lzwgxergfh .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#lzwgxergfh .gt_font_normal {
+  font-weight: normal;
+}
+
+#lzwgxergfh .gt_font_bold {
+  font-weight: bold;
+}
+
+#lzwgxergfh .gt_font_italic {
+  font-style: italic;
+}
+
+#lzwgxergfh .gt_super {
+  font-size: 65%;
+}
+
+#lzwgxergfh .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#lzwgxergfh .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#lzwgxergfh .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#lzwgxergfh .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#lzwgxergfh .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#lzwgxergfh .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#lzwgxergfh .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Tax District">Tax District</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Base">Agency Tax Base</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Levy">Agency Tax Levy</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="Agency Tax Rate">Agency Tax Rate</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Final Tax Owed">Final Tax Owed</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr class="gt_row_group_first"><td headers="School stub_1_1 stub_1" rowspan="1" class="gt_row gt_left gt_stub_row_group">School</td>
+<td headers="School stub_1_1 agency_name" class="gt_row gt_left" style="background-color: rgba(17,119,51,0.27);">Chicago Community College District 508</td>
+<td headers="School stub_1_1 agency_total_eav" class="gt_row gt_right" style="background-color: rgba(17,119,51,0.27);">$96.86B</td>
+<td headers="School stub_1_1 agency_total_ext" class="gt_row gt_right" style="background-color: rgba(17,119,51,0.27);">$140.45M</td>
+<td headers="School stub_1_1 agency_tax_rate" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(17,119,51,0.27);">0.14%</td>
+<td headers="School stub_1_1 tax_amt_post_exe" class="gt_row gt_right" style="background-color: rgba(17,119,51,0.27);">$631.32</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+</div>
+</div>
+<section id="how-much-do-you-owe-chicago-community-college-district-508" class="level4">
+<h4 class="anchored" data-anchor-id="how-much-do-you-owe-chicago-community-college-district-508">How much do you owe <span style="background-color: #11773344;"><strong>Chicago Community College District 508</strong></span>?</h4>
+<p>As the owner of <span style="background-color: #88CCEE44;"><strong>Parcel (20-11-407-018-0000)</strong></span>, in the year 2021 your property is worth <span style="background-color: #88CCEE44;"><strong>$1.45m</strong></span>, of that, your taxable amount (or addition to the tax base) is <span style="background-color: #88CCEE44;"><strong>$435.39k</strong></span><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>.</p>
+<p>The previously calculated <span style="background-color: #11773344;"><strong>Rate</strong></span> is then applied to your <span style="background-color: #88CCEE44;"><strong>Addition To The Tax Base</strong></span>:</p>
+<p><span class="math display">\[
+(\$435.39K * 0.14\%) = \$631.32
+\]</span></p>
+<p>This is the total tax amount you owe to <span style="background-color: #11773344;"><strong>Chicago Community College District 508</strong></span></p>
+<div class="cell">
+<div class="cell-output-display">
+
+<div id="yfpxiahlnr" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#yfpxiahlnr table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#yfpxiahlnr thead, #yfpxiahlnr tbody, #yfpxiahlnr tfoot, #yfpxiahlnr tr, #yfpxiahlnr td, #yfpxiahlnr th {
+  border-style: none;
+}
+
+#yfpxiahlnr p {
+  margin: 0;
+  padding: 0;
+}
+
+#yfpxiahlnr .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#yfpxiahlnr .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#yfpxiahlnr .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#yfpxiahlnr .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#yfpxiahlnr .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#yfpxiahlnr .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#yfpxiahlnr .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#yfpxiahlnr .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#yfpxiahlnr .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#yfpxiahlnr .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#yfpxiahlnr .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#yfpxiahlnr .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#yfpxiahlnr .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#yfpxiahlnr .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#yfpxiahlnr .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#yfpxiahlnr .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#yfpxiahlnr .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#yfpxiahlnr .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#yfpxiahlnr .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#yfpxiahlnr .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#yfpxiahlnr .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#yfpxiahlnr .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#yfpxiahlnr .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#yfpxiahlnr .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#yfpxiahlnr .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#yfpxiahlnr .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#yfpxiahlnr .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#yfpxiahlnr .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#yfpxiahlnr .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#yfpxiahlnr .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#yfpxiahlnr .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#yfpxiahlnr .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#yfpxiahlnr .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#yfpxiahlnr .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#yfpxiahlnr .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#yfpxiahlnr .gt_left {
+  text-align: left;
+}
+
+#yfpxiahlnr .gt_center {
+  text-align: center;
+}
+
+#yfpxiahlnr .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#yfpxiahlnr .gt_font_normal {
+  font-weight: normal;
+}
+
+#yfpxiahlnr .gt_font_bold {
+  font-weight: bold;
+}
+
+#yfpxiahlnr .gt_font_italic {
+  font-style: italic;
+}
+
+#yfpxiahlnr .gt_super {
+  font-size: 65%;
+}
+
+#yfpxiahlnr .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#yfpxiahlnr .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#yfpxiahlnr .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#yfpxiahlnr .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#yfpxiahlnr .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#yfpxiahlnr .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#yfpxiahlnr .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Tax District">Tax District</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Base">Agency Tax Base</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Levy">Agency Tax Levy</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Rate">Agency Tax Rate</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" style="font-weight: bold;" scope="col" id="Final Tax Owed">Final Tax Owed</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr class="gt_row_group_first"><td headers="School stub_1_1 stub_1" rowspan="1" class="gt_row gt_left gt_stub_row_group">School</td>
+<td headers="School stub_1_1 agency_name" class="gt_row gt_left" style="background-color: rgba(17,119,51,0.27);">Chicago Community College District 508</td>
+<td headers="School stub_1_1 agency_total_eav" class="gt_row gt_right" style="background-color: rgba(17,119,51,0.27);">$96.86B</td>
+<td headers="School stub_1_1 agency_total_ext" class="gt_row gt_right" style="background-color: rgba(17,119,51,0.27);">$140.45M</td>
+<td headers="School stub_1_1 agency_tax_rate" class="gt_row gt_right" style="background-color: rgba(17,119,51,0.27);">0.14%</td>
+<td headers="School stub_1_1 tax_amt_post_exe" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(17,119,51,0.27);">$631.32</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+</div>
+</div>
+<p>That was the whole first line!</p>
+</section>
+<section id="other-school-districts" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="other-school-districts">Other School Districts</h3>
+<p>Now, the PIN, <span style="background-color: #88CCEE44;"><strong>Parcel (20-11-407-018-0000)</strong></span> also has other school districts that need their own funds, these are as follows -</p>
+
+<div class="no-row-height column-margin column-container"><div class="">
+<blockquote class="blockquote">
+<p>The <span style="background-color: #33228844;"><strong>Board Of Education</strong></span> is partially funded by property taxes and runs the Chicago Public Schools system, a K-12 system in the City of Chicago.</p>
+<p><a href="https://www.cps.edu/about/finance/budget/budget-2023/revenue/">Chicago Public Schools, Revenue, 2023</a></p>
+</blockquote>
+<!--
+> [**Chicago Community College District 508**]{style="background-color: #11773344;"} is partially funded by property taxes and runs the City Colleges of Chicago, a system of seven accredited colleges across the City of Chicago
+> 
+> [City Colleges of Chicago, Final Budget, FY 22](https://www.ccc.edu/departments/Documents/Finance%20Documents/FY2022%20Final%20Annual%20Operating%20Budget%20Book.pdf)
+-->
+</div></div><div class="cell">
+<div class="cell-output-display">
+<p><img src="ptaxsim_explainer_update_files/figure-html/school-map-indi-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>These school districts also add their own line items to the bill -</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<div id="qndjnbmdie" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#qndjnbmdie table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#qndjnbmdie thead, #qndjnbmdie tbody, #qndjnbmdie tfoot, #qndjnbmdie tr, #qndjnbmdie td, #qndjnbmdie th {
+  border-style: none;
+}
+
+#qndjnbmdie p {
+  margin: 0;
+  padding: 0;
+}
+
+#qndjnbmdie .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#qndjnbmdie .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#qndjnbmdie .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#qndjnbmdie .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#qndjnbmdie .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#qndjnbmdie .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qndjnbmdie .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#qndjnbmdie .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#qndjnbmdie .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#qndjnbmdie .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#qndjnbmdie .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#qndjnbmdie .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#qndjnbmdie .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#qndjnbmdie .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#qndjnbmdie .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#qndjnbmdie .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#qndjnbmdie .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#qndjnbmdie .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#qndjnbmdie .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qndjnbmdie .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#qndjnbmdie .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#qndjnbmdie .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#qndjnbmdie .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qndjnbmdie .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#qndjnbmdie .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#qndjnbmdie .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qndjnbmdie .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qndjnbmdie .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#qndjnbmdie .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qndjnbmdie .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#qndjnbmdie .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qndjnbmdie .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#qndjnbmdie .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qndjnbmdie .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#qndjnbmdie .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qndjnbmdie .gt_left {
+  text-align: left;
+}
+
+#qndjnbmdie .gt_center {
+  text-align: center;
+}
+
+#qndjnbmdie .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#qndjnbmdie .gt_font_normal {
+  font-weight: normal;
+}
+
+#qndjnbmdie .gt_font_bold {
+  font-weight: bold;
+}
+
+#qndjnbmdie .gt_font_italic {
+  font-style: italic;
+}
+
+#qndjnbmdie .gt_super {
+  font-size: 65%;
+}
+
+#qndjnbmdie .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#qndjnbmdie .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#qndjnbmdie .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#qndjnbmdie .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#qndjnbmdie .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#qndjnbmdie .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#qndjnbmdie .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Tax District">Tax District</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Base">Agency Tax Base</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Levy">Agency Tax Levy</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Rate">Agency Tax Rate</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Final Tax Owed">Final Tax Owed</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr class="gt_row_group_first"><td headers="School stub_1_1 stub_1" rowspan="2" class="gt_row gt_left gt_stub_row_group">School</td>
+<td headers="School stub_1_1 agency_name" class="gt_row gt_left" style="font-weight: bold; background-color: rgba(51,34,136,0.27);">Board Of Education</td>
+<td headers="School stub_1_1 agency_total_eav" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(51,34,136,0.27);">$96.91B</td>
+<td headers="School stub_1_1 agency_total_ext" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(51,34,136,0.27);">$3.41B</td>
+<td headers="School stub_1_1 agency_tax_rate" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(51,34,136,0.27);">3.52%</td>
+<td headers="School stub_1_1 tax_amt_post_exe" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(51,34,136,0.27);">$15,312.74</td></tr>
+    <tr><td headers="School agency_name_2 agency_name" class="gt_row gt_left" style="background-color: rgba(17,119,51,0.27);">Chicago Community College District 508</td>
+<td headers="School agency_name_2 agency_total_eav" class="gt_row gt_right" style="background-color: rgba(17,119,51,0.27);">$96.86B</td>
+<td headers="School agency_name_2 agency_total_ext" class="gt_row gt_right" style="background-color: rgba(17,119,51,0.27);">$140.45M</td>
+<td headers="School agency_name_2 agency_tax_rate" class="gt_row gt_right" style="background-color: rgba(17,119,51,0.27);">0.14%</td>
+<td headers="School agency_name_2 tax_amt_post_exe" class="gt_row gt_right" style="background-color: rgba(17,119,51,0.27);">$631.32</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+</div>
+</div>
+<p>But school districts aren’t the only local government you must pay taxes to…</p>
+</section>
+<section id="the-township-and-the-municipality" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="the-township-and-the-municipality">The Township and the Municipality</h3>
+<p>Illinois is a state that also has a sub-county level of local government known as the township. This could be distinct from the municipality of your parcel!</p>
+
+<div class="no-row-height column-margin column-container"><div class="">
+<!--
+> The [**City Of Chicago**]{style="background-color: #DDCC7744;"} uses the property tax levy for - 
+> 
+>  - Servicing long term debt (partially)
+>  - The Annuity and Benefit Funds for the police, firefighters, municipal employees, and laborers and retirement board employees (partially)
+> 
+> [City of Chicago, Budget Overview, 2023](https://www.chicago.gov/content/dam/city/depts/obm/supp_info/2023Budget/2023-OVERVIEW.pdf)
+-->
+<blockquote class="blockquote">
+<p><span style="background-color: #DDCC7744;"><strong>City Of Chicago</strong></span> could use these funds for generally running city services including water, police, street maintenance etc.</p>
+</blockquote>
+</div></div><p><span style="background-color: #88CCEE44;"><strong>Parcel (20-11-407-018-0000)</strong></span> belongs to the following -</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<div id="tfkdqouxzb" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#tfkdqouxzb table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#tfkdqouxzb thead, #tfkdqouxzb tbody, #tfkdqouxzb tfoot, #tfkdqouxzb tr, #tfkdqouxzb td, #tfkdqouxzb th {
+  border-style: none;
+}
+
+#tfkdqouxzb p {
+  margin: 0;
+  padding: 0;
+}
+
+#tfkdqouxzb .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#tfkdqouxzb .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#tfkdqouxzb .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#tfkdqouxzb .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#tfkdqouxzb .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#tfkdqouxzb .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tfkdqouxzb .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#tfkdqouxzb .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#tfkdqouxzb .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#tfkdqouxzb .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#tfkdqouxzb .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#tfkdqouxzb .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#tfkdqouxzb .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#tfkdqouxzb .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#tfkdqouxzb .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#tfkdqouxzb .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#tfkdqouxzb .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#tfkdqouxzb .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#tfkdqouxzb .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tfkdqouxzb .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#tfkdqouxzb .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#tfkdqouxzb .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#tfkdqouxzb .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tfkdqouxzb .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#tfkdqouxzb .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#tfkdqouxzb .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tfkdqouxzb .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tfkdqouxzb .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#tfkdqouxzb .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tfkdqouxzb .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#tfkdqouxzb .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tfkdqouxzb .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#tfkdqouxzb .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tfkdqouxzb .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#tfkdqouxzb .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tfkdqouxzb .gt_left {
+  text-align: left;
+}
+
+#tfkdqouxzb .gt_center {
+  text-align: center;
+}
+
+#tfkdqouxzb .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#tfkdqouxzb .gt_font_normal {
+  font-weight: normal;
+}
+
+#tfkdqouxzb .gt_font_bold {
+  font-weight: bold;
+}
+
+#tfkdqouxzb .gt_font_italic {
+  font-style: italic;
+}
+
+#tfkdqouxzb .gt_super {
+  font-size: 65%;
+}
+
+#tfkdqouxzb .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#tfkdqouxzb .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#tfkdqouxzb .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#tfkdqouxzb .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#tfkdqouxzb .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#tfkdqouxzb .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#tfkdqouxzb .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Local Government Level">Local Government Level</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Taxing Agency Name">Taxing Agency Name</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="agency_minor_type" class="gt_row gt_left" style="background-color: rgba(221,204,119,0.27);">Municipality</td>
+<td headers="agency_name" class="gt_row gt_left" style="background-color: rgba(221,204,119,0.27);">City Of Chicago</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+</div>
+</div>
+<p>These are often named quite similarly, and are even coterminous in a few cases.</p>
+<p>Let’s see boundaries of <span style="background-color: #DDCC7744;"><strong>City Of Chicago</strong></span>, and where the parcel falls in them!</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="ptaxsim_explainer_update_files/figure-html/town-muni-map-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>These add other line items to your tax bill…</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<div id="lkzaosvgen" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#lkzaosvgen table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#lkzaosvgen thead, #lkzaosvgen tbody, #lkzaosvgen tfoot, #lkzaosvgen tr, #lkzaosvgen td, #lkzaosvgen th {
+  border-style: none;
+}
+
+#lkzaosvgen p {
+  margin: 0;
+  padding: 0;
+}
+
+#lkzaosvgen .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#lkzaosvgen .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#lkzaosvgen .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#lkzaosvgen .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#lkzaosvgen .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#lkzaosvgen .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lkzaosvgen .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#lkzaosvgen .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#lkzaosvgen .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#lkzaosvgen .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#lkzaosvgen .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#lkzaosvgen .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#lkzaosvgen .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#lkzaosvgen .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#lkzaosvgen .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#lkzaosvgen .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#lkzaosvgen .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#lkzaosvgen .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#lkzaosvgen .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lkzaosvgen .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#lkzaosvgen .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#lkzaosvgen .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#lkzaosvgen .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lkzaosvgen .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#lkzaosvgen .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#lkzaosvgen .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lkzaosvgen .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lkzaosvgen .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#lkzaosvgen .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lkzaosvgen .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#lkzaosvgen .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lkzaosvgen .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#lkzaosvgen .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lkzaosvgen .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#lkzaosvgen .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lkzaosvgen .gt_left {
+  text-align: left;
+}
+
+#lkzaosvgen .gt_center {
+  text-align: center;
+}
+
+#lkzaosvgen .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#lkzaosvgen .gt_font_normal {
+  font-weight: normal;
+}
+
+#lkzaosvgen .gt_font_bold {
+  font-weight: bold;
+}
+
+#lkzaosvgen .gt_font_italic {
+  font-style: italic;
+}
+
+#lkzaosvgen .gt_super {
+  font-size: 65%;
+}
+
+#lkzaosvgen .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#lkzaosvgen .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#lkzaosvgen .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#lkzaosvgen .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#lkzaosvgen .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#lkzaosvgen .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#lkzaosvgen .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Tax District">Tax District</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Base">Agency Tax Base</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Levy">Agency Tax Levy</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Rate">Agency Tax Rate</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Final Tax Owed">Final Tax Owed</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr class="gt_row_group_first"><td headers="School stub_1_1 stub_1" rowspan="2" class="gt_row gt_left gt_stub_row_group">School</td>
+<td headers="School stub_1_1 agency_name" class="gt_row gt_left">Board Of Education</td>
+<td headers="School stub_1_1 agency_total_eav" class="gt_row gt_right">$96.91B</td>
+<td headers="School stub_1_1 agency_total_ext" class="gt_row gt_right">$3.41B</td>
+<td headers="School stub_1_1 agency_tax_rate" class="gt_row gt_right">3.52%</td>
+<td headers="School stub_1_1 tax_amt_post_exe" class="gt_row gt_right">$15,312.74</td></tr>
+    <tr><td headers="School agency_name_2 agency_name" class="gt_row gt_left">Chicago Community College District 508</td>
+<td headers="School agency_name_2 agency_total_eav" class="gt_row gt_right">$96.86B</td>
+<td headers="School agency_name_2 agency_total_ext" class="gt_row gt_right">$140.45M</td>
+<td headers="School agency_name_2 agency_tax_rate" class="gt_row gt_right">0.14%</td>
+<td headers="School agency_name_2 tax_amt_post_exe" class="gt_row gt_right">$631.32</td></tr>
+    <tr class="gt_row_group_first"><td headers="Municipality/Township stub_1_3 stub_1" rowspan="1" class="gt_row gt_left gt_stub_row_group">Municipality/Township</td>
+<td headers="Municipality/Township stub_1_3 agency_name" class="gt_row gt_left" style="font-weight: bold; background-color: rgba(221,204,119,0.27);">City Of Chicago</td>
+<td headers="Municipality/Township stub_1_3 agency_total_eav" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(221,204,119,0.27);">$96.91B</td>
+<td headers="Municipality/Township stub_1_3 agency_total_ext" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(221,204,119,0.27);">$1.51B</td>
+<td headers="Municipality/Township stub_1_3 agency_tax_rate" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(221,204,119,0.27);">1.56%</td>
+<td headers="Municipality/Township stub_1_3 tax_amt_post_exe" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(221,204,119,0.27);">$6,774.70</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+</div>
+</div>
+<p>Within <span style="background-color: #DDCC7744;"><strong>City Of Chicago</strong></span>, there are also other districts that your property belongs to. These are run by the respective agency but collect tax separately. These are as follows -</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<div id="padegvfstq" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#padegvfstq table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#padegvfstq thead, #padegvfstq tbody, #padegvfstq tfoot, #padegvfstq tr, #padegvfstq td, #padegvfstq th {
+  border-style: none;
+}
+
+#padegvfstq p {
+  margin: 0;
+  padding: 0;
+}
+
+#padegvfstq .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#padegvfstq .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#padegvfstq .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#padegvfstq .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#padegvfstq .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#padegvfstq .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#padegvfstq .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#padegvfstq .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#padegvfstq .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#padegvfstq .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#padegvfstq .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#padegvfstq .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#padegvfstq .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#padegvfstq .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#padegvfstq .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#padegvfstq .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#padegvfstq .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#padegvfstq .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#padegvfstq .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#padegvfstq .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#padegvfstq .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#padegvfstq .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#padegvfstq .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#padegvfstq .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#padegvfstq .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#padegvfstq .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#padegvfstq .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#padegvfstq .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#padegvfstq .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#padegvfstq .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#padegvfstq .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#padegvfstq .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#padegvfstq .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#padegvfstq .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#padegvfstq .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#padegvfstq .gt_left {
+  text-align: left;
+}
+
+#padegvfstq .gt_center {
+  text-align: center;
+}
+
+#padegvfstq .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#padegvfstq .gt_font_normal {
+  font-weight: normal;
+}
+
+#padegvfstq .gt_font_bold {
+  font-weight: bold;
+}
+
+#padegvfstq .gt_font_italic {
+  font-style: italic;
+}
+
+#padegvfstq .gt_super {
+  font-size: 65%;
+}
+
+#padegvfstq .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#padegvfstq .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#padegvfstq .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#padegvfstq .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#padegvfstq .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#padegvfstq .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#padegvfstq .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Tax District">Tax District</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Base">Agency Tax Base</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Levy">Agency Tax Levy</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Rate">Agency Tax Rate</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Final Tax Owed">Final Tax Owed</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr class="gt_row_group_first"><td headers="School stub_1_1 stub_1" rowspan="2" class="gt_row gt_left gt_stub_row_group">School</td>
+<td headers="School stub_1_1 agency_name" class="gt_row gt_left">Board Of Education</td>
+<td headers="School stub_1_1 agency_total_eav" class="gt_row gt_right">$96.91B</td>
+<td headers="School stub_1_1 agency_total_ext" class="gt_row gt_right">$3.41B</td>
+<td headers="School stub_1_1 agency_tax_rate" class="gt_row gt_right">3.52%</td>
+<td headers="School stub_1_1 tax_amt_post_exe" class="gt_row gt_right">$15,312.74</td></tr>
+    <tr><td headers="School agency_name_2 agency_name" class="gt_row gt_left">Chicago Community College District 508</td>
+<td headers="School agency_name_2 agency_total_eav" class="gt_row gt_right">$96.86B</td>
+<td headers="School agency_name_2 agency_total_ext" class="gt_row gt_right">$140.45M</td>
+<td headers="School agency_name_2 agency_tax_rate" class="gt_row gt_right">0.14%</td>
+<td headers="School agency_name_2 tax_amt_post_exe" class="gt_row gt_right">$631.32</td></tr>
+    <tr class="gt_row_group_first"><td headers="Municipality/Township stub_1_3 stub_1" rowspan="3" class="gt_row gt_left gt_stub_row_group">Municipality/Township</td>
+<td headers="Municipality/Township stub_1_3 agency_name" class="gt_row gt_left">City Of Chicago</td>
+<td headers="Municipality/Township stub_1_3 agency_total_eav" class="gt_row gt_right">$96.91B</td>
+<td headers="Municipality/Township stub_1_3 agency_total_ext" class="gt_row gt_right">$1.51B</td>
+<td headers="Municipality/Township stub_1_3 agency_tax_rate" class="gt_row gt_right">1.56%</td>
+<td headers="Municipality/Township stub_1_3 tax_amt_post_exe" class="gt_row gt_right">$6,774.70</td></tr>
+    <tr><td headers="Municipality/Township agency_name_4 agency_name" class="gt_row gt_left" style="font-weight: bold; background-color: rgba(221,204,119,0.27);">City Of Chicago School Bldg &amp; Imp Fund</td>
+<td headers="Municipality/Township agency_name_4 agency_total_eav" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(221,204,119,0.27);">$96.91B</td>
+<td headers="Municipality/Township agency_name_4 agency_total_ext" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(221,204,119,0.27);">$148.28M</td>
+<td headers="Municipality/Township agency_name_4 agency_tax_rate" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(221,204,119,0.27);">0.15%</td>
+<td headers="Municipality/Township agency_name_4 tax_amt_post_exe" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(221,204,119,0.27);">$666.15</td></tr>
+    <tr><td headers="Municipality/Township agency_name_5 agency_name" class="gt_row gt_left" style="font-weight: bold; background-color: rgba(221,204,119,0.27);">City Of Chicago Library Fund</td>
+<td headers="Municipality/Township agency_name_5 agency_total_eav" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(221,204,119,0.27);">$96.91B</td>
+<td headers="Municipality/Township agency_name_5 agency_total_ext" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(221,204,119,0.27);">$125.02M</td>
+<td headers="Municipality/Township agency_name_5 agency_tax_rate" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(221,204,119,0.27);">0.13%</td>
+<td headers="Municipality/Township agency_name_5 tax_amt_post_exe" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(221,204,119,0.27);">$561.66</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+</div>
+</div>
+
+<div class="no-row-height column-margin column-container"><div class="">
+<blockquote class="blockquote">
+<p>Here, there is a more direct funding of the Chicago Public Library System through the City of Chicago Library Fund, and of the Chicago Public School System through the City Of Chicago School Building &amp; Improvement Fund.</p>
+</blockquote>
+<!--
+> Here, there is a more direct funding of other systems in a municipality like its libraries, roads, etc.
+-->
+</div></div><p>Similarly, there are also other special purpose tax districts as follows -</p>
+</section>
+<section id="special-districts" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="special-districts">Special districts</h3>
+<p>Similarly, there are a few other miscellaneous districts</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="ptaxsim_explainer_update_files/figure-html/others-map-indi-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>All of these also add their own line items to the tax bill -</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<div id="bllpclwngs" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#bllpclwngs table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#bllpclwngs thead, #bllpclwngs tbody, #bllpclwngs tfoot, #bllpclwngs tr, #bllpclwngs td, #bllpclwngs th {
+  border-style: none;
+}
+
+#bllpclwngs p {
+  margin: 0;
+  padding: 0;
+}
+
+#bllpclwngs .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#bllpclwngs .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#bllpclwngs .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#bllpclwngs .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#bllpclwngs .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#bllpclwngs .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bllpclwngs .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#bllpclwngs .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#bllpclwngs .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#bllpclwngs .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#bllpclwngs .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#bllpclwngs .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#bllpclwngs .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#bllpclwngs .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#bllpclwngs .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#bllpclwngs .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#bllpclwngs .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#bllpclwngs .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#bllpclwngs .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bllpclwngs .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#bllpclwngs .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#bllpclwngs .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#bllpclwngs .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bllpclwngs .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#bllpclwngs .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#bllpclwngs .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bllpclwngs .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bllpclwngs .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#bllpclwngs .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bllpclwngs .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#bllpclwngs .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#bllpclwngs .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#bllpclwngs .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bllpclwngs .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#bllpclwngs .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#bllpclwngs .gt_left {
+  text-align: left;
+}
+
+#bllpclwngs .gt_center {
+  text-align: center;
+}
+
+#bllpclwngs .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#bllpclwngs .gt_font_normal {
+  font-weight: normal;
+}
+
+#bllpclwngs .gt_font_bold {
+  font-weight: bold;
+}
+
+#bllpclwngs .gt_font_italic {
+  font-style: italic;
+}
+
+#bllpclwngs .gt_super {
+  font-size: 65%;
+}
+
+#bllpclwngs .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#bllpclwngs .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#bllpclwngs .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#bllpclwngs .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#bllpclwngs .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#bllpclwngs .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#bllpclwngs .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Tax District">Tax District</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Base">Agency Tax Base</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Levy">Agency Tax Levy</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Rate">Agency Tax Rate</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Final Tax Owed">Final Tax Owed</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr class="gt_row_group_first"><td headers="School stub_1_1 stub_1" rowspan="2" class="gt_row gt_left gt_stub_row_group">School</td>
+<td headers="School stub_1_1 agency_name" class="gt_row gt_left">Board Of Education</td>
+<td headers="School stub_1_1 agency_total_eav" class="gt_row gt_right">$96.91B</td>
+<td headers="School stub_1_1 agency_total_ext" class="gt_row gt_right">$3.41B</td>
+<td headers="School stub_1_1 agency_tax_rate" class="gt_row gt_right">3.52%</td>
+<td headers="School stub_1_1 tax_amt_post_exe" class="gt_row gt_right">$15,312.74</td></tr>
+    <tr><td headers="School agency_name_2 agency_name" class="gt_row gt_left">Chicago Community College District 508</td>
+<td headers="School agency_name_2 agency_total_eav" class="gt_row gt_right">$96.86B</td>
+<td headers="School agency_name_2 agency_total_ext" class="gt_row gt_right">$140.45M</td>
+<td headers="School agency_name_2 agency_tax_rate" class="gt_row gt_right">0.14%</td>
+<td headers="School agency_name_2 tax_amt_post_exe" class="gt_row gt_right">$631.32</td></tr>
+    <tr class="gt_row_group_first"><td headers="Municipality/Township stub_1_3 stub_1" rowspan="3" class="gt_row gt_left gt_stub_row_group">Municipality/Township</td>
+<td headers="Municipality/Township stub_1_3 agency_name" class="gt_row gt_left">City Of Chicago</td>
+<td headers="Municipality/Township stub_1_3 agency_total_eav" class="gt_row gt_right">$96.91B</td>
+<td headers="Municipality/Township stub_1_3 agency_total_ext" class="gt_row gt_right">$1.51B</td>
+<td headers="Municipality/Township stub_1_3 agency_tax_rate" class="gt_row gt_right">1.56%</td>
+<td headers="Municipality/Township stub_1_3 tax_amt_post_exe" class="gt_row gt_right">$6,774.70</td></tr>
+    <tr><td headers="Municipality/Township agency_name_4 agency_name" class="gt_row gt_left">City Of Chicago School Bldg &amp; Imp Fund</td>
+<td headers="Municipality/Township agency_name_4 agency_total_eav" class="gt_row gt_right">$96.91B</td>
+<td headers="Municipality/Township agency_name_4 agency_total_ext" class="gt_row gt_right">$148.28M</td>
+<td headers="Municipality/Township agency_name_4 agency_tax_rate" class="gt_row gt_right">0.15%</td>
+<td headers="Municipality/Township agency_name_4 tax_amt_post_exe" class="gt_row gt_right">$666.15</td></tr>
+    <tr><td headers="Municipality/Township agency_name_5 agency_name" class="gt_row gt_left">City Of Chicago Library Fund</td>
+<td headers="Municipality/Township agency_name_5 agency_total_eav" class="gt_row gt_right">$96.91B</td>
+<td headers="Municipality/Township agency_name_5 agency_total_ext" class="gt_row gt_right">$125.02M</td>
+<td headers="Municipality/Township agency_name_5 agency_tax_rate" class="gt_row gt_right">0.13%</td>
+<td headers="Municipality/Township agency_name_5 tax_amt_post_exe" class="gt_row gt_right">$561.66</td></tr>
+    <tr class="gt_row_group_first"><td headers="Miscellaneous stub_1_6 stub_1" rowspan="2" class="gt_row gt_left gt_stub_row_group">Miscellaneous</td>
+<td headers="Miscellaneous stub_1_6 agency_name" class="gt_row gt_left" style="font-weight: bold; background-color: rgba(170,68,153,0.27);">Metro Water Reclamation District Of Greater Chicago</td>
+<td headers="Miscellaneous stub_1_6 agency_total_eav" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(170,68,153,0.27);">$172.74B</td>
+<td headers="Miscellaneous stub_1_6 agency_total_ext" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(170,68,153,0.27);">$659.85M</td>
+<td headers="Miscellaneous stub_1_6 agency_tax_rate" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(170,68,153,0.27);">0.38%</td>
+<td headers="Miscellaneous stub_1_6 tax_amt_post_exe" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(170,68,153,0.27);">$1,663.20</td></tr>
+    <tr><td headers="Miscellaneous agency_name_7 agency_name" class="gt_row gt_left" style="font-weight: bold; background-color: rgba(68,170,153,0.27);">Chicago Park District</td>
+<td headers="Miscellaneous agency_name_7 agency_total_eav" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(68,170,153,0.27);">$96.91B</td>
+<td headers="Miscellaneous agency_name_7 agency_total_ext" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(68,170,153,0.27);">$301.40M</td>
+<td headers="Miscellaneous agency_name_7 agency_tax_rate" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(68,170,153,0.27);">0.31%</td>
+<td headers="Miscellaneous agency_name_7 tax_amt_post_exe" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(68,170,153,0.27);">$1,354.07</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+</div>
+</div>
+
+<div class="no-row-height column-margin column-container"><div class="">
+<blockquote class="blockquote">
+<p>The <span style="background-color: #AA449944;"><strong>Metro Water Reclamation District Of Greater Chicago</strong></span> is funded substantially by property taxes, and it uses the funds towards sewage, wastewater, and stormwater management. It maintains the “TARP” underneath Chicago, and reversed the flow of the rivers away from Lake Michigan.</p>
+</blockquote>
+<blockquote class="blockquote">
+<p>The <span style="background-color: #44AA9944;"><strong>Chicago Park District</strong></span> is also substantially funded by property taxes. Along with running all Chicago Park District parks across the City of Chicago, it further funds the operations of -</p>
+<ul>
+<li>The maintenance and upkeep of Soldier Field and, Northerly Island</li>
+<li>Remittance to Lincoln Park Zoo, and Shedd Aquarium</li>
+<li>Remittance to museums located in CPD land including Adler Planetarium, The Art Institute of Chicago, Chicago History Museum, DuSable Museum of African American History, The Field Museum, Museum of Contemporary Art, and Museum of Science and Industry amongst others</li>
+<li>The Garfield Park Conservatory Alliance</li>
+<li>The management of MLK Center</li>
+</ul>
+</blockquote>
+</div><div class="">
+<blockquote class="blockquote">
+<p>As of FY23, <span style="background-color: #CC667744;"><strong>County Of Cook</strong></span> uses this levy to entirely fund -</p>
+<ul>
+<li>The Election Fund - This in turn funds the Board of Election Commissioners (wholly) and the Cook County Clerk (partially)</li>
+<li>The Debt Service Fund - This in turn funds Bond Principal and Interest payments (wholly)</li>
+</ul>
+<p>As of FY23, <span style="background-color: #CC667744;"><strong>County Of Cook</strong></span> also uses property taxes to partially fund -</p>
+<ul>
+<li>General Fund - This in turn pays for the day-to-day operations of the Cook County along with funding the Court System, the Department of Corrections, and the Sheriff Operations</li>
+<li>Health Enterprise Fund - This in turn funds Cook County Health</li>
+<li>The Capital Projects Fund</li>
+<li>Annuity &amp; Benefits Fund</li>
+</ul>
+<p><a href="https://www.cookcountyil.gov/sites/g/files/ywwepo161/files/documents/2023-01/Volume%20I%20-%20Budget%20Overview%20FY23%20Annual%20Appropriation.pdf">Cook County Annual Appropriation, FY23</a></p>
+</blockquote>
+</div></div>
+</section>
+<section id="cook-county-tax-district" class="level3 page-columns page-full">
+<h3 class="anchored" data-anchor-id="cook-county-tax-district">Cook County tax district</h3>
+<p>Similarly, <span style="background-color: #CC667744;"><strong>Cook County</strong></span> is one of the local government bodies that <span style="background-color: #88CCEE44;"><strong>Parcel (20-11-407-018-0000)</strong></span> falls in, with it’s own set of tax districts.</p>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="ptaxsim_explainer_update_files/figure-html/init-map-old-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Now, <span style="background-color: #CC667744;"><strong>Cook County</strong></span> and its tax districts add the following lines to the tax bill, resulting in the complete bill! -</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<div id="zgdqnqsmpq" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#zgdqnqsmpq table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#zgdqnqsmpq thead, #zgdqnqsmpq tbody, #zgdqnqsmpq tfoot, #zgdqnqsmpq tr, #zgdqnqsmpq td, #zgdqnqsmpq th {
+  border-style: none;
+}
+
+#zgdqnqsmpq p {
+  margin: 0;
+  padding: 0;
+}
+
+#zgdqnqsmpq .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#zgdqnqsmpq .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#zgdqnqsmpq .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#zgdqnqsmpq .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#zgdqnqsmpq .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#zgdqnqsmpq .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zgdqnqsmpq .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#zgdqnqsmpq .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#zgdqnqsmpq .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#zgdqnqsmpq .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#zgdqnqsmpq .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#zgdqnqsmpq .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#zgdqnqsmpq .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#zgdqnqsmpq .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#zgdqnqsmpq .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#zgdqnqsmpq .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#zgdqnqsmpq .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#zgdqnqsmpq .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#zgdqnqsmpq .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zgdqnqsmpq .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#zgdqnqsmpq .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#zgdqnqsmpq .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#zgdqnqsmpq .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zgdqnqsmpq .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#zgdqnqsmpq .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#zgdqnqsmpq .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zgdqnqsmpq .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zgdqnqsmpq .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#zgdqnqsmpq .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zgdqnqsmpq .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#zgdqnqsmpq .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#zgdqnqsmpq .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#zgdqnqsmpq .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zgdqnqsmpq .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#zgdqnqsmpq .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#zgdqnqsmpq .gt_left {
+  text-align: left;
+}
+
+#zgdqnqsmpq .gt_center {
+  text-align: center;
+}
+
+#zgdqnqsmpq .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#zgdqnqsmpq .gt_font_normal {
+  font-weight: normal;
+}
+
+#zgdqnqsmpq .gt_font_bold {
+  font-weight: bold;
+}
+
+#zgdqnqsmpq .gt_font_italic {
+  font-style: italic;
+}
+
+#zgdqnqsmpq .gt_super {
+  font-size: 65%;
+}
+
+#zgdqnqsmpq .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#zgdqnqsmpq .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#zgdqnqsmpq .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#zgdqnqsmpq .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#zgdqnqsmpq .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#zgdqnqsmpq .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#zgdqnqsmpq .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Tax District">Tax District</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Base">Agency Tax Base</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Levy">Agency Tax Levy</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Agency Tax Rate">Agency Tax Rate</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Final Tax Owed">Final Tax Owed</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr class="gt_row_group_first"><td headers="School stub_1_1 stub_1" rowspan="2" class="gt_row gt_left gt_stub_row_group">School</td>
+<td headers="School stub_1_1 agency_name" class="gt_row gt_left">Board Of Education</td>
+<td headers="School stub_1_1 agency_total_eav" class="gt_row gt_right">$96.91B</td>
+<td headers="School stub_1_1 agency_total_ext" class="gt_row gt_right">$3.41B</td>
+<td headers="School stub_1_1 agency_tax_rate" class="gt_row gt_right">3.52%</td>
+<td headers="School stub_1_1 tax_amt_post_exe" class="gt_row gt_right">$15,312.74</td></tr>
+    <tr><td headers="School agency_name_2 agency_name" class="gt_row gt_left">Chicago Community College District 508</td>
+<td headers="School agency_name_2 agency_total_eav" class="gt_row gt_right">$96.86B</td>
+<td headers="School agency_name_2 agency_total_ext" class="gt_row gt_right">$140.45M</td>
+<td headers="School agency_name_2 agency_tax_rate" class="gt_row gt_right">0.14%</td>
+<td headers="School agency_name_2 tax_amt_post_exe" class="gt_row gt_right">$631.32</td></tr>
+    <tr class="gt_row_group_first"><td headers="Municipality/Township stub_1_3 stub_1" rowspan="3" class="gt_row gt_left gt_stub_row_group">Municipality/Township</td>
+<td headers="Municipality/Township stub_1_3 agency_name" class="gt_row gt_left">City Of Chicago</td>
+<td headers="Municipality/Township stub_1_3 agency_total_eav" class="gt_row gt_right">$96.91B</td>
+<td headers="Municipality/Township stub_1_3 agency_total_ext" class="gt_row gt_right">$1.51B</td>
+<td headers="Municipality/Township stub_1_3 agency_tax_rate" class="gt_row gt_right">1.56%</td>
+<td headers="Municipality/Township stub_1_3 tax_amt_post_exe" class="gt_row gt_right">$6,774.70</td></tr>
+    <tr><td headers="Municipality/Township agency_name_4 agency_name" class="gt_row gt_left">City Of Chicago School Bldg &amp; Imp Fund</td>
+<td headers="Municipality/Township agency_name_4 agency_total_eav" class="gt_row gt_right">$96.91B</td>
+<td headers="Municipality/Township agency_name_4 agency_total_ext" class="gt_row gt_right">$148.28M</td>
+<td headers="Municipality/Township agency_name_4 agency_tax_rate" class="gt_row gt_right">0.15%</td>
+<td headers="Municipality/Township agency_name_4 tax_amt_post_exe" class="gt_row gt_right">$666.15</td></tr>
+    <tr><td headers="Municipality/Township agency_name_5 agency_name" class="gt_row gt_left">City Of Chicago Library Fund</td>
+<td headers="Municipality/Township agency_name_5 agency_total_eav" class="gt_row gt_right">$96.91B</td>
+<td headers="Municipality/Township agency_name_5 agency_total_ext" class="gt_row gt_right">$125.02M</td>
+<td headers="Municipality/Township agency_name_5 agency_tax_rate" class="gt_row gt_right">0.13%</td>
+<td headers="Municipality/Township agency_name_5 tax_amt_post_exe" class="gt_row gt_right">$561.66</td></tr>
+    <tr class="gt_row_group_first"><td headers="Miscellaneous stub_1_6 stub_1" rowspan="2" class="gt_row gt_left gt_stub_row_group">Miscellaneous</td>
+<td headers="Miscellaneous stub_1_6 agency_name" class="gt_row gt_left">Metro Water Reclamation District Of Greater Chicago</td>
+<td headers="Miscellaneous stub_1_6 agency_total_eav" class="gt_row gt_right">$172.74B</td>
+<td headers="Miscellaneous stub_1_6 agency_total_ext" class="gt_row gt_right">$659.85M</td>
+<td headers="Miscellaneous stub_1_6 agency_tax_rate" class="gt_row gt_right">0.38%</td>
+<td headers="Miscellaneous stub_1_6 tax_amt_post_exe" class="gt_row gt_right">$1,663.20</td></tr>
+    <tr><td headers="Miscellaneous agency_name_7 agency_name" class="gt_row gt_left">Chicago Park District</td>
+<td headers="Miscellaneous agency_name_7 agency_total_eav" class="gt_row gt_right">$96.91B</td>
+<td headers="Miscellaneous agency_name_7 agency_total_ext" class="gt_row gt_right">$301.40M</td>
+<td headers="Miscellaneous agency_name_7 agency_tax_rate" class="gt_row gt_right">0.31%</td>
+<td headers="Miscellaneous agency_name_7 tax_amt_post_exe" class="gt_row gt_right">$1,354.07</td></tr>
+    <tr class="gt_row_group_first"><td headers="Cook County stub_1_8 stub_1" rowspan="2" class="gt_row gt_left gt_stub_row_group">Cook County</td>
+<td headers="Cook County stub_1_8 agency_name" class="gt_row gt_left" style="font-weight: bold; background-color: rgba(204,102,119,0.27);">County Of Cook</td>
+<td headers="Cook County stub_1_8 agency_total_eav" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(204,102,119,0.27);">$175.45B</td>
+<td headers="Cook County stub_1_8 agency_total_ext" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(204,102,119,0.27);">$782.53M</td>
+<td headers="Cook County stub_1_8 agency_tax_rate" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(204,102,119,0.27);">0.45%</td>
+<td headers="Cook County stub_1_8 tax_amt_post_exe" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(204,102,119,0.27);">$1,941.85</td></tr>
+    <tr><td headers="Cook County agency_name_9 agency_name" class="gt_row gt_left" style="font-weight: bold; background-color: rgba(204,102,119,0.27);">Forest Preserve District Of Cook County</td>
+<td headers="Cook County agency_name_9 agency_total_eav" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(204,102,119,0.27);">$175.45B</td>
+<td headers="Cook County agency_name_9 agency_total_ext" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(204,102,119,0.27);">$101.76M</td>
+<td headers="Cook County agency_name_9 agency_tax_rate" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(204,102,119,0.27);">0.06%</td>
+<td headers="Cook County agency_name_9 tax_amt_post_exe" class="gt_row gt_right" style="font-weight: bold; background-color: rgba(204,102,119,0.27);">$252.53</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+</div>
+</div>
+
+
+<!--
+
+## TIFs!
+
+TIFs or Tax Increment Financing districts are special vehicles that redirect your funding towards other purposes
+
+Your parcel - [**Parcel (20-11-407-018-0000)**]{style="background-color: #88CCEE44;"} - belongs to the following TIFs - 
+
+
+::: {.cell}
+::: {.cell-output-display}
+
+```{=html}
+<div id="qfznnpxdfh" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#qfznnpxdfh table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#qfznnpxdfh thead, #qfznnpxdfh tbody, #qfznnpxdfh tfoot, #qfznnpxdfh tr, #qfznnpxdfh td, #qfznnpxdfh th {
+  border-style: none;
+}
+
+#qfznnpxdfh p {
+  margin: 0;
+  padding: 0;
+}
+
+#qfznnpxdfh .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#qfznnpxdfh .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#qfznnpxdfh .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#qfznnpxdfh .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#qfznnpxdfh .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#qfznnpxdfh .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qfznnpxdfh .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#qfznnpxdfh .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#qfznnpxdfh .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#qfznnpxdfh .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#qfznnpxdfh .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#qfznnpxdfh .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#qfznnpxdfh .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#qfznnpxdfh .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#qfznnpxdfh .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#qfznnpxdfh .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#qfznnpxdfh .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#qfznnpxdfh .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#qfznnpxdfh .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qfznnpxdfh .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#qfznnpxdfh .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#qfznnpxdfh .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#qfznnpxdfh .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qfznnpxdfh .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#qfznnpxdfh .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#qfznnpxdfh .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qfznnpxdfh .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qfznnpxdfh .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#qfznnpxdfh .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qfznnpxdfh .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#qfznnpxdfh .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#qfznnpxdfh .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#qfznnpxdfh .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qfznnpxdfh .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#qfznnpxdfh .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#qfznnpxdfh .gt_left {
+  text-align: left;
+}
+
+#qfznnpxdfh .gt_center {
+  text-align: center;
+}
+
+#qfznnpxdfh .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#qfznnpxdfh .gt_font_normal {
+  font-weight: normal;
+}
+
+#qfznnpxdfh .gt_font_bold {
+  font-weight: bold;
+}
+
+#qfznnpxdfh .gt_font_italic {
+  font-style: italic;
+}
+
+#qfznnpxdfh .gt_super {
+  font-size: 65%;
+}
+
+#qfznnpxdfh .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#qfznnpxdfh .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#qfznnpxdfh .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#qfznnpxdfh .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#qfznnpxdfh .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#qfznnpxdfh .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#qfznnpxdfh .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="TIF Name">TIF Name</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Share of TIF">Share of TIF</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="tif_agency_name" class="gt_row gt_left" style="background-color: #FFFFFF;">NA</td>
+<td headers="tif_share" class="gt_row gt_right" style="background-color: #FFFFFF;">0.00%</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+```
+
+:::
+:::
+
+::: {.cell}
+
+:::
+
+
+The way TIFs work is by funnelling a share of all your (post-exemption) taxes to the special purpose of the TIF.  
+
+The share of the TIF differs every year. It works by freezing the tax base of the Municipality to the year that the TIF was enacted, and any increase in the Tax Base is redirected to the TIF.  
+
+This means that for [**County Of Cook**]{style="background-color: #CC667744;"}, the following amount is siphoned off to the TIF 
+
+
+
+$$
+\$1.94K * 0.00\% = \$0
+$$
+
+
+
+Similarly, each tax district contributes - 
+
+
+::: {.cell}
+
+:::
+
+
+The total property tax diverted to the  is 
+
+The column **"Amount directed to Agency"** is the share of your total property tax contributions that actually go to said agencies!
+
+<!--
+### Special TIF 
+
+The Red-Purple Modernisation TIF is a special one!  
+
+Of it's collections, it redirects some money back to the districts, and a chunk of money to the Chicago Public Schools! 
+
+In our case, of the  directed to the TIF -  
+
+ -  - To the 
+ - [**\$0**]{style="background-color: #33228844;"} - To the [**Chicago Public Schools**]{style="background-color: #33228844;"}
+ - \$0 - Back to the districts 
+
+Therefore, the final tax collection for each tax district (adding back the share for the [**Chicago Public Schools**]{style="background-color: #33228844;"}, and the amount back to the other districts) looks as follows - 
+
+
+::: {.cell}
+
+:::
+
+
+-->
+<div class="no-row-height column-margin column-container"><div class="">
+<blockquote class="blockquote">
+<p>The <span style="background-color: #CC667744;"><strong>Forest Preserve District Of Cook County</strong></span>, mostly funded by property taxes, further funds, amongst other things, the following -</p>
+<ul>
+<li>The Chicago Zoological Society (Brookefield Zoo)</li>
+<li>The Chicago Horticulture Society (Chicago Botanic Garden)</li>
+</ul>
+<p><a href="https://fpdcc.com/downloads/budget/2023/FPCC-2023-Budget-Appropriation-Ordinance-012523.pdf">FPCC Budget Appropriation, FY23</a></p>
+</blockquote>
+</div></div></section>
+</section>
+<section id="final-tax-bill" class="level2">
+<h2 class="anchored" data-anchor-id="final-tax-bill">Final Tax Bill</h2>
+<p>This is your final, total tax bill for <span style="background-color: #88CCEE44;"><strong>Parcel (20-11-407-018-0000)</strong></span> for the year 2021</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<div id="tbwaxbibzd" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#tbwaxbibzd table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#tbwaxbibzd thead, #tbwaxbibzd tbody, #tbwaxbibzd tfoot, #tbwaxbibzd tr, #tbwaxbibzd td, #tbwaxbibzd th {
+  border-style: none;
+}
+
+#tbwaxbibzd p {
+  margin: 0;
+  padding: 0;
+}
+
+#tbwaxbibzd .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#tbwaxbibzd .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#tbwaxbibzd .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#tbwaxbibzd .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#tbwaxbibzd .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#tbwaxbibzd .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tbwaxbibzd .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#tbwaxbibzd .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#tbwaxbibzd .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#tbwaxbibzd .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#tbwaxbibzd .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#tbwaxbibzd .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#tbwaxbibzd .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#tbwaxbibzd .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#tbwaxbibzd .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#tbwaxbibzd .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#tbwaxbibzd .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#tbwaxbibzd .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#tbwaxbibzd .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tbwaxbibzd .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#tbwaxbibzd .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#tbwaxbibzd .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#tbwaxbibzd .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tbwaxbibzd .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#tbwaxbibzd .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#tbwaxbibzd .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tbwaxbibzd .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tbwaxbibzd .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#tbwaxbibzd .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tbwaxbibzd .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#tbwaxbibzd .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tbwaxbibzd .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#tbwaxbibzd .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tbwaxbibzd .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#tbwaxbibzd .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tbwaxbibzd .gt_left {
+  text-align: left;
+}
+
+#tbwaxbibzd .gt_center {
+  text-align: center;
+}
+
+#tbwaxbibzd .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#tbwaxbibzd .gt_font_normal {
+  font-weight: normal;
+}
+
+#tbwaxbibzd .gt_font_bold {
+  font-weight: bold;
+}
+
+#tbwaxbibzd .gt_font_italic {
+  font-style: italic;
+}
+
+#tbwaxbibzd .gt_super {
+  font-size: 65%;
+}
+
+#tbwaxbibzd .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#tbwaxbibzd .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#tbwaxbibzd .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#tbwaxbibzd .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#tbwaxbibzd .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#tbwaxbibzd .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#tbwaxbibzd .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id=""></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Tax District">Tax District</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Tax amount">Tax amount</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr class="gt_row_group_first"><td headers="Cook County stub_1_1 stub_1" rowspan="2" class="gt_row gt_left gt_stub_row_group">Cook County</td>
+<td headers="Cook County stub_1_1 agency_name" class="gt_row gt_left" style="background-color: rgba(204,102,119,0.27);">County Of Cook</td>
+<td headers="Cook County stub_1_1 final_tax" class="gt_row gt_right" style="background-color: rgba(204,102,119,0.27);">$1,941.85</td></tr>
+    <tr><td headers="Cook County agency_name_2 agency_name" class="gt_row gt_left" style="background-color: rgba(204,102,119,0.27);">Forest Preserve District Of Cook County</td>
+<td headers="Cook County agency_name_2 final_tax" class="gt_row gt_right" style="background-color: rgba(204,102,119,0.27);">$252.53</td></tr>
+    <tr class="gt_row_group_first"><td headers="Municipality/Township stub_1_3 stub_1" rowspan="3" class="gt_row gt_left gt_stub_row_group">Municipality/Township</td>
+<td headers="Municipality/Township stub_1_3 agency_name" class="gt_row gt_left" style="background-color: rgba(221,204,119,0.27);">City Of Chicago</td>
+<td headers="Municipality/Township stub_1_3 final_tax" class="gt_row gt_right" style="background-color: rgba(221,204,119,0.27);">$6,774.70</td></tr>
+    <tr><td headers="Municipality/Township agency_name_4 agency_name" class="gt_row gt_left" style="background-color: rgba(221,204,119,0.27);">City Of Chicago Library Fund</td>
+<td headers="Municipality/Township agency_name_4 final_tax" class="gt_row gt_right" style="background-color: rgba(221,204,119,0.27);">$561.66</td></tr>
+    <tr><td headers="Municipality/Township agency_name_5 agency_name" class="gt_row gt_left" style="background-color: rgba(221,204,119,0.27);">City Of Chicago School Bldg &amp; Imp Fund</td>
+<td headers="Municipality/Township agency_name_5 final_tax" class="gt_row gt_right" style="background-color: rgba(221,204,119,0.27);">$666.15</td></tr>
+    <tr class="gt_row_group_first"><td headers="School stub_1_6 stub_1" rowspan="2" class="gt_row gt_left gt_stub_row_group">School</td>
+<td headers="School stub_1_6 agency_name" class="gt_row gt_left" style="background-color: rgba(17,119,51,0.27);">Chicago Community College District 508</td>
+<td headers="School stub_1_6 final_tax" class="gt_row gt_right" style="background-color: rgba(17,119,51,0.27);">$631.32</td></tr>
+    <tr><td headers="School agency_name_7 agency_name" class="gt_row gt_left" style="background-color: rgba(51,34,136,0.27);">Board Of Education</td>
+<td headers="School agency_name_7 final_tax" class="gt_row gt_right" style="background-color: rgba(51,34,136,0.27);">$15,312.74</td></tr>
+    <tr class="gt_row_group_first"><td headers="Miscellaneous stub_1_8 stub_1" rowspan="2" class="gt_row gt_left gt_stub_row_group">Miscellaneous</td>
+<td headers="Miscellaneous stub_1_8 agency_name" class="gt_row gt_left" style="background-color: rgba(68,170,153,0.27);">Chicago Park District</td>
+<td headers="Miscellaneous stub_1_8 final_tax" class="gt_row gt_right" style="background-color: rgba(68,170,153,0.27);">$1,354.07</td></tr>
+    <tr><td headers="Miscellaneous agency_name_9 agency_name" class="gt_row gt_left" style="background-color: rgba(170,68,153,0.27);">Metro Water Reclamation District Of Greater Chicago</td>
+<td headers="Miscellaneous agency_name_9 final_tax" class="gt_row gt_right" style="background-color: rgba(170,68,153,0.27);">$1,663.20</td></tr>
+    <tr><th id="grand_summary_stub_1" scope="row" class="gt_row gt_left gt_stub gt_grand_summary_row gt_first_grand_summary_row gt_last_summary_row" style="font-weight: bold;">Total Tax Owed</th>
+<td headers="grand_summary_stub_1 agency_name" class="gt_row gt_left gt_grand_summary_row gt_first_grand_summary_row gt_last_summary_row" style="font-weight: bold;">—</td>
+<td headers="grand_summary_stub_1 final_tax" class="gt_row gt_right gt_grand_summary_row gt_first_grand_summary_row gt_last_summary_row" style="font-weight: bold;">$29,158.22</td></tr>
+  </tbody>
+  
+  
+</table>
+</div>
+</div>
+</div>
+<p>v1.1</p>
+</section>
+
+
+<div id="quarto-appendix" class="default"><section class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1" role="doc-endnote">
+<!-- 
+This is taking into account the exemptions that your property qualifies for.
+This property qualifies for the following - 
+
+::: {.cell}
+::: {.cell-output-display}
+
+```{=html}
+<div id="pwnlytspni" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#pwnlytspni table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#pwnlytspni thead, #pwnlytspni tbody, #pwnlytspni tfoot, #pwnlytspni tr, #pwnlytspni td, #pwnlytspni th {
+  border-style: none;
+}
+
+#pwnlytspni p {
+  margin: 0;
+  padding: 0;
+}
+
+#pwnlytspni .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#pwnlytspni .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#pwnlytspni .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#pwnlytspni .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#pwnlytspni .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#pwnlytspni .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#pwnlytspni .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#pwnlytspni .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#pwnlytspni .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#pwnlytspni .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#pwnlytspni .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#pwnlytspni .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#pwnlytspni .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#pwnlytspni .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#pwnlytspni .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#pwnlytspni .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#pwnlytspni .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#pwnlytspni .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#pwnlytspni .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pwnlytspni .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#pwnlytspni .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#pwnlytspni .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#pwnlytspni .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pwnlytspni .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#pwnlytspni .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#pwnlytspni .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#pwnlytspni .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pwnlytspni .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#pwnlytspni .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#pwnlytspni .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#pwnlytspni .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#pwnlytspni .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#pwnlytspni .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pwnlytspni .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#pwnlytspni .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pwnlytspni .gt_left {
+  text-align: left;
+}
+
+#pwnlytspni .gt_center {
+  text-align: center;
+}
+
+#pwnlytspni .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#pwnlytspni .gt_font_normal {
+  font-weight: normal;
+}
+
+#pwnlytspni .gt_font_bold {
+  font-weight: bold;
+}
+
+#pwnlytspni .gt_font_italic {
+  font-style: italic;
+}
+
+#pwnlytspni .gt_super {
+  font-size: 65%;
+}
+
+#pwnlytspni .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#pwnlytspni .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#pwnlytspni .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#pwnlytspni .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#pwnlytspni .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#pwnlytspni .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#pwnlytspni .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="Exemption Type">Exemption Type</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body"></tbody>
+
+</table>
+</div>
+```
+
+:::
+:::
+
+The total exemption value is [**\$0**]{style="background-color: #88CCEE44;"}
+-->
+<p>This house qualifies for no exemptions<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
