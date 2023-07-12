@@ -1,0 +1,339 @@
+---
+title: "Map Options"
+execute:
+  echo: false
+  warning: false
+format:
+  html:
+    grid:
+      sidebar-width: 0px
+      margin-width: 400px
+    theme: zephyr
+---
+
+```{r setup, include=FALSE}
+options(tigris_use_cache = TRUE)
+options(bitmapType = "cairo")
+library(scales)
+library(ptaxsim)
+library(gt)
+library(DBI)
+library(RSQLite)
+library(RColorBrewer)
+library(patchwork)
+library(tigris)
+library(tidyverse)
+library(glue)
+library(sf)
+
+source("map_dist_options.R")
+source("../maps.R")
+source("../helper_funcs.R")
+# set the following variables and run
+db_path <- "../ptaxsim-2021.0.4.db"
+pin_14 <- "10132040060000"
+year <- 2021
+
+ptaxsim_db_conn <- dbConnect(SQLite(), db_path)
+```
+
+```{r ptaxsim-data}
+pin_details <- lookup_pin(year, pin_14)
+
+render_pin14 <- glue("Parcel ({render_pin(pin_14)})")
+
+pin_exe_details <- pin_details %>%
+    select(starts_with("exe")) %>%
+    pivot_longer(cols = everything())
+
+pin_exe_total <- pin_exe_details %>%
+    pull(value) %>%
+    sum()
+
+tax_bill_data <- tax_bill(
+    year_vec = year,
+    pin_vec = pin_14,
+    simplify = F
+) %>%
+    mutate(agency_total_eav = as.double(agency_total_eav)) %>%
+    mutate(agency_major_type = str_to_title(agency_major_type)) %>%
+    mutate(tif_agency_name = str_replace_all(tif_agency_name, "TIF - ", "")) %>%
+    mutate(tif_agency_name = str_replace_all(tif_agency_name, "RPM1", "Red-Purple Modernisation Phase 1")) %>%
+    mutate(tif_agency_name = str_to_title(tif_agency_name)) %>%
+    mutate(agency_name = str_to_title(agency_name)) %>%
+    filter(agency_total_ext > 0)
+
+cook_county_max_ext <- tax_bill_data %>%
+    filter(agency_major_type == "Cook County") %>%
+    slice_max(agency_total_ext) %>%
+    mutate(
+        agency_tax_amount = label_dol_amt(agency_tax_rate * (eav - exe_total)),
+        agency_total_eav = label_dol_amt(agency_total_eav),
+        agency_total_ext = label_dol_amt(agency_total_ext),
+    )
+
+tif_agency_nums <- tax_bill_data %>%
+    select(tif_agency_num) %>%
+    filter(!is.na(tif_agency_num)) %>%
+    unique() %>%
+    pull()
+
+```
+
+```{r ptaxsim-geo-data}
+cook_roads <- roads("17", "031")
+
+shp_bnd_pin <- get_shp_bnd_pin(pin_14, year)
+
+shp_buf_pin <- shp_bnd_pin %>%
+    st_centroid() %>%
+    st_transform(3857) %>%
+    st_buffer(650) %>%
+    st_transform(4326)
+
+shp_bnd_all_schools <- tax_bill_data %>%
+    filter(agency_major_type == "School") %>%
+    pull(agency_num) %>%
+    get_shp_all_schools() %>%
+    correct_shp_names() %>%
+    mutate(agency_name = as.factor(agency_name))
+
+shp_bnd_tifs <- get_shp_tifs(c(tif_agency_nums, "0")) %>%
+    left_join(
+        tax_bill_data %>%
+            select(tif_agency_num, tif_agency_name) %>%
+            filter(!is.na(tif_agency_num)) %>%
+            unique(),
+        by = join_by(AGENCY == tif_agency_num)
+    ) %>%
+    mutate(agency_name = str_to_title(tif_agency_name))
+```
+
+```{r defaults}
+column_colors <- brewer.pal(3, "Pastel1")
+column_alpha <- 0.5
+
+map_road_alpha <- 0.3
+map_road_lwd <- 0.3
+map_fg_fill_alpha <- 0.33
+map_bg_fill_alpha <- 0.33
+map_color_alpha <- 0.5
+map_fg_lwd <- 1.1
+map_bg_lwd <- 1.05
+
+map_colors <- c(
+    "#88CCEE", "#CC6677", "#DDCC77", "#117733", "#332288", "#AA4499",
+    "#44AA99", "#999933", "#882255", "#661100", "#6699CC", "#888888"
+)
+map_names <- c(
+    render_pin14, "Cook County",
+    shp_bnd_all_schools$agency_name %>% as.character(),
+    shp_bnd_tifs$agency_name %>% as.character()
+)
+map_names <- factor(map_names, levels = map_names, ordered = TRUE)
+map_colors <- name_map_colors(map_colors, map_names)
+css_colors <- paste0(map_colors, "44")
+css_colors <- name_map_colors(css_colors, map_names)
+```
+
+## Option 1
+
+- If area > 2.5e8 m^2, inset 
+- No inset
+    - roads + bnd shape + pin shape buffer + pin shape
+- Inset
+    - Main : roads + bnd shape + pin shape buffer + pin shape + outline
+    - Inset: Main + roads + (zoomin)
+
+### Schools
+
+```{r option-1-school}
+plt_lst <- list()
+for (i in 1:nrow(shp_bnd_all_schools)) {
+    plt_lst[[i]] <- map_dist_1(shp_bnd_all_schools[i, ])
+}
+
+Reduce("+", plt_lst) +
+    plot_layout(guides = "collect") &
+    theme(legend.position = "bottom")
+```
+
+### TIF
+
+```{r option-1-tif}
+plt_lst <- list()
+for (i in 1:nrow(shp_bnd_tifs)) {
+    plt_lst[[i]] <- map_dist_1(shp_bnd_tifs[i, ])
+}
+
+Reduce("+", plt_lst) +
+    plot_layout(guides = "collect") &
+    theme(legend.position = "bottom")
+```
+
+## Option 2
+
+- Change colors from Option 1 
+    - pin shape - black
+    - pin shape buffer - no fill; color white
+
+### Schools
+
+```{r option-2-defaults}
+map_colors <- c(
+    "#333333", "#CC6677", "#DDCC77", "#117733", "#332288", "#AA4499",
+    "#44AA99", "#999933", "#882255", "#661100", "#6699CC", "#888888"
+)
+map_names <- c(
+    render_pin14, "Cook County",
+    shp_bnd_all_schools$agency_name %>% as.character(),
+    shp_bnd_tifs$agency_name %>% as.character()
+)
+map_names <- factor(map_names, levels = map_names, ordered = TRUE)
+map_colors <- name_map_colors(map_colors, map_names)
+css_colors <- paste0(map_colors, "44")
+css_colors <- name_map_colors(css_colors, map_names)
+
+```
+
+```{r option-2-school}
+plt_lst <- list()
+for (i in 1:nrow(shp_bnd_all_schools)) {
+    plt_lst[[i]] <- map_dist_2(shp_bnd_all_schools[i, ])
+}
+
+Reduce("+", plt_lst) +
+    plot_layout(guides = "collect") &
+    theme(legend.position = "bottom")
+```
+
+### TIF
+
+```{r option-2-tif}
+plt_lst <- list()
+for (i in 1:nrow(shp_bnd_tifs)) {
+    plt_lst[[i]] <- map_dist_2(shp_bnd_tifs[i, ])
+}
+
+Reduce("+", plt_lst) +
+    plot_layout(guides = "collect") &
+    theme(legend.position = "bottom")
+```
+
+## Option 3
+
+- Change colors from Option 1 
+    - pin shape - black
+    - pin shape buffer - fill alpha 0.35; color white
+    - bnd shape - fill alpha 0.5
+
+### Schools
+
+```{r option-3-defaults}
+map_road_alpha <- 0.3
+map_road_lwd <- 0.3
+map_fg_fill_alpha <- 0.5
+map_bg_fill_alpha <- 0.5
+map_color_alpha <- 0.5
+map_fg_lwd <- 1.1
+map_bg_lwd <- 1.05
+
+map_colors <- c(
+    "#333333", "#CC6677", "#DDCC77", "#117733", "#332288", "#AA4499",
+    "#44AA99", "#999933", "#882255", "#661100", "#6699CC", "#888888"
+)
+map_names <- c(
+    render_pin14, "Cook County",
+    shp_bnd_all_schools$agency_name %>% as.character(),
+    shp_bnd_tifs$agency_name %>% as.character()
+)
+map_names <- factor(map_names, levels = map_names, ordered = TRUE)
+map_colors <- name_map_colors(map_colors, map_names)
+css_colors <- paste0(map_colors, "44")
+css_colors <- name_map_colors(css_colors, map_names)
+
+```
+
+```{r option-3-school}
+plt_lst <- list()
+for (i in 1:nrow(shp_bnd_all_schools)) {
+    plt_lst[[i]] <- map_dist_3(shp_bnd_all_schools[i, ])
+}
+
+Reduce("+", plt_lst) +
+    plot_layout(guides = "collect") &
+    theme(legend.position = "bottom")
+```
+
+### TIF
+
+```{r option-3-tif}
+plt_lst <- list()
+for (i in 1:nrow(shp_bnd_tifs)) {
+    plt_lst[[i]] <- map_dist_3(shp_bnd_tifs[i, ])
+}
+
+Reduce("+", plt_lst) +
+    plot_layout(guides = "collect") &
+    theme(legend.position = "bottom")
+```
+
+
+## Option 4
+
+- Change colors from Option 1 
+    - pin shape - red
+    - pin shape buffer - fill alpha 0.35; color white
+    - bnd shape - fill alpha 0.5
+- Inset zoom extra
+
+### Schools
+
+```{r option-4-defaults}
+map_road_alpha <- 0.3
+map_road_lwd <- 0.3
+map_fg_fill_alpha <- 0.5
+map_bg_fill_alpha <- 0.5
+map_color_alpha <- 0.5
+map_fg_lwd <- 1.1
+map_bg_lwd <- 1.05
+
+map_colors <- c(
+    "#C60000", "#CC6677", "#DDCC77", "#117733", "#332288", "#AA4499",
+    "#44AA99", "#999933", "#882255", "#661100", "#6699CC", "#888888"
+)
+map_names <- c(
+    render_pin14, "Cook County",
+    shp_bnd_all_schools$agency_name %>% as.character(),
+    shp_bnd_tifs$agency_name %>% as.character()
+)
+map_names <- factor(map_names, levels = map_names, ordered = TRUE)
+map_colors <- name_map_colors(map_colors, map_names)
+css_colors <- paste0(map_colors, "44")
+css_colors <- name_map_colors(css_colors, map_names)
+
+```
+
+```{r option-4-school}
+plt_lst <- list()
+for (i in 1:nrow(shp_bnd_all_schools)) {
+    plt_lst[[i]] <- map_dist_4(shp_bnd_all_schools[i, ])
+}
+
+Reduce("+", plt_lst) +
+    plot_layout(guides = "collect") &
+    theme(legend.position = "bottom")
+```
+
+### TIF
+
+```{r option-4-tif}
+plt_lst <- list()
+for (i in 1:nrow(shp_bnd_tifs)) {
+    plt_lst[[i]] <- map_dist_4(shp_bnd_tifs[i, ])
+}
+
+Reduce("+", plt_lst) +
+    plot_layout(guides = "collect") &
+    theme(legend.position = "bottom")
+```
