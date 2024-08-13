@@ -29,14 +29,14 @@ library(sf)
 source("maps.R")
 source("helper_funcs.R")
 # set the following variables and run
-db_path <- "ptaxsim-2021.0.4.db"
-pin_14 <- "16123090200000"
+db_path <- "ptaxsim-2023.0.0.db"
+pin_14 <- "15361000280000"
 # pin_14 <- "20114070180000" # Hyde Park, Chicago
 # pin_14 <- "15361000280000" # Riverside
 # pin_14 <- "16291280010000" # Cicero
 # pin_14 <- "14294070931001" # Wrightwood, Chicago - TIF
 # pin_14 <- "16123090200000" # Kinzie - TIF
-year <- 2021
+year <- 2023
 
 ptaxsim_db_conn <- dbConnect(SQLite(), db_path)
 ```
@@ -924,4 +924,4 @@ tax_bill_data %>%
 `r if(length(missing_dis) > 0) {paste0("_NOTE: The following districts were not shown on the maps above - ", glue("{paste(str_to_title(missing_dis), collapse = '; ')}"), "_")}`
 
 
-v1.1
+`r Sys.getenv("EXPLAINER_VERSION")`

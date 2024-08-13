@@ -1,15 +1,16 @@
 #!/bin/sh
-VER=v1.1
+EXPLAINER_VERSION=v1.2
+export EXPLAINER_VERSION=$EXPLAINER_VERSION
 FILE_NAMES=("wrightwood_rpmtif_chicago" "riverside_multitwnmuni" "hyde_park_noexe_chicago" "cicero" "kinzie_nonrpmtif_chicago" "evanston")
 PINS_14=("14294070931001" "15361000280000" "20114070180000" "16291280010000" "16123090200000" "10132040060000")
 
 ## SET THE VALUES ABOVE
 
-if [ -d "outputs/$VER" ]; then
-  echo "folder for version $VER exists"
+if [ -d "outputs/$EXPLAINER_VERSION" ]; then
+  echo "folder for version $EXPLAINER_VERSION exists"
   else
-  mkdir "outputs/$VER"
-  echo "folder for version $VER created"
+  mkdir "outputs/$EXPLAINER_VERSION"
+  echo "folder for version $EXPLAINER_VERSION created"
 fi
 
 for ((i = 0; i < ${#FILE_NAMES[@]}; i++)) 
@@ -20,16 +21,16 @@ for ((i = 0; i < ${#FILE_NAMES[@]}; i++))
 
     echo "updated pin in qmd"
 
-    if [ -d "outputs/$VER/$FILE_NAME" ]; then
+    if [ -d "outputs/$EXPLAINER_VERSION/$FILE_NAME" ]; then
       echo "folder for $FILE_NAME exists, overwriting"
       else
-      mkdir "outputs/$VER/$FILE_NAME"
+      mkdir "outputs/$EXPLAINER_VERSION/$FILE_NAME"
       echo "folder for $FILE_NAME created"
     fi  
 
     quarto render ptaxsim_explainer_update.qmd
-    mv ptaxsim_explainer_update.html outputs/$VER/$FILE_NAME/ptaxsim_explainer_update.html
-    mv ptaxsim_explainer_update_files outputs/$VER/$FILE_NAME/ptaxsim_explainer_update_files
+    mv ptaxsim_explainer_update.html outputs/$EXPLAINER_VERSION/$FILE_NAME/ptaxsim_explainer_update.html
+    mv ptaxsim_explainer_update_files outputs/$EXPLAINER_VERSION/$FILE_NAME/ptaxsim_explainer_update_files
   
   done
 

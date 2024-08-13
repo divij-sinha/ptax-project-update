@@ -30,7 +30,8 @@ map_dist <- function(shp_bnd) {
             data = shp_bnd,
             alpha = map_fg_fill_alpha,
             lwd = map_fg_lwd,
-            aes(fill = agency_name, color = agency_name)
+            aes(fill = agency_name, color = agency_name),
+            show.legend = TRUE
         ) +
         geom_sf(
             data = shp_buf_pin,
@@ -42,7 +43,8 @@ map_dist <- function(shp_bnd) {
             data = shp_bnd_pin,
             alpha = map_fg_fill_alpha,
             lwd = map_fg_lwd,
-            aes(fill = render_pin14, color = render_pin14)
+            aes(fill = render_pin14, color = render_pin14),
+            show.legend = TRUE
         ) +
         scale_fill_manual(values = map_colors, name = "Extent", drop = FALSE, breaks = map_names) +
         scale_color_manual(values = alpha(map_colors, map_color_alpha), name = "Extent", drop = FALSE, breaks = map_names) +
