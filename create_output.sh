@@ -1,5 +1,5 @@
 #!/bin/sh
-EXPLAINER_VERSION=v1.2
+EXPLAINER_VERSION=v1.3
 export EXPLAINER_VERSION=$EXPLAINER_VERSION
 FILE_NAMES=("wrightwood_rpmtif_chicago" "riverside_multitwnmuni" "hyde_park_noexe_chicago" "cicero" "kinzie_nonrpmtif_chicago" "evanston")
 PINS_14=("14294070931001" "15361000280000" "20114070180000" "16291280010000" "16123090200000" "10132040060000")

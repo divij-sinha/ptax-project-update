@@ -23,6 +23,17 @@ exe_clean <- function(val) {
         str_to_title()
 }
 
+process_tax_bill <- function(bill) {
+    bill %>%
+        mutate(agency_total_eav = as.double(agency_total_eav)) %>%
+        mutate(agency_major_type = str_to_title(agency_major_type)) %>%
+        mutate(tif_agency_name = str_replace_all(tif_agency_name, "TIF - ", "")) %>%
+        mutate(tif_agency_name = str_replace_all(tif_agency_name, "RPM1", "Red-Purple Modernisation Phase 1")) %>%
+        mutate(tif_agency_name = str_to_title(tif_agency_name)) %>%
+        mutate(agency_name = str_to_title(agency_name)) %>%
+        filter(agency_total_ext > 0)
+}
+
 map_dist <- function(shp_bnd) {
     main_map <- ggplot() +
         geom_sf(data = cook_roads, color = alpha("#888888", map_road_alpha), lwd = map_road_lwd) +
@@ -224,4 +235,80 @@ css_get_color <- function(val) {
     } else {
         return("#FFFFFF")
     }
+}
+
+
+display_two_bills <- function(df1, df2, col1, col2) {
+    df1 <- df1 %>%
+        replace(is.na(.), 0) %>%
+        mutate(final_tax = ifelse(agency_name == "Board Of Education", final_tax_to_dist + sum(tax_bill_data_prior_year$rpm_tif_to_cps), final_tax_to_dist)) %>%
+        add_row(
+            agency_major_type = "TIF",
+            agency_name = df1 %>%
+                select(tif_agency_name) %>%
+                unique() %>% pull(),
+            final_tax = ifelse(sum(df1$rpm_tif_to_rpm) > 0, sum(tax_bill_data_prior_year$rpm_tif_to_rpm), sum(tax_bill_data_prior_year$final_tax_to_tif))
+        ) %>%
+        filter(final_tax > 0) %>%
+        select(agency_major_type, agency_name, final_tax) %>%
+        group_by(agency_major_type) %>%
+        rename(final_tax_df1 = final_tax)
+
+    df2 <- df2 %>%
+        replace(is.na(.), 0) %>%
+        mutate(final_tax = ifelse(agency_name == "Board Of Education", final_tax_to_dist + sum(tax_bill_data_current_eav_prior_levy$rpm_tif_to_cps), final_tax_to_dist)) %>%
+        add_row(
+            agency_major_type = "TIF",
+            agency_name = df2 %>%
+                select(tif_agency_name) %>%
+                unique() %>% pull(),
+            final_tax = ifelse(sum(df2$rpm_tif_to_rpm) > 0, sum(tax_bill_data_current_eav_prior_levy$rpm_tif_to_rpm), sum(tax_bill_data_current_eav_prior_levy$final_tax_to_tif))
+        ) %>%
+        filter(final_tax > 0) %>%
+        select(agency_major_type, agency_name, final_tax) %>%
+        group_by(agency_major_type) %>%
+        rename(final_tax_df2 = final_tax)
+
+
+    full_join(df1, df2, by = join_by(agency_name == agency_name, agency_major_type == agency_major_type)) %>%
+        mutate(change_in_tax = final_tax_df2 - final_tax_df1) %>%
+        mutate(change_in_tax_bar = change_in_tax) %>%
+        group_by(agency_major_type) %>%
+        gt() %>%
+        grand_summary_rows(
+            fns = list(
+                label = "Total Tax Owed",
+                id = "sum",
+                fn = "sum"
+            ),
+            columns = c(final_tax_df1, final_tax_df2, change_in_tax),
+            fmt = ~ fmt_currency(., rows = "sum")
+        ) %>%
+        fmt_currency(c(final_tax_df1, final_tax_df2, change_in_tax)) %>%
+        data_color(
+            method = "factor",
+            columns = agency_name,
+            target_columns = everything(),
+            fn = css_get_colors,
+            apply_to = "fill",
+            autocolor_text = FALSE
+        ) %>%
+        gtExtras::gt_plt_bar(column = change_in_tax_bar, color = "orange", width = 12) %>%
+        tab_style(
+            style = list(
+                cell_text(weight = "bold")
+            ),
+            locations = list(
+                cells_stub_grand_summary(),
+                cells_grand_summary()
+            )
+        ) %>%
+        tab_options(row_group.as_column = T) %>%
+        cols_label(
+            agency_name = "Tax District",
+            final_tax_df1 = col1,
+            final_tax_df2 = col2,
+            change_in_tax = "Change in Tax amount",
+            change_in_tax_bar = "",
+        )
 }
