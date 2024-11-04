@@ -3,7 +3,6 @@ title: "PTAXSIM Tax Explainer"
 execute:
   echo: false
   warning: false
-  cache: true
 format:
   html:
     grid:
@@ -11,7 +10,7 @@ format:
       margin-width: 400px
     theme: zephyr
 params:
-    pin:
+    pin_14:
         label: "PIN"
         value: "20114070180000"
         input: text
@@ -36,10 +35,9 @@ source("maps.R")
 source("helper_funcs.R")
 # set the following variables and run
 db_path <- "ptaxsim-2023.0.0.db"
-pin_14 <- as.character(params$pin)
-pin_14 <- "15361000280000"
+pin_14 <- as.character(params$pin_14)
 # pin_14 <- "20114070180000" # Hyde Park, Chicago
-# pin_14 <- "15361000280000" # Riverside
+pin_14 <- "15361000280000" # Riverside
 # pin_14 <- "16291280010000" # Cicero
 # pin_14 <- "14294070931001" # Wrightwood, Chicago - TIF
 # pin_14 <- "16123090200000" # Kinzie - TIF
