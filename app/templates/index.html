@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        .content-container {
+            width: 50%;
+            margin: auto;
+        }
+        .header-container {
+            position: relative;
+            text-align: center;
+        }
+        .input-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        input[type="text"] {
+            width: 80ch;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="content-container">
+        <div class="header-container">
+            <h1>Property Tax Explainer</h1>
+        </div>
+        <hr />
+        <div class="input-container">
+            <form action="/submit" method="post">
+                <input
+                    type="text"
+                    name="pin"
+                    placeholder="Enter 14 digit PIN for your Parcel"
+                />
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+        <div class="body-container text-left"></div>
+    </div>
+</body>
+</html>
