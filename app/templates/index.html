@@ -4,45 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }}</title>
-    <style>
-        .content-container {
-            width: 50%;
-            margin: auto;
-        }
-        .header-container {
-            position: relative;
-            text-align: center;
-        }
-        .input-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        input[type="text"] {
-            width: 80ch;
-            padding: 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('assets', path='style.css') }}" >
 </head>
 <body>
-    <div class="content-container">
-        <div class="header-container">
-            <h1>Property Tax Explainer</h1>
+    <div id="app">
+        <!-- Navigation Bar -->
+        <div id="nav">
+            <div id="nav-title">
+                <span class="sw-title">Property Tax Explainer</span>
+            </div>
+            <div id="nav-buttons">
+                <a class="nav-button" href="/">Home</a>
+            </div>
         </div>
-        <hr />
-        <div class="input-container">
-            <form action="/submit" method="post">
-                <input
-                    type="text"
-                    name="pin"
-                    placeholder="Enter 14 digit PIN for your Parcel"
-                />
-                <button type="submit">Submit</button>
-            </form>
+
+        <!-- Content Section -->
+        <div class="content-container">
+            <h1>Enter 14 digit PIN for your Parcel</h1>
+            <hr />
+            <div class="input-container">
+                <form action="/submit" method="post">
+                    <center><input type="text" name="pin" placeholder=""/>
+                    <button type="submit">Submit</button></center>
+                </form>
+            </div>
         </div>
-        <div class="body-container text-left"></div>
+
+        <!-- Footer -->
+        <div id="footer">
+            <div id="footer-text">
+                <img src="/assets/mansueto_logo.png" alt="Mansueto Institute Logo" class="logo-img" />
+            </div>
+        </div>
     </div>
 </body>
 </html>
