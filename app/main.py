@@ -24,7 +24,7 @@ async def read_root(request: Request):
 async def handle_pin(request: Request, pin: str = Form(...)):
     """Handle PIN input and render the QMD file."""
     base_dir = os.path.dirname(__file__)  # Directory of the current script
-    qmd_file = os.path.abspath(os.path.join(base_dir, "../ptaxsim_explainer_update.qmd"))
+    qmd_file = os.path.abspath(os.path.join(base_dir, "../ptaxsim_explainer_update_as.qmd"))
     output_file = os.path.join(base_dir, "ptaxsim_explainer_update.html")
 
     try:
