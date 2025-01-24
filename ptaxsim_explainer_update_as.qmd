@@ -101,14 +101,14 @@ css_get_colors <- function(vals) {
 # TODO is this right commerical vs residential split?
 pin_data = dbGetQuery(ptaxsim_db_conn, "
                         SELECT *, 
-                            case when 
-                            substr(class,1,1) IN ('2','3','4') then 'res'
-                            else 'com' end as type
+                            case 
+                              when substr(class,1,1) IN ('2','3') then 'res'
+                              when class IN ('500', '501', '516', '517', '522', '523', '526','527', '528', '529', '530', '531', '532', '533', '535','590', '591', '592', '597', '599') then 'com' 
+                            else 'other' end as type
                         FROM pin 
-                        WHERE substr(class,1,1) IN ('2','3','4','5') 
                         order BY RANDOM()
                         limit 100000")
-
+                        
 eq_factors <- dbGetQuery(ptaxsim_db_conn, 'select * from eq_factor') 
 
     
@@ -129,6 +129,8 @@ tax_bases_res_com = tax_bills %>%
     mutate(eav = (eq_factor_final * av_clerk) - total_exe) %>%
     group_by(year,agency_num, type) %>%
     summarise(eav_total = sum(eav))
+
+#todo is this EAV the same as calculated from tax_bill
 
 # table of residential/commerical base by year by agency
 ```
@@ -279,11 +281,13 @@ eav_res_share_incident = tax_bill_1a_chi$tax_amt_post_exe - tax_bill_prior_chi$t
 # want same levy as last year
 # same res / com share
 
-adj_eav = ((eav_res_share_prior * res_com_share_current)/res_com_share_prior) * res_base_prior
+# change tax base
+new_base = (res_base_prior * (res_base_current + com_base_current))/ res_base_current
 
-# need to change EAV 
-# calculate new EAV, replace in 
-pin_dt_new <- pin_details_prior %>%
+#adj_eav = ((eav_res_share_prior * res_com_share_current)/res_com_share_prior) * res_base_prior
+
+#change ext 
+agency_dt_new <- pin_details_prior %>%
   mutate(eav = adj_eav)
 
 tax_bill_1b <- tax_bill(
