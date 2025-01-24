@@ -3,7 +3,6 @@ title: "Property Tax Bill Explainer"
 execute:
   echo: false
   warning: false
-  cache: true
 format:
   html:
     grid:
@@ -97,7 +96,7 @@ css_get_colors <- function(vals) {
 ```
 
 
-``` {r precalculate}
+``` {r precalculate, cache = TRUE}
 #residential/commerical base for each year
 # TODO is this right commerical vs residential split?
 pin_data = dbGetQuery(ptaxsim_db_conn, "
@@ -106,10 +105,12 @@ pin_data = dbGetQuery(ptaxsim_db_conn, "
                             substr(class,1,1) IN ('2','3','4') then 'res'
                             else 'com' end as type
                         FROM pin 
-
                         WHERE substr(class,1,1) IN ('2','3','4','5') 
                         order BY RANDOM()
                         limit 100000")
+
+eq_factors <- dbGetQuery(ptaxsim_db_conn, 'select * from eq_factor') 
+
     
 agency_xwalk = dbGetQuery(ptaxsim_db_conn, "select year, agency_num, tax_code_num from tax_code")
 
@@ -117,17 +118,19 @@ agency_xwalk = dbGetQuery(ptaxsim_db_conn, "select year, agency_num, tax_code_nu
 tax_bills = pin_data %>%
     left_join(agency_xwalk, by = c("tax_code_num" = "tax_code_num", "year" = "year"))
 
-#TODO i must be calculating EAV wrong
+tax_bills = tax_bills %>%
+    left_join(eq_factors, by = c("year" = "year"))
+
+#TODO am i calculating EAV correctly 
 tax_bases_res_com = tax_bills %>%
     mutate(total_exe = exe_homeowner + exe_senior + exe_freeze + exe_longtime_homeowner + 
          exe_disabled + exe_vet_returning + exe_vet_dis_lt50 + exe_vet_dis_50_69 +
          exe_vet_dis_ge70 + exe_abate) %>%
-    mutate(eav = av_clerk - total_exe) %>%
+    mutate(eav = (eq_factor_final * av_clerk) - total_exe) %>%
     group_by(year,agency_num, type) %>%
     summarise(eav_total = sum(eav))
 
 # table of residential/commerical base by year by agency
-# tax_bills_grouped
 ```
 
 
@@ -186,8 +189,6 @@ res_com_share_prior = res_base_prior / (res_base_prior + com_base_prior)
 ```
 
 ``` {r agg-values}
-
-
 latter_year_tax_bill_summary <- tax_bill_data %>%
   group_by(year) %>%
   summarise(
@@ -238,7 +239,6 @@ change_from_levy = sum(tax_bill_data_prior_eav_current_levy$tax_amt_post_exe) - 
 
 change_from_share = sum(tax_bill_data_current_eav_prior_levy$tax_amt_post_exe) - sum(tax_bill_prior$tax_amt_post_exe)
 
-
 change_leftover = tax_bill_change - (change_from_levy + change_from_share)
 
 ```
@@ -265,13 +265,13 @@ tax_bill_1a <- tax_bill(
     simplify = F
 ) %>% process_tax_bill()
 
-tax_bill_1a_chi <- tax_bill_1a %>%
+ tax_bill_1a_chi <- tax_bill_1a %>%
     filter(agency_num == chicago_agency_num) 
-tax_bill_prior <- tax_bill_1a %>%
+tax_bill_prior_chi <- tax_bill_prior %>%
     filter(agency_num == chicago_agency_num) 
 
 # TODO is this correct
-eav_res_share_incident = tax_bill_1a_chi$tax_amt_post_exe - tax_bill_prior$tax_amt_post_exe
+eav_res_share_incident = tax_bill_1a_chi$tax_amt_post_exe - tax_bill_prior_chi$tax_amt_post_exe
 ```
 
 ```{r explainer-1b}
@@ -295,84 +295,11 @@ tax_bill_1b <- tax_bill(
 
 tax_bill_1b_chi <- tax_bill_1b %>%
     filter(agency_num == chicago_agency_num) 
-tax_bill_prior <- tax_bill_1b %>%
-    filter(agency_num == chicago_agency_num) 
+
 
 # TODO is this correct
-res_com_share_incident = tax_bill_1b_chi$tax_amt_post_exe - tax_bill_prior$tax_amt_post_exe
+res_com_share_incident = tax_bill_1b_chi$tax_amt_post_exe - tax_bill_prior_chi$tax_amt_post_exe
 ```
-
-```{r ptaxsim-data}
-pin_details <- lookup_pin(year, pin_14)
-pin_details_prior_year <- lookup_pin(prior_year, pin_14)
-
-render_pin14 <- glue("Parcel ({render_pin(pin_14)})")
-
-pin_exe_details <- pin_details %>%
-    select(starts_with("exe")) %>%
-    pivot_longer(cols = everything())
-
-pin_exe_total <- pin_exe_details %>%
-    pull(value) %>%
-    sum()
-
-tax_bill_data <- tax_bill(
-    year_vec = year,
-    pin_vec = pin_14,
-    simplify = F
-) %>% process_tax_bill()
-
-tax_bill_data_prior_year <- tax_bill(
-    year_vec = prior_year,
-    pin_vec = pin_14,
-    simplify = F
-) %>% process_tax_bill()
-
-current_year_agency <- lookup_agency(year = year, tax_code = lookup_tax_code(year = year, pin = pin_14))
-
-prior_year_agency <- lookup_agency(year = prior_year, tax_code = lookup_tax_code(year = prior_year, pin = pin_14))
-
-prior_eav_current_levy <- current_year_agency %>%
-    select(!c(year, agency_total_eav)) %>%
-    full_join(., prior_year_agency %>% select(!c(agency_total_ext))) %>%
-    select(all_of(names(current_year_agency)))
-
-current_eav_prior_levy <- prior_year_agency %>%
-    select(!c(year, agency_total_eav)) %>%
-    full_join(., current_year_agency %>% select(!c(agency_total_ext))) %>%
-    select(all_of(names(current_year_agency)))
-
-tax_bill_data_prior_eav_current_levy <- tax_bill(
-    year_vec = prior_year,
-    pin_vec = pin_14,
-    agency_dt = prior_eav_current_levy,
-    simplify = F
-) %>% process_tax_bill()
-
-tax_bill_data_current_eav_prior_levy <- tax_bill(
-    year_vec = year,
-    pin_vec = pin_14,
-    agency_dt = current_eav_prior_levy,
-    simplify = F
-) %>% process_tax_bill()
-
-cook_county_max_ext <- tax_bill_data %>%
-    filter(agency_major_type == "Cook County") %>%
-    slice_max(agency_total_ext) %>%
-    mutate(
-        agency_tax_amount = label_dol_amt(agency_tax_rate * (eav - exe_total)),
-        agency_total_eav = label_dol_amt(agency_total_eav),
-        agency_total_ext = label_dol_amt(agency_total_ext),
-    )
-
-tif_agency_nums <- tax_bill_data %>%
-    select(tif_agency_num) %>%
-    filter(!is.na(tif_agency_num)) %>%
-    unique() %>%
-    pull()
-
-```
-
 
 ## Why Did my Property Tax Bill Change?
 
@@ -398,12 +325,12 @@ tif_agency_nums <- tax_bill_data %>%
 
 From `r prior_year_tax_bill_summary$year` to `r latter_year_tax_bill_summary$year`, the tax bill for `r render_name(render_pin14)` `r change_str(tax_bill_change, 'past')` by __`r label_dol_amt(abs(tax_bill_change))`__
 
-::: {.callout-note appearance="minimal"}
-An `r change_str(change_from_levy, 'word')` of __`r abs(change_from_levy) %>% label_dol_amt`__ or __`r change_from_levy / sum(tax_bill_data_prior_year$tax_amt_post_exe)`__ was due to the change in your taxing districts' levies.
+::: {.callout-warning appearance="minimal"}
+An `r change_str(change_from_levy, 'word')` of __`r abs(change_from_levy) %>% label_dol_amt`__ or __`r change_from_levy / sum(tax_bill_prior$tax_amt_post_exe)`__ was due to the change in your taxing districts' levies.
 :::
 
-::: {.callout-warning appearance="minimal"}
-A `r change_str(change_from_share, 'word')` of __`r abs(change_from_share) %>% label_dol_amt `__ or __`r change_from_share / sum(tax_bill_data_prior_year$tax_amt_post_exe)`__ was due to your property's assessed value going up more quickly than other properties in your area.
+::: {.callout-note appearance="minimal"}
+A `r change_str(change_from_share, 'word')` of __`r abs(change_from_share) %>% label_dol_amt `__ or __`r change_from_share / sum(tax_bill_prior$tax_amt_post_exe)`__ was due to your property's assessed value going up more quickly than other properties in your area.
 :::
 
 TODO There is also `r label_dol_amt(change_leftover)` to account distribute at somepoint.
@@ -411,7 +338,7 @@ TODO There is also `r label_dol_amt(change_leftover)` to account distribute at s
 ---
 
 This property’s tax bill was determined by the following calculation:
-![tax_bill_fig](tax_bill_fig.png){fig-align="center"}
+![tax_bill_fig](figures/tax_bill_fig.png){fig-align="center"}
 
 Property tax bills are calculated based on the [**Tax Levy**]{style="background-color: #E9AA01;"}  and the value of your property. First, the government determines the [**Tax Levy**]{style="background-color: #E9AA01;"}, or total amount of taxes imposed by the government. This levy is then divided among all property owners in the area. Your share of this levy depends on [**how much your property is worth compared to the total value of all properties**]{style="background-color: #011E56;color: white;"}.
 
@@ -446,7 +373,7 @@ Ratio</div>
 
 #### This Property's Share of all Residential Properties
 
-One part of your tax bill changing is due to the change in your property's value compared to all other properties in your area. Your property's taxable value changed by `r eav_current-eav_prior` however, because the total taxable value of all residential properties also changed by `r res_base_current - res_base_prior`, your share of the total residential base changed from `r eav_res_share_prior` to `r eav_res_share_current`. This caused your tax bill to change by `r eav_res_share_incident`.
+One part of your tax bill changing is due to the change in your property's value compared to all other properties in your area. Your property's taxable value changed by `r signif(((eav_current-eav_prior)/eav_prior)*100,2)`% however, because the total taxable value of all residential properties also changed by `r signif(((res_base_current - res_base_prior)/res_base_prior)*100, digits = 3)`, your share of the total residential base changed from `r format(signif(eav_res_share_prior,2), scientific=F)` to `r format(signif(eav_res_share_current,2),scientific=F)`. This caused your tax bill to change by `r eav_res_share_incident`.
 
 The Equalized Assessed Value calculated from the property’s Fair Market Value  and any Exemptions (see Appendix A for more details). This property’s Fair Market Value [changed] and Exemptions [changed] from [start_year].
 
@@ -465,7 +392,17 @@ This change in the levy is about the same for the last 5 years
 ```
 
 ```{r appendix_a}
-market_value = pin_details_current$av/.1
+# depends on class code, confirm this
+#https://prodassets.cookcountyassessor.com/s3fs-public/form_documents/Definitions%20for%20the%20Classification%20of%20Real%20Property%202024%20%28FINAL%29%202.5.2024.pdf?VersionId=FA6QKGgGaJwcNQnpBkbEpW3HyVbCNWIu
+
+if (str_sub(pin_details_current$class,1,1) %in% c('2','3')) {
+    level_of_assessment = 0.1
+} else if (str_sub(pin_details_current$class,1,1) == '4') {
+    level_of_assessment = 0.2
+} else {
+    level_of_assessment = 0.25
+}
+market_value = pin_details_current$av/level_of_assessment
 
 eq_factor <- tbl(ptaxsim_db_conn, 'eq_factor') %>% 
             collect() %>% 
@@ -478,11 +415,7 @@ total_exe =  pin_details_current %>%
          exe_vet_dis_ge70 + exe_abate) %>%
         pull(exe_total)
 
-
-
 ```
-
-
 
 ::: {.callout-note appearance="minimal"}
 #### Appendix A: Calculating Equalized Assessed Value
@@ -490,6 +423,7 @@ total_exe =  pin_details_current %>%
 First, start with the Fair Market Value and multiply by the Level of Assessment, which is 10% for all residential property, and the State Equalizer, a multiplier whose goal is to make property tax rates roughly equal across all IL counties. Both of these values are the same for all property owners in this area.
 
 The resulting value is the Equalized Assessed Value.
+x = \underbracket[0.8pt]{f(y)}_\text{\clap{resistance~}} + \underbracket[0.8pt]{g(y)}_\text{\clap{~gravity}}
 
 $$`r market_value` \times 10\% \times `r eq_factor` = `r eav_current`$$
 $$`r eav_current` - `r total_exe` = `r eav_current`$$
