@@ -10,10 +10,10 @@ format:
       margin-width: 400px
     theme: zephyr
 params:
-    pin_14:
-        label: "PIN"
-        value: "16123090200000"
-        input: text
+    pin_14: null
+        # label: "PIN"
+        # # value: "16123090200000"
+        # input: text
 ---
 
 ```{r setup, include=FALSE, cache=FALSE}
@@ -27,11 +27,10 @@ library(DBI)
 library(RSQLite)
 library(RColorBrewer)
 library(patchwork)
-# install.packages('tigris')
-# library(tigris)
+library(tigris)
 library(tidyverse)
 library(glue)
-# library(sf)
+library(sf)
 library(rmarkdown)
 
 library(gtExtras)
@@ -40,16 +39,20 @@ library(svglite)
 source("maps.R")
 source("helper_funcs.R")
 # set the following variables and run
-db_path <- "/Volumes/My\ Passport/ptaxsim-2023.0.0.db"
+db_path <- "ptaxsim-2023.0.0.db"
+pin_14 <- params$pin_14
+pin_14 <- as.character(params$pin_14)
 #pin_14 <- "20114070180000" # Hyde Park, Chicago
 #pin_14 <- "15361000280000" # Riverside
 # pin_14 <- "16291280010000" # Cicero
 # pin_14 <- "14294070931001" # Wrightwood, Chicago - TIF
- pin_14 <- "16123090200000" # Kinzie - TIF
+# pin_14 <- "16123090200000" # Kinzie - TIF
 current_year <- 2023
 prior_year <- current_year - 1
 
-ptaxsim_db_conn <- dbConnect(SQLite(), db_path)
+# ptaxsim_db_conn <- dbConnect(SQLite(), db_path)
+ptaxsim_db_conn <- DBI::dbConnect(RSQLite::SQLite(), db_path)
+
 
 change_str <- function(val, tense) {
     change = if (val > 0) "increase" else "decrease"
