@@ -25,14 +25,14 @@ async def handle_pin(request: Request, pin: str = Form(...)):
     """Handle PIN input and render the QMD file."""
     base_dir = os.path.dirname(__file__)  # Directory of the current script
     qmd_file = os.path.abspath(os.path.join(base_dir, "../ptaxsim_explainer_update_as.qmd"))
-    output_file = os.path.join(base_dir, "ptaxsim_explainer_update.html")
+    output_file = os.path.join(base_dir, "../ptaxsim_explainer_update_as.html")
 
     try:
         # Render the Quarto document with the provided PIN
         print(f"Quarto file path: {qmd_file}")  # Debug: print the path
 
         subprocess.run(
-            ["quarto", "render", qmd_file, "--to", "html", "--param", f"pin_14:{pin}"],
+            ["quarto", "render", qmd_file, "--to", "html", "--execute-param", f"pin_14={pin}"],
             check=True,
             capture_output=True,
             text=True
