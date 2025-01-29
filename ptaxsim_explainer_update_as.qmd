@@ -38,19 +38,19 @@ library(svglite)
 
 source("maps.R")
 source("helper_funcs.R")
+source("precalculate.R")
+
 # set the following variables and run
 db_path <- "ptaxsim-2023.0.0.db"
 #pin_14 <- "20114070180000" # Hyde Park, Chicago
 #pin_14 <- "15361000280000" # Riverside
-# pin_14 <- "16291280010000" # Cicero
+pin_14 <- "16291280010000" # Cicero
 # pin_14 <- "14294070931001" # Wrightwood, Chicago - TIF
- pin_14 <- "16123090200000" # Kinzie - TIF
-current_year <- 2023
-prior_year <- current_year - 1
+#pin_14 <- "16123090200000" # Kinzie - TIF
 
 ptaxsim_db_conn <- dbConnect(SQLite(), db_path)
 
-change_str <- function(val, tense) {
+change_str <- function(val, tense = "past") {
     change = if (val > 0) "increase" else "decrease"
     if (tense == "past") {
         change = paste(change, "d", sep ="")
@@ -60,7 +60,16 @@ change_str <- function(val, tense) {
 
     return(change)
 }
+
+current_year = 2023
+prior_year = 2022
+
+#create_tax_bases()
+
+tax_bases_res_com_share = readRDS("tax_bases_res_com_share.rda")
 ```
+
+
 
 ```{r defaults}
 render_pin14 <- glue("Parcel ({render_pin(pin_14)})")
@@ -93,51 +102,12 @@ css_get_colors <- function(vals) {
     mapply(css_get_color, vals)
 }
 
+current_year <- 2023
+prior_year <- current_year - 1
+
 ```
-
-
-``` {r precalculate, cache = TRUE}
-#residential/commerical base for each year
-# TODO is this right commerical vs residential split?
-pin_data = dbGetQuery(ptaxsim_db_conn, "
-                        SELECT *, 
-                            case 
-                              when substr(class,1,1) IN ('2','3') then 'res'
-                              when class IN ('500', '501', '516', '517', '522', '523', '526','527', '528', '529', '530', '531', '532', '533', '535','590', '591', '592', '597', '599') then 'com' 
-                            else 'other' end as type
-                        FROM pin 
-                        order BY RANDOM()
-                        limit 100000")
-                        
-eq_factors <- dbGetQuery(ptaxsim_db_conn, 'select * from eq_factor') 
-
-    
-agency_xwalk = dbGetQuery(ptaxsim_db_conn, "select year, agency_num, tax_code_num from tax_code")
-
-# join pin_data with agency xwalk using tax_code_num and year
-tax_bills = pin_data %>%
-    left_join(agency_xwalk, by = c("tax_code_num" = "tax_code_num", "year" = "year"))
-
-tax_bills = tax_bills %>%
-    left_join(eq_factors, by = c("year" = "year"))
-
-#TODO am i calculating EAV correctly 
-tax_bases_res_com = tax_bills %>%
-    mutate(total_exe = exe_homeowner + exe_senior + exe_freeze + exe_longtime_homeowner + 
-         exe_disabled + exe_vet_returning + exe_vet_dis_lt50 + exe_vet_dis_50_69 +
-         exe_vet_dis_ge70 + exe_abate) %>%
-    mutate(eav = (eq_factor_final * av_clerk) - total_exe) %>%
-    group_by(year,agency_num, type) %>%
-    summarise(eav_total = sum(eav))
-
-#todo is this EAV the same as calculated from tax_bill
-
-# table of residential/commerical base by year by agency
-```
-
 
 ``` {r calculations}
-current_year <- 2023
 pin_details_current <- lookup_pin(current_year, pin_14)
 pin_details_prior <- lookup_pin(prior_year, pin_14)
 
@@ -153,41 +123,18 @@ tax_bill_prior <- tax_bill(
     simplify = F
 ) %>% process_tax_bill()
 
-
 eav_current = pin_details_current$eav
 eav_prior = pin_details_prior$eav
 
-#ex do everything for chi
-chicago_agency_num = '030210000'
+tax_bill_data_all = tax_bill_data %>%
+  left_join(tax_bases_res_com_share, by = c("year" = "year", "agency_num" = "agency_num")) %>%
+  mutate(eav_res_share = eav / (res_share*agency_total_eav),
+          res_base = res_share*agency_total_eav)
 
-chi_bill_current = tax_bill_data %>%
-    filter(agency_num == chicago_agency_num) %>%
-    select(agency_total_ext)
-chi_levy_current = chi_bill_current$agency_total_ext 
-
-chi_bill_prior = tax_bill_prior %>%
-    filter(agency_num == chicago_agency_num) %>%
-    select(agency_total_ext)
-chi_levy_prior = chi_bill_prior$agency_total_ext 
-
-# chi res base
-res_base_current = tax_bases_res_com %>%
-    filter(year == current_year, type == "res", agency_num == chicago_agency_num) %>% pull(eav_total)
-res_base_prior = tax_bases_res_com %>%
-    filter(year == prior_year, type == "res", agency_num == chicago_agency_num) %>%
-    pull(eav_total)
-
-com_base_current = tax_bases_res_com %>%
-    filter(year == current_year, type == "com", agency_num == chicago_agency_num) %>% pull(eav_total)
-com_base_prior = tax_bases_res_com %>%
-    filter(year == prior_year, type == "com", agency_num == chicago_agency_num) %>%
-    pull(eav_total)
-
-eav_res_share_current = eav_current / res_base_current
-eav_res_share_prior = eav_prior / res_base_prior
-
-res_com_share_current = res_base_current / (res_base_current + com_base_current)
-res_com_share_prior = res_base_prior / (res_base_prior + com_base_prior)
+tax_bill_prior_all = tax_bill_prior %>%
+  left_join(tax_bases_res_com_share, by = c("year" = "year", "agency_num" = "agency_num")) %>%
+  mutate(eav_res_share = eav / (res_share*agency_total_eav),
+         res_base = res_share*agency_total_eav)
 ```
 
 ``` {r agg-values}
@@ -246,34 +193,47 @@ change_leftover = tax_bill_change - (change_from_levy + change_from_share)
 ```
 
 ```{r explainer-1a}
+#calculate for each district and then sum at the end
+agencies_old = tax_bill_prior_all$agency_num
 
-# want same levy as last year
+df_1a = tibble(agency = c('1'), agency_name = c('1'),  incident = c(0))
 
-# want just my share of res to change to the level this year
-# that means i need to change my EAV to get the same share of the res base as this year (eav_res_share_current)
-# new res / com share
+for (agency in agencies_old) {
+  single_agency_current = tax_bill_data_all %>%
+    filter(agency_num == agency)
+  
+  single_agency_prior = tax_bill_prior_all %>%
+    filter(agency_num == agency)
+  
+  adj_eav = single_agency_current$eav_res_share * single_agency_prior$res_base
+  
+  # replace in new tax bill
+  pin_dt_new <- pin_details_prior %>%
+    mutate(eav = adj_eav)
+  
+  tax_bill_1a <- tax_bill(
+      year_vec = prior_year,
+      pin_vec = pin_14,
+      pin_dt = pin_dt_new,
+      simplify = F
+  ) %>% process_tax_bill()
+  
+  tax_bill_1a_current <- tax_bill_1a %>%
+      filter(agency_num == agency) 
+  tax_bill_1a_prior <- tax_bill_prior %>%
+      filter(agency_num == agency) 
+  
+  eav_res_share_incident = tax_bill_1a_current$tax_amt_post_exe - tax_bill_1a_prior$tax_amt_post_exe
+  
+  #print(glue('agency = {tax_bill_1a_current$agency_name}, adj_eav={adj_eav}, eav_res_share_incident = {eav_res_share_incident}'))
+  #print(glue('bill_before = {tax_bill_1a_prior$tax_amt_post_exe}, after = {tax_bill_1a_current$tax_amt_post_exe}'))
 
+  #add row to table
+  df_1a = df_1a %>% add_row(agency = agency, agency_name = tax_bill_1a_current$agency_name,  incident = eav_res_share_incident)
+}
 
-adj_eav = eav_res_share_current * res_base_prior
-# need to change EAV 
-# calculate new EAV, replace in 
-pin_dt_new <- pin_details_prior %>%
-  mutate(eav = adj_eav)
+total_eav_res_share_incident = sum(df_1a$incident)
 
-tax_bill_1a <- tax_bill(
-    year_vec = prior_year,
-    pin_vec = pin_14,
-    pin_dt = pin_dt_new,
-    simplify = F
-) %>% process_tax_bill()
-
- tax_bill_1a_chi <- tax_bill_1a %>%
-    filter(agency_num == chicago_agency_num) 
-tax_bill_prior_chi <- tax_bill_prior %>%
-    filter(agency_num == chicago_agency_num) 
-
-# TODO is this correct
-eav_res_share_incident = tax_bill_1a_chi$tax_amt_post_exe - tax_bill_prior_chi$tax_amt_post_exe
 ```
 
 ```{r explainer-1b}
@@ -281,50 +241,60 @@ eav_res_share_incident = tax_bill_1a_chi$tax_amt_post_exe - tax_bill_prior_chi$t
 # want same levy as last year
 # same res / com share
 
-# change tax base
-new_base = (res_base_prior * (res_base_current + com_base_current))/ res_base_current
+df_1b = tibble(agency = c('1'), agency_name = c('1'),  incident = c(0))
 
-#adj_eav = ((eav_res_share_prior * res_com_share_current)/res_com_share_prior) * res_base_prior
+tax_code_prior = lookup_tax_code(year= prior_year, pin = pin_14)
 
-#change ext 
-agency_dt_new <- pin_details_prior %>%
-  mutate(eav = adj_eav)
+for (agency in agencies_old) {
+  
+  single_agency_current = tax_bill_data_all %>%
+    filter(agency_num == agency)
+  
+  single_agency_prior = tax_bill_prior_all %>%
+    filter(agency_num == agency)
 
-tax_bill_1b <- tax_bill(
-    year_vec = prior_year,
-    pin_vec = pin_14,
-    pin_dt = pin_dt_new,
-    simplify = F
-) %>% process_tax_bill()
+  res_base_prior = single_agency_prior$res_base
+  
+  res_base_current = single_agency_current$res_base
+  com_base_current = single_agency_current$agency_total_eav - single_agency_current$res_base
+  
+  # change tax base
+  new_base = (res_base_prior * (res_base_current + com_base_current))/ res_base_current
+  
+  agency_dt = lookup_agency(year = prior_year, tax_code = tax_code_prior)
 
-tax_bill_1b_chi <- tax_bill_1b %>%
-    filter(agency_num == chicago_agency_num) 
+  
+  agency_dt_new = agency_dt %>%
+    mutate(agency_total_eav = ifelse(agency_num == agency,new_base, agency_total_eav))
 
+  
+ tax_bill_1b <- tax_bill(
+      year_vec = prior_year,
+      pin_vec = pin_14,
+      agency_dt = agency_dt_new,
+      simplify = F
+  ) %>% process_tax_bill()
+  
+  tax_bill_1b_current <- tax_bill_1b %>%
+      filter(agency_num == agency) 
+  tax_bill_1b_prior <- tax_bill_prior %>%
+      filter(agency_num == agency) 
+  
+  res_com_share_incident = tax_bill_1b_current$tax_amt_post_exe - tax_bill_1b_prior$tax_amt_post_exe
 
-# TODO is this correct
-res_com_share_incident = tax_bill_1b_chi$tax_amt_post_exe - tax_bill_prior_chi$tax_amt_post_exe
+  
+   #print(glue('agency = {tax_bill_1b_current$agency_name}, adj_eav={adj_eav}, res_com_share_incident = {res_com_share_incident}'))
+  #print(glue('bill_before = {tax_bill_1b_prior$tax_amt_post_exe}, after = {tax_bill_1b_current$tax_amt_post_exe}'))
+
+  #add row to table
+  df_1b = df_1b %>% add_row(agency = agency, agency_name = tax_bill_1b_current$agency_name,  incident = res_com_share_incident)
+}
+
+total_res_com_share_incident = sum(df_1b$incident)
+
 ```
 
 ## Why Did my Property Tax Bill Change?
-
-```{r comparison-table}
-
-# combined_tax_bill_summary <- rbind(latter_year_tax_bill_summary, prior_year_tax_bill_summary)
-
-# combined_tax_bill_summary %>%
-#         gt() %>%
-#         cols_label(
-#             year = "Tax Year",
-#             eav = "Equalized Assessed Value",
-#             sum_agency_tax_rate = "Effective Tax Rate",
-#             sum_final_tax_to_dist = "Tax Bill",
-#         ) %>%
-#         fmt_percent(sum_agency_tax_rate) %>%
-#         fmt_currency(sum_final_tax_to_dist) %>%
-#         fmt_currency(eav)
-
-
-```
 
 
 From `r prior_year_tax_bill_summary$year` to `r latter_year_tax_bill_summary$year`, the tax bill for `r render_name(render_pin14)` `r change_str(tax_bill_change, 'past')` by __`r label_dol_amt(abs(tax_bill_change))`__
@@ -377,18 +347,18 @@ Ratio</div>
 
 #### This Property's Share of all Residential Properties
 
-One part of your tax bill changing is due to the change in your property's value compared to all other properties in your area. Your property's taxable value changed by `r signif(((eav_current-eav_prior)/eav_prior)*100,2)`% however, because the total taxable value of all residential properties also changed by `r signif(((res_base_current - res_base_prior)/res_base_prior)*100, digits = 3)`, your share of the total residential base changed from `r format(signif(eav_res_share_prior,2), scientific=F)` to `r format(signif(eav_res_share_current,2),scientific=F)`. This caused your tax bill to change by `r eav_res_share_incident`.
+One part of your tax bill changing is due to the change in your property's value compared to all other properties in your area. Your property's taxable value changed by `r signif(((eav_current-eav_prior)/eav_prior)*100,2)`%. However, your burden of the tax levy compared to all the other properties `r change_str(total_eav_res_share_incident)`. This caused your tax bill to change by `r total_eav_res_share_incident`.
 
 The Equalized Assessed Value calculated from the property’s Fair Market Value  and any Exemptions (see Appendix A for more details). This property’s Fair Market Value [changed] and Exemptions [changed] from [start_year].
 
 #### Commercial-Residential Ratio
 
-A second part of your tax bill changing is due to how much all residential properties pay compared to commerical properties. In `r prior_year`, residential properties payed `r res_com_share_prior` and in `r current_year` residential properties payed `r res_com_share_current`. This caused a `r res_com_share_incident` change in your bill.
+A second part of your tax bill changing is due to how much all residential properties pay compared to commercial properties. This proportion `r change_str(total_res_com_share_incident)` This caused a `r total_res_com_share_incident` change in your bill.
 
 ## How did a change in the Tax Levy affect my bill?
 
 
-Your tax bill may have also increased due to the change in the tax levy. The total tax levy for `r current_year` was `r label_dol_amt(chi_levy_current)` and for `r prior_year` it was `r label_dol_amt(chi_levy_prior)`. This caused a change of `r label_dol_amt(change_from_levy)` in your bill.
+Your tax bill may have also increased due to the change in the tax levy. The total tax levy for `r current_year` was TODO and for `r prior_year` it was TODO. This caused a change of `r label_dol_amt(change_from_levy)` in your bill.
 
 This change in the levy is about the same for the last 5 years
 ```{r}
