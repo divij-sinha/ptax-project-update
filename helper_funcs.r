@@ -16,6 +16,17 @@ label_dol_amt <- function(val) {
     }
 }
 
+change_str <- function(val, tense) {
+    change = if (val > 0) "increase" else "decrease"
+    if (tense == "past") {
+        change = paste(change, "d", sep ="")
+    } else if (tense == "present") {
+        change = paste(change, "s",sep ="")
+    } 
+
+    return(change)
+}
+
 exe_clean <- function(val) {
     val %>%
         str_replace("exe", "") %>%
@@ -188,7 +199,7 @@ map_inter <- function(shp_bnd_lst) {
 }
 
 get_missing_dis <- function(shp_df, type_to_filter) {
-    tax_bill_data %>%
+    tax_bill_current %>%
         filter(agency_major_type == type_to_filter) %>%
         anti_join(shp_df, by = join_by(agency_num == AGENCY)) %>%
         pull(agency_name)
@@ -199,7 +210,7 @@ correct_shp_names <- function(shp_bnd) {
     shp_bnd %>%
         st_drop_geometry() %>%
         select(AGENCY, AGENCY_DESC) %>%
-        inner_join(tax_bill_data, by = join_by(AGENCY == agency_num)) %>%
+        inner_join(tax_bill_current, by = join_by(AGENCY == agency_num)) %>%
         select(AGENCY, agency_name, AGENCY_DESC) %>%
         mutate(agency_name = str_to_title(agency_name)) %>%
         left_join(x = shp_bnd, y = ., by = join_by(AGENCY, AGENCY_DESC))
