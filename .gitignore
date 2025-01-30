@@ -1,8 +1,8 @@
 ptaxsim-2023.0.0.db
 .DS_Store
 .radian_profile
-ptaxsim_explainer*cache/
-ptaxsim_explainer*files/
+ptaxsim_explainer_update*cache/
+ptaxsim_explainer_update*files/
 .lintr
 *.log
 *.tex
