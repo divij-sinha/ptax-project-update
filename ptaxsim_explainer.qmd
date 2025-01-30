@@ -41,7 +41,6 @@ source("precalculate.R")
 
 # set the following variables and run
 db_path <- "ptaxsim-2023.0.0.db"
-<<<<<<< Updated upstream
 #pin_14 <- "20114070180000" # Hyde Park, Chicago
 #pin_14 <- "15361000280000" # Riverside
 pin_14 <- "16291280010000" # Cicero
@@ -52,21 +51,6 @@ ptaxsim_db_conn <- dbConnect(SQLite(), db_path)
 
 change_str <- function(val, tense = "past") {
     change = if (val > 0) "increase" else "decrease"
-=======
-# pin_14 <- "20114070180000" # Hyde Park, Chicago
-# pin_14 <- "15361000280000" # Riverside
-# pin_14 <- "16291280010000" # Cicero
-# pin_14 <- "14294070931001" # Wrightwood, Chicago - TIF
-#  pin_14 <- "16123090200000" # Kinzie - TIF
-pin_14 <- as.character(params$pin_14)
-current_year <- 2023
-prior_year <- current_year - 1
-
-ptaxsim_db_conn <- dbConnect(SQLite(), db_path)
-
-change_str <- function(val, tense) {
-    change <- if (val > 0) "increase" else "decrease"
->>>>>>> Stashed changes
     if (tense == "past") {
         change <- paste(change, "d", sep = "")
     } else if (tense == "present") {
