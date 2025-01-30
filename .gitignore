@@ -8,6 +8,6 @@ ptaxsim_explainer_update_files/
 *.tex
 /.quarto/
 data/*
-outputs/*
 
 */__pycache__/*
+*cache*

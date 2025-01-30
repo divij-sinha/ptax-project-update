@@ -8,6 +8,9 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+VERSION = "2.0.0"
+
+
 app = FastAPI()
 
 # Set up Jinja2 templates
@@ -17,7 +20,7 @@ templates = Jinja2Templates(directory="app/templates")
 app.mount("/assets", StaticFiles(directory="app/assets"), name="assets")
 
 # Serve the generated HTML files
-app.mount("/outputs", StaticFiles(directory="outputs"), name="outputs")
+app.mount("/outputs", StaticFiles(directory=f"outputs/v{VERSION}"), name="outputs")
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -113,7 +116,7 @@ async def handle_pin(
                 "--output",
                 f"{pin}.html",
                 "--output-dir",
-                "outputs/",
+                f"outputs/v{VERSION}",
                 "--execute-param",
                 f"pin_14={pin}",
             ],
@@ -125,11 +128,6 @@ async def handle_pin(
         # Serve the generated HTML
         return RedirectResponse(
             url=f"/outputs/{pin}.html", status_code=status.HTTP_302_FOUND
-        )
-
-        return HTMLResponse(
-            content=f"<h1>Error: Output file not found - {output_file}</h1>",
-            status_code=500,
         )
 
     except subprocess.CalledProcessError as e:
