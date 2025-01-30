@@ -4,3 +4,8 @@ ptaxsim-2023.0.0.db
 ptaxsim_explainer_update_cache/
 ptaxsim_explainer_update_files/
 .lintr
+*.log
+*.tex
+/.quarto/
+data/*
+outputs/*
