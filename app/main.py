@@ -4,7 +4,7 @@ import subprocess
 import polars as pl
 import usaddress
 from fastapi import FastAPI, Form, Request, status
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -28,7 +28,10 @@ async def read_root(request: Request):
     )
 
 
-async def address_suggestions(search_term: str, exact_match: bool = False):
+@app.post("/address_suggestions")
+async def address_suggestions(
+    request: Request, search_term: str = Form(...), exact_match: bool = False
+):
     add_df = pl.scan_csv("data/Address_Points.csv", infer_schema=False)
     parsed_address = {k: v.lower() for v, k in usaddress.parse(search_term)}
 
@@ -68,7 +71,7 @@ async def address_suggestions(search_term: str, exact_match: bool = False):
         .collect()
         .to_dicts()
     )
-    return suggestions
+    return JSONResponse(content=suggestions)
 
 
 # @app.get("/outputs/", response_class=HTMLResponse)
@@ -76,7 +79,9 @@ async def address_suggestions(search_term: str, exact_match: bool = False):
 
 
 @app.post("/submit", response_class=RedirectResponse)
-async def handle_pin(request: Request, pin: str = Form(...)):
+async def handle_pin(
+    request: Request, search_term: str = Form(...), search_term_hidden: str = Form(...)
+):
     """Handle PIN input and render the QMD file."""
     base_dir = os.path.dirname(__file__)  # Directory of the current script
     qmd_file = os.path.abspath(
@@ -84,20 +89,15 @@ async def handle_pin(request: Request, pin: str = Form(...)):
     )
     output_file = os.path.join(base_dir, "../ptaxsim_explainer_update_as.html")
 
-    if not (len(pin) == 14 and pin.isdigit()):
-        suggestions_exact = await address_suggestions(pin, exact_match=True)
-        print(f"Exact suggestions: {suggestions_exact}")
-        suggestions_inexact = await address_suggestions(pin)
-        suggestions = suggestions_exact + suggestions_inexact
-        if suggestions:
-            print(f"Address suggestion: {suggestions[0]}")
-            pin = suggestions[0]["value"]
-
-        else:
-            return HTMLResponse(
-                content=f"<h1>Error: Invalid PIN or Address - {pin}</h1>",
-                status_code=status.HTTP_400_BAD_REQUEST,
-            )
+    if len(search_term) == 14 and search_term.isdigit():
+        pin = search_term
+    elif len(search_term_hidden) == 14 and search_term_hidden.isdigit():
+        pin = search_term_hidden
+    else:
+        return HTMLResponse(
+            content=f"<h1>Error: Invalid PIN or Address - {pin}</h1>",
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
 
     try:
         # Render the Quarto document with the provided PIN
