@@ -9,3 +9,5 @@ ptaxsim_explainer_update_files/
 /.quarto/
 data/*
 outputs/*
+
+*/__pycache__/*
