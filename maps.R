@@ -35,7 +35,7 @@ get_shp_twn_muni <- function(tax_bill_data_sub) {
   twn_code <- tax_bill_data_sub %>%
     filter(agency_minor_type == "TOWNSHIP") %>%
     pull(agency_num)
-  twn_name_orig <- tax_bill_data %>%
+  twn_name_orig <- tax_bill_current %>%
     filter(agency_minor_type == "TOWNSHIP") %>%
     pull(agency_name)
   twn_name <- twn_name_orig %>%

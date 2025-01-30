@@ -10,6 +10,10 @@ format:
       margin-width: 400px
     theme: zephyr
 params:
+    current_year:
+        value: 2023
+    prior_year:
+        value: 2022
     pin_14:
         label: "PIN"
         value: "16123090200000"
@@ -38,80 +42,35 @@ library(svglite)
 
 source("maps.R")
 source("helper_funcs.R")
-source("precalculate.R")
 
 # set the following variables and run
 db_path <- "ptaxsim-2023.0.0.db"
+
+pin_14 = params$pin_14
+current_year = params$current_year
+prior_year = params$prior_year
+
+#example pins
 #pin_14 <- "20114070180000" # Hyde Park, Chicago
 #pin_14 <- "15361000280000" # Riverside
-pin_14 <- "16291280010000" # Cicero
-# pin_14 <- "14294070931001" # Wrightwood, Chicago - TIF
+#pin_14 <- "16291280010000" # Cicero
+#pin_14 <- "14294070931001" # Wrightwood, Chicago - TIF
 #pin_14 <- "16123090200000" # Kinzie - TIF
 
 ptaxsim_db_conn <- dbConnect(SQLite(), db_path)
-
-change_str <- function(val, tense = "past") {
-    change = if (val > 0) "increase" else "decrease"
-    if (tense == "past") {
-        change = paste(change, "d", sep ="")
-    } else if (tense == "present") {
-        change = paste(change, "s",sep ="")
-    } 
-
-    return(change)
-}
-
-current_year = 2023
-prior_year = 2022
-
-#create_tax_bases()
-
 tax_bases_res_com_share = readRDS("tax_bases_res_com_share.rda")
 ```
 
-
-
-```{r defaults}
-render_pin14 <- glue("Parcel ({render_pin(pin_14)})")
-
-column_colors <- brewer.pal(3, "Pastel1")
-column_alpha <- 0.5
-
-map_road_alpha <- 0.3
-map_road_lwd <- 0.3
-map_fg_fill_alpha <- 0.33
-map_bg_fill_alpha <- 0.33
-map_color_alpha <- 0.5
-map_fg_lwd <- 1.1
-map_bg_lwd <- 1.05
-
-map_colors <- c(
-    "#88CCEE", "#CC6677", "#DDCC77", "#117733", "#332288", "#AA4499",
-    "#44AA99", "#999933", "#882255", "#661100", "#6699CC", "#888888"
-)
-map_names <- c(
-    render_pin14, "Cook County","")
-css_names <- c(map_names, "increased", "decreased")
-map_names <- factor(map_names, levels = map_names, ordered = TRUE)
-map_colors <- name_map_colors(map_colors, map_names)
-css_colors <- paste0(map_colors, "44")
-css_colors <- c(css_colors, "#ff696144", "#61ffb844")
-css_colors <- name_map_colors(css_colors, css_names)
-
-css_get_colors <- function(vals) {
-    mapply(css_get_color, vals)
-}
-
-current_year <- 2023
-prior_year <- current_year - 1
-
-```
-
 ``` {r calculations}
+
+#create pin details
+
 pin_details_current <- lookup_pin(current_year, pin_14)
 pin_details_prior <- lookup_pin(prior_year, pin_14)
 
-tax_bill_data <- tax_bill(
+
+#create tax bill info
+tax_bill_current <- tax_bill(
     year_vec = current_year,
     pin_vec = pin_14,
     simplify = F
@@ -126,7 +85,12 @@ tax_bill_prior <- tax_bill(
 eav_current = pin_details_current$eav
 eav_prior = pin_details_prior$eav
 
-tax_bill_data_all = tax_bill_data %>%
+total_levy_current = sum(tax_bill_current$agency_total_ext)
+total_levy_prior = sum(tax_bill_prior$agency_total_ext)
+
+
+# create residentail base to caluculate 1a and 1b
+tax_bill_current_all = tax_bill_current %>%
   left_join(tax_bases_res_com_share, by = c("year" = "year", "agency_num" = "agency_num")) %>%
   mutate(eav_res_share = eav / (res_share*agency_total_eav),
           res_base = res_share*agency_total_eav)
@@ -138,7 +102,10 @@ tax_bill_prior_all = tax_bill_prior %>%
 ```
 
 ``` {r agg-values}
-latter_year_tax_bill_summary <- tax_bill_data %>%
+
+# process to calculate counterfactuals
+
+latter_year_tax_bill_summary <- tax_bill_current %>%
   group_by(year) %>%
   summarise(
     eav = max(eav, na.rm = TRUE),
@@ -158,24 +125,29 @@ current_year_agency <- lookup_agency(year = current_year, tax_code = lookup_tax_
 
 prior_year_agency <- lookup_agency(year = prior_year, tax_code = lookup_tax_code(year = prior_year, pin = pin_14))
 
+# calculate tax bill if you kept assessment and tax base constant 
+
 prior_eav_current_levy <- current_year_agency %>%
-    select(!c(year, agency_total_eav)) %>%
-    full_join(., prior_year_agency %>% select(!c(agency_total_ext))) %>%
-    select(all_of(names(current_year_agency)))
+    select(!c(year, agency_total_eav, tax_code)) %>%
+    full_join(., prior_year_agency %>% select(!c(agency_total_ext)), by =join_by(agency_num == agency_num, agency_name == agency_name, agency_minor_type==agency_minor_type,agency_major_type==agency_major_type )) %>%
+    select(all_of(names(prior_year_agency)))
+
+
+# calculate tax bill if you kept levy constant 
 
 current_eav_prior_levy <- prior_year_agency %>%
-    select(!c(year, agency_total_eav)) %>%
-    full_join(., current_year_agency %>% select(!c(agency_total_ext))) %>%
+    select(!c(year, agency_total_eav,tax_code)) %>%
+    full_join(., current_year_agency %>% select(!c(agency_total_ext)), by =join_by(agency_num == agency_num, agency_name == agency_name, agency_minor_type==agency_minor_type,agency_major_type==agency_major_type )) %>%
     select(all_of(names(current_year_agency)))
 
-tax_bill_data_prior_eav_current_levy <- tax_bill(
+tax_bill_current_prior_eav_current_levy <- tax_bill(
     year_vec = prior_year,
     pin_vec = pin_14,
     agency_dt = prior_eav_current_levy,
     simplify = F
 ) %>% process_tax_bill()
 
-tax_bill_data_current_eav_prior_levy <- tax_bill(
+tax_bill_current_current_eav_prior_levy <- tax_bill(
     year_vec = current_year,
     pin_vec = pin_14,
     agency_dt = current_eav_prior_levy,
@@ -184,27 +156,73 @@ tax_bill_data_current_eav_prior_levy <- tax_bill(
 
 tax_bill_change = latter_year_tax_bill_summary$sum_final_tax_to_dist - prior_year_tax_bill_summary$sum_final_tax_to_dist
 
-change_from_levy = sum(tax_bill_data_prior_eav_current_levy$tax_amt_post_exe) - sum(tax_bill_prior$tax_amt_post_exe)  
+change_from_levy = sum(tax_bill_current_prior_eav_current_levy$tax_amt_post_exe) - sum(tax_bill_prior$tax_amt_post_exe)  
 
-change_from_share = sum(tax_bill_data_current_eav_prior_levy$tax_amt_post_exe) - sum(tax_bill_prior$tax_amt_post_exe)
+change_from_share = sum(tax_bill_current_current_eav_prior_levy$tax_amt_post_exe) - sum(tax_bill_prior$tax_amt_post_exe)
 
 change_leftover = tax_bill_change - (change_from_levy + change_from_share)
 
 ```
 
+```{r appendix c}
+cook_roads <- roads("17", "031")
+
+shp_bnd_pin <- get_shp_bnd_pin(pin_14, current_year)
+
+shp_buf_pin <- shp_bnd_pin %>%
+    st_centroid() %>%
+    st_transform(3857) %>%
+    st_buffer(650) %>%
+    st_transform(4326)
+
+shp_bnd_cook <- get_shp_bnd_cook()
+
+shp_bnd_all_schools <- tax_bill_current %>%
+    filter(agency_major_type == "School") %>%
+    pull(agency_num) %>%
+    get_shp_all_schools() %>%
+    correct_shp_names() %>%
+    mutate(agency_name = as.factor(agency_name))
+
+
+missing_dis_school <- get_missing_dis(shp_bnd_all_schools, "School")
+
+missing_dis <- c(missing_dis_school)
+
+first_school <- shp_bnd_all_schools %>%
+    slice_max(shape_area) %>%
+    left_join(tax_bill_current, by = join_by(AGENCY == agency_num, agency_name))
+
+```
+
+```{r exe-det}
+    
+    pin_exe_details <- pin_details_current %>%
+    select(starts_with("exe")) %>%
+    pivot_longer(cols = everything())
+    
+    pin_exe_total <- pin_exe_details %>%
+    pull(value) %>%
+    sum()
+
+```
+
 ```{r explainer-1a}
+# calculate change in bill for proportionn of res base changing only
+
 #calculate for each district and then sum at the end
 agencies_old = tax_bill_prior_all$agency_num
 
 df_1a = tibble(agency = c('1'), agency_name = c('1'),  incident = c(0))
 
 for (agency in agencies_old) {
-  single_agency_current = tax_bill_data_all %>%
+  single_agency_current = tax_bill_current_all %>%
     filter(agency_num == agency)
   
   single_agency_prior = tax_bill_prior_all %>%
     filter(agency_num == agency)
   
+  #new eav to simulate old bill with just eav / res share changing
   adj_eav = single_agency_current$eav_res_share * single_agency_prior$res_base
   
   # replace in new tax bill
@@ -247,27 +265,24 @@ tax_code_prior = lookup_tax_code(year= prior_year, pin = pin_14)
 
 for (agency in agencies_old) {
   
-  single_agency_current = tax_bill_data_all %>%
+  single_agency_current = tax_bill_current_all %>%
     filter(agency_num == agency)
   
   single_agency_prior = tax_bill_prior_all %>%
     filter(agency_num == agency)
-
-  res_base_prior = single_agency_prior$res_base
   
+  res_base_prior = single_agency_prior$res_base
   res_base_current = single_agency_current$res_base
   com_base_current = single_agency_current$agency_total_eav - single_agency_current$res_base
   
-  # change tax base
+    #new res_vase to simulate old bill with just res / com share changings
   new_base = (res_base_prior * (res_base_current + com_base_current))/ res_base_current
   
   agency_dt = lookup_agency(year = prior_year, tax_code = tax_code_prior)
 
-  
   agency_dt_new = agency_dt %>%
     mutate(agency_total_eav = ifelse(agency_num == agency,new_base, agency_total_eav))
 
-  
  tax_bill_1b <- tax_bill(
       year_vec = prior_year,
       pin_vec = pin_14,
@@ -282,7 +297,6 @@ for (agency in agencies_old) {
   
   res_com_share_incident = tax_bill_1b_current$tax_amt_post_exe - tax_bill_1b_prior$tax_amt_post_exe
 
-  
    #print(glue('agency = {tax_bill_1b_current$agency_name}, adj_eav={adj_eav}, res_com_share_incident = {res_com_share_incident}'))
   #print(glue('bill_before = {tax_bill_1b_prior$tax_amt_post_exe}, after = {tax_bill_1b_current$tax_amt_post_exe}'))
 
@@ -294,35 +308,95 @@ total_res_com_share_incident = sum(df_1b$incident)
 
 ```
 
+```{r defaults}
+render_pin14 <- glue("Parcel ({render_pin(pin_14)})")
+
+column_colors <- brewer.pal(3, "Pastel1")
+column_alpha <- 0.5
+
+map_road_alpha <- 0.3
+map_road_lwd <- 0.3
+map_fg_fill_alpha <- 0.33
+map_bg_fill_alpha <- 0.33
+map_color_alpha <- 0.5
+map_fg_lwd <- 1.1
+map_bg_lwd <- 1.05
+
+map_colors <- c(
+    "#88CCEE", "#CC6677", "#DDCC77", "#117733", "#332288", "#AA4499",
+    "#44AA99", "#999933", "#882255", "#661100", "#6699CC", "#888888"
+)
+map_names <- c(
+    render_pin14, "Cook County",
+    shp_bnd_all_schools$agency_name %>% as.character())
+css_names <- c(map_names, "increased", "decreased")
+map_names <- factor(map_names, levels = map_names, ordered = TRUE)
+map_colors <- name_map_colors(map_colors, map_names)
+css_colors <- paste0(map_colors, "44")
+css_colors <- c(css_colors, "#ff696144", "#61ffb844")
+css_colors <- name_map_colors(css_colors, css_names)
+
+css_get_colors <- function(vals) {
+    mapply(css_get_color, vals)
+}
+```
+
+## What are property taxes?
+
+Property tax is owed by property owners annually, for both residential and commercial properties. 
+
+These liabilities are decided per `r render_name("property parcel", render_pin14)`, and each parcel is uniquely identifiable with a 14-digit `r render_name("Property Index Number", render_pin14)` or `r render_name("PIN", render_pin14)`
+
+Every `r render_name("PIN", render_pin14)` belongs to multiple tax districts (local government bodies), that need funds for their purposes. 
+
+The Cook County Assessor's Office, the State, and county taxing districts (schools, parks, etc.) work together to calculate fair property taxes for residents.
+
+
 ## Why Did my Property Tax Bill Change?
+The tax bill for `r render_name(render_pin14)` was approximately `r label_dol_amt(prior_year_tax_bill_summary$sum_final_tax_to_dist)` in `r prior_year` and `r label_dol_amt(latter_year_tax_bill_summary$sum_final_tax_to_dist)` in `r current_year`, resulting in `r if (tax_bill_change<0) "a" else "an"` __`r change_str(tax_bill_change, 'word')`__ of __`r label_dol_amt(abs(tax_bill_change))`__.
+
+```{r}
+change_from_levy_text = paste("Your tax bill ",change_str(change_from_levy, 'past')," by approximately __",label_dol_amt(abs(change_from_levy)),"__ due to the change in your taxing districts' levies.", sep="")
+change_from_share_text = paste("Your tax bill ", change_str(change_from_share, 'past'), " by approximately __",label_dol_amt(abs(change_from_share)),"__ due to your property's assessed value going up more quickly than other properties in your area.", sep = "")
+
+if(change_from_levy < change_from_share) {
+  first_text = change_from_levy_text
+  first_color= '.callout-warning'
+  second_color =  '.callout-note'
+  second_text = change_from_share_text
+} else {
+  first_text = change_from_share_text 
+  first_color= '.callout-note'
+  second_color =  '.callout-warning '
+  second_text = change_from_levy_text
+}
+```
 
 
-From `r prior_year_tax_bill_summary$year` to `r latter_year_tax_bill_summary$year`, the tax bill for `r render_name(render_pin14)` `r change_str(tax_bill_change, 'past')` by __`r label_dol_amt(abs(tax_bill_change))`__
-
-::: {.callout-warning appearance="minimal"}
-An `r change_str(change_from_levy, 'word')` of __`r abs(change_from_levy) %>% label_dol_amt`__ or __`r change_from_levy / sum(tax_bill_prior$tax_amt_post_exe)`__ was due to the change in your taxing districts' levies.
+::: {`r first_color` appearance="minimal"}
+`r first_text`
 :::
-
-::: {.callout-note appearance="minimal"}
-A `r change_str(change_from_share, 'word')` of __`r abs(change_from_share) %>% label_dol_amt `__ or __`r change_from_share / sum(tax_bill_prior$tax_amt_post_exe)`__ was due to your property's assessed value going up more quickly than other properties in your area.
+::: {`r second_color` appearance="minimal"}
+`r second_text`
 :::
-
-TODO There is also `r label_dol_amt(change_leftover)` to account distribute at somepoint.
+::: {.column-margin}
+>There is also a `r label_dol_amt(abs(change_leftover))` `r change_str(change_from_share, 'word')` that was caused by a combination of both factors.
+:::
 
 ---
 
 This property’s tax bill was determined by the following calculation:
 ![tax_bill_fig](figures/tax_bill_fig.png){fig-align="center"}
 
-Property tax bills are calculated based on the [**Tax Levy**]{style="background-color: #E9AA01;"}  and the value of your property. First, the government determines the [**Tax Levy**]{style="background-color: #E9AA01;"}, or total amount of taxes imposed by the government. This levy is then divided among all property owners in the area. Your share of this levy depends on [**how much your property is worth compared to the total value of all properties**]{style="background-color: #011E56;color: white;"}.
+Property tax bills are calculated based on the [**Tax Levy**]{style="color: #E9AA01;"}  and the value of your property. First, the government determines the [**Tax Levy**]{style="color: #E9AA01;"}, or total amount of taxes imposed by the government. This levy is then divided among all property owners in the area. Your share of this levy depends on [**how much your property is worth compared to the total value of all properties**]{style="color: #011E56"}.
 
-Your final tax bill reflects your property's [**share of the total taxable value**]{style="background-color: #011E56;color: white;"} in the area, meaning you contribute to the Tax Levy in proportion to your property's worth.
+Your final tax bill reflects your property's [**share of the total taxable value**]{style="color: #011E56;"} in the area, meaning you contribute to the Tax Levy in proportion to your property's worth.
 
-## How did this property's change in price affect my bill?
+## [How did this property's change in price affect my bill?]{style="color: #011E56;"}
 
 This share is how much this property’s taxable value, or its Equalized Assessed Value, makes up of the the taxable value of all properties, called the Tax Base. The Tax Base is the combination of the taxable value of all residential and commercial properties.
 
-This share can be broken up into two parts that impact your bill.
+This share can be broken up into two parts that impact your bill:
 ```{css}
 .box-container {
   display: flex;
@@ -336,31 +410,51 @@ This share can be broken up into two parts that impact your bill.
   text-align: center;
   border: 1px solid #ccc;
   border-radius: 5px;
+  background-color: #011E56;
+  color: white
+  
 }
 ```
 <div class="box-container">
-  <div class="box">This Property's Share of all Residential Properties</div>
-  <div class="box">Commercial-Residential 
-Ratio</div>
+  <div class="box"><b>(A) This Property's Share of all Residential Properties</b></div>
+  <div class="box"> <b>(B) Commercial-Residential 
+Ratio</b></div>
 </div>
 
 
-#### This Property's Share of all Residential Properties
+#### (A) This Property's Share of all Residential Properties
 
-One part of your tax bill changing is due to the change in your property's value compared to all other properties in your area. Your property's taxable value changed by `r signif(((eav_current-eav_prior)/eav_prior)*100,2)`%. However, your burden of the tax levy compared to all the other properties `r change_str(total_eav_res_share_incident)`. This caused your tax bill to change by `r total_eav_res_share_incident`.
+One reason your tax bill changing is due to the change in your property's taxable value compared to all other properties in your area. Your property's taxable value __`r change_str(eav_current-eav_prior, "past")`__ by __`r label_p_ltx(abs((eav_current-eav_prior)/eav_prior))`__. 
 
-The Equalized Assessed Value calculated from the property’s Fair Market Value  and any Exemptions (see Appendix A for more details). This property’s Fair Market Value [changed] and Exemptions [changed] from [start_year].
+::: {.column-margin}
+Your property's taxable value is called the Equalized Assessed Value (EAV) and is calculated using the property's fair market value (as determined by the Cook County Assessor's Office), any exemptions the property claims, and the state equalization factor. See [Appendix A](#appendixA) for more details). 
+:::
 
-#### Commercial-Residential Ratio
+``` {r}
+explanation_1a <- function() {
+  explanation = ""
+  comparison = if (total_eav_res_share_incident>0) "more" else "less"
+  explanation = paste(explanation,change_str(eav_current-eav_prior, "past"),"by",comparison,"than other properties in your area")
+  return(explanation)
+}
+```
 
-A second part of your tax bill changing is due to how much all residential properties pay compared to commercial properties. This proportion `r change_str(total_res_com_share_incident)` This caused a `r total_res_com_share_incident` change in your bill.
+More important than how this specific property's value changed is how much it changed value compared to all other properties in your area. From `r prior_year` to `r current_year` this property's taxable value `r explanation_1a()`. This caused your tax bill to __`r change_str(total_eav_res_share_incident, "word")`__ by __`r label_dol_amt(abs(total_eav_res_share_incident))`__.
 
-## How did a change in the Tax Levy affect my bill?
+#### (B) Commercial-Residential Ratio
 
+A second part of your tax bill changing is due to how much __all__ residential properties pay compared to __all__ commercial properties. Commercial properties are more likely to decrease their assessment value through appeals, which shifts the tax burden more onto residential properties. The share that all residential properties paid in `r current_year` `r change_str(total_res_com_share_incident, 'past')` causing a __`r label_dol_amt(abs(total_res_com_share_incident))` `r change_str(total_res_com_share_incident, 'word')`__ in your tax bill.
 
-Your tax bill may have also increased due to the change in the tax levy. The total tax levy for `r current_year` was TODO and for `r prior_year` it was TODO. This caused a change of `r label_dol_amt(change_from_levy)` in your bill.
+## [How did a change in the Tax Levy affect my bill?]{style="color: #E9AA01;"}
 
-This change in the levy is about the same for the last 5 years
+Lastly, your tax bill may have also changed due to the change in the [**Tax Levy**]{style="color: #E9AA01;"}, or the total amount of taxes imposed by the government. The total [**Tax Levy**]{style="color: #E9AA01;"} for all tax districts for this property __`r change_str(total_levy_current-total_levy_prior, "past")`__ by __`r label_p_ltx(abs((total_levy_current-total_levy_prior)/total_levy_prior))`__ between `r current_year` and `r prior_year`. This `r change_str(total_levy_current-total_levy_prior, "word")` resulted in a __`r change_str(change_from_levy,"word")`__ of __`r label_dol_amt(abs(change_from_levy))`__ in your tax bill.
+
+::: {.column-margin}
+See the break down of the tax levy change for each distinct in [Appendix C](appendix)
+:::
+
+TODO 
+Typically, the tax levy for each distinct increases each year. From 2006 to 2023, the tax levy ...
 ```{r}
 #TODO values and chart
 ```
@@ -392,23 +486,212 @@ total_exe =  pin_details_current %>%
 ```
 
 ::: {.callout-note appearance="minimal"}
-#### Appendix A: Calculating Equalized Assessed Value
+#### Appendix A: Calculating Equalized Assessed Value {#appendixA}
 
 First, start with the Fair Market Value and multiply by the Level of Assessment, which is 10% for all residential property, and the State Equalizer, a multiplier whose goal is to make property tax rates roughly equal across all IL counties. Both of these values are the same for all property owners in this area.
 
 The resulting value is the Equalized Assessed Value.
-x = \underbracket[0.8pt]{f(y)}_\text{\clap{resistance~}} + \underbracket[0.8pt]{g(y)}_\text{\clap{~gravity}}
-
-$$`r market_value` \times 10\% \times `r eq_factor` = `r eav_current`$$
-$$`r eav_current` - `r total_exe` = `r eav_current`$$
+$$`r label_dol_amt(market_value)` \times `r label_p_ltx(level_of_assessment)` \times `r eq_factor` = `r label_p_ltx(eav_current)`$$
+$$`r label_dol_amt(eav_current)` - `r label_dol_amt(total_exe)` = `r label_dol_amt(eav_current)`$$
 :::
 
 ::: {.callout-note appearance="minimal"}
-#### Appendix B: Properties Tax Districts
-```{r}
-tax_bill_data %>%
+#### Appendix B: Properties Tax Districts {#appendixB}
+
+This property is a part of many tax districts. Your actual bill is calculated but taking the tax levy times your property's taxable value (EAV) divided by the sum of all taxable property (Tax Base) for *each tax district* you property in in. See each tax district your property is in, including the district's total tax base, levy, and the taxes owned to this district. See Appendix C below for a more detailed explanation for how your tax bill is calculated for each district.
+
+```{r increment-tax-bill-2}
+tax_bill_current %>%
     render_bill(
-        c("School", "Municipality/Township", "Miscellaneous", "Cook County")
+        c("School", "Municipality/Township", "Miscellaneous", "Cook County"))
+```
+
+:::
+
+
+#### Appendix C: Calaculating a Tax Districts Bill  {#appendixC}
+
+## Breaking the bill down with an example
+
+Your property is in many tax districts. 
+
+::: {.column-margin}
+
+> Generally, these districts fund the local elementary, middle and high schools, along with community colleges in the area.
+>
+`r if(!"Board Of Education" == first_school$agency_name) {"<!--"}`
+> The `r render_name("Board Of Education")` is partially funded by property taxes and runs the Chicago Public Schools system, a K-12 system in the City of Chicago.
+> 
+> [Chicago Public Schools, Revenue, 2023](https://www.cps.edu/about/finance/budget/budget-2023/revenue/)
+`r if(!"Board Of Education" == first_school$agency_name) {"-->"}`
+`r if(!"Chicago Community College District 508" == first_school$agency_name) {"<!--"}`
+> `r render_name("Chicago Community College District 508")` is partially funded by property taxes and runs the City Colleges of Chicago, a system of seven accredited colleges across the City of Chicago
+> 
+> [City Colleges of Chicago, Final Budget, FY 22](https://www.ccc.edu/departments/Documents/Finance%20Documents/FY2022%20Final%20Annual%20Operating%20Budget%20Book.pdf)
+`r if(!"Chicago Community College District 508" == first_school$agency_name) {"-->"}`
+
+:::
+
+```{r init-map, cache =TRUE}
+first_school %>%
+    map_dist()
+```
+
+Now, let's look at the line item of the bill for `r render_name(render_pin14)` in `r current_year` for `r render_name(first_school$agency_name)` -
+
+```{r increment-tax-bill-1}
+tax_bill_current %>%
+    filter(agency_num == first_school$AGENCY) %>%
+    render_bill(
+        c("School")
+    ) %>%
+    tab_style(
+        style = cell_text(weight = "bold"),
+        locations = list(
+            cells_column_labels(columns = agency_name),
+            cells_body(columns = agency_name),
+            cells_row_groups()
+        )
+    ) %>%
+    tab_style(
+        style = cell_fill(color = css_colors[first_school$agency_name]),
+        locations = cells_body()
     )
 ```
-:::
+
+For the purpose of operating `r render_name(first_school$agency_name)`, in `r current_year`, it needs to collect `r first_school %>% pull(agency_total_ext) %>% label_dol_amt() %>% render_name(first_school$agency_name)` in order to provide services.
+
+```{r increment-tax-bill-1-1}
+tax_bill_current %>%
+    filter(agency_name == first_school$agency_name) %>%
+    render_bill(
+        c("School")
+    ) %>%
+    tab_style(
+        style = cell_text(weight = "bold"),
+        locations = list(
+            cells_column_labels(columns = agency_total_ext),
+            cells_body(columns = agency_total_ext)
+        )
+    ) %>%
+    tab_style(
+        style = cell_fill(color = css_colors[first_school$agency_name]),
+        locations = cells_body()
+    )
+```
+
+But where can `r render_name(first_school$agency_name)` raise the money from? From all the properties within the district boundaries!  
+The total taxable value of all properties falling in `r render_name(first_school$agency_name)` make up its **tax base**. 
+For `r current_year`, this was `r first_school %>% pull(agency_total_eav) %>% label_dol_amt() %>% render_name(first_school$agency_name)`
+
+```{r increment-tax-bill-1-2}
+tax_bill_current %>%
+    filter(agency_name == first_school$agency_name) %>%
+    render_bill(
+        c("School")
+    ) %>%
+    tab_style(
+        style = cell_text(weight = "bold"),
+        locations = list(
+            cells_column_labels(columns = agency_total_eav),
+            cells_body(columns = agency_total_eav)
+        )
+    ) %>%
+    tab_style(
+        style = cell_fill(color = css_colors[first_school$agency_name]),
+        locations = cells_body()
+    )
+```
+
+The cost of services of `r render_name(first_school$agency_name)` is therefore divided amongst all the property owners, and `r render_name(first_school$agency_name)` sets its agency tax rate equal to: 
+
+$$
+\mathrm{{Levy \over Base} = Tax \hspace{0.1cm} rate}
+$$
+
+Using real numbers, the tax rate equals: 
+$$
+\mathrm{`r label_dol_amt(first_school$agency_total_ext)` \over `r label_dol_amt(first_school$agency_total_eav)`} = `r label_p_ltx(first_school$agency_tax_rate)`
+$$
+
+```{r increment-tax-bill-1-3}
+tax_bill_current %>%
+    filter(agency_num == first_school$AGENCY) %>%
+    render_bill(
+        c("School")
+    ) %>%
+    tab_style(
+        style = cell_text(weight = "bold"),
+        locations = list(
+            cells_column_labels(columns = agency_tax_rate),
+            cells_body(columns = agency_tax_rate)
+        )
+    ) %>%
+    tab_style(
+        style = cell_fill(color = css_colors[first_school$agency_name]),
+        locations = cells_body()
+    )
+```
+
+#### How much do you owe `r render_name(first_school$agency_name)`?
+
+As the owner of `r render_name(render_pin14)`, in the year `r current_year` your property is worth `r render_name(label_dol_amt(pin_details_current$av*10), render_pin14)`, of that, your taxable amount (or addition to the tax base) is `r render_name(label_dol_amt(pin_details_current$eav - pin_exe_total), render_pin14)`[^exemptionnote].
+
+The previously calculated `r render_name("rate", first_school$agency_name)` is then applied to your `r render_name("addition to the tax base", render_pin14)`:
+
+$$
+(`r label_dol_amt(pin_details_current$eav - pin_exe_total)` * `r label_p_ltx(first_school$agency_tax_rate)`) = `r label_dol_amt((pin_details_current$eav - pin_exe_total)*first_school$agency_tax_rate)`
+$$
+
+This is the total tax amount you owe to `r render_name(first_school$agency_name)`
+
+
+[^exemptionnote]:  
+    `r if(pin_exe_total == 0) {"<!--"}` 
+    This is taking into account the exemptions that your property qualifies for.
+    This property qualifies for the following - 
+    
+```{r}
+     pin_exe_details %>%
+        filter(value > 0) %>%
+        select(name) %>%
+        gt() %>%
+        cols_label(
+            name = "Exemption Type",
+        #    value = "Exemption Amount"
+        ) %>%
+        #fmt_currency(value) %>%
+        fmt(columns = name, fns = exe_clean)
+```
+    The total exemption value is `r render_name(label_dol_amt(pin_exe_total), render_pin14)`
+    `r if(pin_exe_total == 0) {"-->"}`
+    `r if(pin_exe_total != 0) {"<!--"}`  
+    This house qualifies for no exemptions
+    `r if(pin_exe_total != 0) {"-->"}`  
+
+```{r increment-tax-bill-1-5}
+tax_bill_current %>%
+    filter(agency_name == first_school$agency_name) %>%
+    render_bill(
+        c("School")
+    ) %>%
+    tab_style(
+        style = cell_text(weight = "bold"),
+        locations = list(
+            cells_column_labels(columns = tax_amt_post_exe),
+            cells_body(columns = tax_amt_post_exe)
+        )
+    ) %>%
+    tab_style(
+        style = cell_fill(color = css_colors[first_school$agency_name]),
+        locations = cells_body()
+    )
+```
+
+That was the whole first line!
+
+
+
+
+
+
