@@ -40,7 +40,7 @@ source("helper_funcs.R")
 source("precalculate.R")
 
 # set the following variables and run
-db_path <- "ptaxsim-2023.0.0.db"
+db_path <- "data/ptaxsim-2023.0.0.db"
 #pin_14 <- "20114070180000" # Hyde Park, Chicago
 #pin_14 <- "15361000280000" # Riverside
 pin_14 <- "16291280010000" # Cicero
@@ -65,7 +65,7 @@ prior_year = 2022
 
 #create_tax_bases()
 
-tax_bases_res_com_share = readRDS("tax_bases_res_com_share.rda")
+tax_bases_res_com_share = readRDS("data/tax_bases_res_com_share.rds")
 ```
 
 

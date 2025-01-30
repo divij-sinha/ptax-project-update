@@ -87,10 +87,7 @@ async def handle_pin(
 ):
     """Handle PIN input and render the QMD file."""
     base_dir = os.path.dirname(__file__)  # Directory of the current script
-    qmd_file = os.path.abspath(
-        os.path.join(base_dir, "../ptaxsim_explainer_update_as.qmd")
-    )
-    output_file = os.path.join(base_dir, "../ptaxsim_explainer_update_as.html")
+    qmd_file = os.path.abspath(os.path.join(base_dir, "../ptaxsim_explainer.qmd"))
 
     if len(search_term) == 14 and search_term.isdigit():
         pin = search_term
