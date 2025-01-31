@@ -3,6 +3,7 @@ import subprocess
 
 import polars as pl
 import usaddress
+import sqlite3
 from fastapi import FastAPI, Form, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -80,6 +81,26 @@ async def address_suggestions(
 # @app.get("/outputs/", response_class=HTMLResponse)
 # async def return_file(pin: str):
 
+@app.get("/searchdb", response_class=HTMLResponse)
+async def search_db(
+    request: Request, given_pin: str = Form(...)
+):
+    """Search database."""
+
+    base_dir = os.path.dirname(__file__)  # Directory of the current script
+    db_path = os.path.join(base_dir, "../data/ptaxsim-2023.0.0.db") 
+    con = sqlite3.connect(db_path)
+
+    cur = con.cursor()
+    cur.execute("SELECT * FROM pin WHERE pin = ?", (given_pin,))
+    res = cur.fetchall()
+    con.close()
+    
+    if len(res) == 0:
+        return False
+    else:
+        return True
+
 
 @app.post("/submit", response_class=RedirectResponse)
 async def handle_pin(
@@ -91,41 +112,59 @@ async def handle_pin(
 
     if len(search_term) == 14 and search_term.isdigit():
         pin = search_term
+    
     elif len(search_term_hidden) == 14 and search_term_hidden.isdigit():
         pin = search_term_hidden
     else:
+        wrong_pin = search_term
         return HTMLResponse(
-            content=f"<h1>Error: Invalid PIN or Address - {pin}</h1>",
+            content=f"<h1>Error: Invalid PIN or Address - {wrong_pin}</h1>",
             status_code=status.HTTP_400_BAD_REQUEST,
         )
 
     try:
-        # Render the Quarto document with the provided PIN
-        print(f"Quarto file path: {qmd_file}")  # Debug: print the path
+        if not await search_db(request, given_pin=pin):
+            if search_term:
+                return HTMLResponse(
+                content=f"<h1>Error: PIN or Address Not Found in Database - {pin}</h1>",
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+            # add address mapping here - currently if you search by address that has a pin with 0 entries, it displays pin (which should stay hidden)
+            # adjust address_suggestions to break down to just search_address(search_term)? and get_address_suggestions(search_term)
 
-        subprocess.run(
-            [
-                "quarto",
-                "render",
-                qmd_file,
-                "--to",
-                "html",
-                "--output",
-                f"{pin}.html",
-                "--output-dir",
-                f"outputs/v{VERSION}",
-                "--execute-param",
-                f"pin_14={pin}",
-            ],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
+            # elif search_term_hidden:
+            #     return HTMLResponse(
+            #     content=f"<h1>Error: PIN or Address Not Found in Database - {pin}</h1>",
+            #     status_code=status.HTTP_400_BAD_REQUEST,
+            # )
 
-        # Serve the generated HTML
-        return RedirectResponse(
-            url=f"/outputs/{pin}.html", status_code=status.HTTP_302_FOUND
-        )
+        else:
+            # Render the Quarto document with the provided PIN
+            print(f"Quarto file path: {qmd_file}")  # Debug: print the path
+
+            subprocess.run(
+                [
+                    "quarto",
+                    "render",
+                    qmd_file,
+                    "--to",
+                    "html",
+                    "--output",
+                    f"{pin}.html",
+                    "--output-dir",
+                    f"outputs/v{VERSION}",
+                    "--execute-param",
+                    f"pin_14={pin}",
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+            # Serve the generated HTML
+            return RedirectResponse(
+                url=f"/outputs/{pin}.html", status_code=status.HTTP_302_FOUND
+            )
 
     except subprocess.CalledProcessError as e:
         return HTMLResponse(

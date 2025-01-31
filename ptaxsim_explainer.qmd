@@ -64,7 +64,6 @@ tax_bases_res_com_share = readRDS("data/tax_bases_res_com_share.rds")
 ``` {r calculations}
 
 #create pin details
-
 pin_details_current <- lookup_pin(current_year, pin_14)
 pin_details_prior <- lookup_pin(prior_year, pin_14)
 

@@ -1,9 +1,5 @@
 
 var button = document.getElementById("search-button");
-button.onclick = () => {
-    button.classList.add("disabled");
-};
-
 
 // debounce to create smoother search suggestions
 let debounceTimeout;
