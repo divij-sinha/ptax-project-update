@@ -44,7 +44,7 @@ source("maps.R")
 source("helper_funcs.R")
 
 # set the following variables and run
-db_path <- "ptaxsim-2023.0.0.db"
+db_path <- "data/ptaxsim-2023.0.0.db"
 
 pin_14 = toString(params$pin_14)
 current_year = params$current_year
@@ -58,7 +58,7 @@ prior_year = params$prior_year
 #pin_14 <- "16123090200000" # Kinzie - TIF
 
 ptaxsim_db_conn <- dbConnect(SQLite(), db_path)
-tax_bases_res_com_share = readRDS("data/tax_bases_res_com_share.rda")
+tax_bases_res_com_share = readRDS("data/tax_bases_res_com_share.rds")
 ```
 
 ``` {r calculations}
