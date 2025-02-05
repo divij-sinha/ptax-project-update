@@ -36,6 +36,7 @@ library(tidyverse)
 library(glue)
 library(sf)
 library(rmarkdown)
+library(stringr)
 
 library(gtExtras)
 library(svglite)
@@ -57,12 +58,14 @@ current_year <- 2023
 prior_year <- 2022
 
 pin_14 <- toString(params$pin_14)
+pin_14 <- str_pad(pin_14, width = 14, pad = "0", side = "left")
 current_year <- params$current_year
 prior_year <- params$prior_year
 
 ptaxsim_db_conn <- dbConnect(SQLite(), db_path)
 tax_bases_res_com_share <- readRDS("data/tax_bases_res_com_share.rds")
 ```
+
 
 ``` {r calculations}
 

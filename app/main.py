@@ -115,6 +115,9 @@ async def handle_pin(
     
     elif len(search_term_hidden) == 14 and search_term_hidden.isdigit():
         pin = search_term_hidden
+
+    ### add address handling 
+
     else:
         wrong_pin = search_term
         return HTMLResponse(
@@ -132,16 +135,11 @@ async def handle_pin(
             # add address mapping here - currently if you search by address that has a pin with 0 entries, it displays pin (which should stay hidden)
             # adjust address_suggestions to break down to just search_address(search_term)? and get_address_suggestions(search_term)
 
-            # elif search_term_hidden:
-            #     return HTMLResponse(
-            #     content=f"<h1>Error: PIN or Address Not Found in Database - {pin}</h1>",
-            #     status_code=status.HTTP_400_BAD_REQUEST,
-            # )
 
         else:
             # Render the Quarto document with the provided PIN
             print(f"Quarto file path: {qmd_file}")  # Debug: print the path
-
+            print(f"{pin=}")
             subprocess.run(
                 [
                     "quarto",
