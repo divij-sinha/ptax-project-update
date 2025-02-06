@@ -17,7 +17,7 @@ params:
         value: 2022
     pin_14:
         label: "PIN"
-        value: "16123090200000"
+        value: "15361000280000"
         input: text
 ---
 
@@ -48,11 +48,11 @@ source("helper_funcs.R")
 db_path <- "data/ptaxsim-2023.0.0.db"
 
 # example pins - defaults
-pin_14 <- "20114070180000" # Hyde Park, Chicago
+#pin_14 <- "20114070180000" # Hyde Park, Chicago
 # pin_14 <- "15361000280000" # Riverside
 # pin_14 <- "16291280010000" # Cicero
 # pin_14 <- "14294070931001" # Wrightwood, Chicago - TIF
-# pin_14 <- "16123090200000" # Kinzie - TIF
+pin_14 <- "16123090200000" # Kinzie - TIF
 
 current_year <- 2023
 prior_year <- 2022
@@ -63,7 +63,7 @@ current_year <- params$current_year
 prior_year <- params$prior_year
 
 ptaxsim_db_conn <- dbConnect(SQLite(), db_path)
-tax_bases_res_com_share <- readRDS("data/tax_bases_res_com_share.rds")
+tax_bases_res_com_share <- readRDS("data/tax_bases_res_com_share.rda")
 ```
 
 
@@ -386,6 +386,77 @@ css_get_colors <- function(vals) {
 }
 ```
 
+```{r}
+levy_y = (total_levy_current-total_levy_prior)/total_levy_prior
+
+share_current = sum(tax_bill_current$tax_amt_post_exe)/sum(tax_bill_current$agency_total_ext)
+share_prior = sum(tax_bill_prior$tax_amt_post_exe)/sum(tax_bill_prior$agency_total_ext)
+
+share_x = (share_current - share_prior)/ share_prior
+
+y_min =  -1.2*abs(levy_y)
+y_max = 1.2*abs(levy_y)
+
+x_min = -1.2*abs(share_x)
+x_max = 1.2*abs(share_x)
+
+pin_date = data.frame(x = c(share_x), y = c(levy_y))
+
+if (y_max < x_max) {
+  line_data <- data.frame(x = c(-y_max, -y_min), y = c(y_max, y_min))
+} else {
+  line_data <- data.frame(x = c(x_min, x_max), y = c(-x_min, -x_max))
+}
+
+x_axis <- data.frame(x = c(x_min, x_max), y = c(0,0))
+y_axis <- data.frame(x = c(0, 0), y = c(y_min*.9, y_max*.9))
+
+
+quadrant_chart = ggplot() +
+  geom_line(data = line_data, aes(x = x, y = y), linetype = "dashed") +
+  geom_point(data = pin_date, aes(x = x, y = y),size = 5, color = 'steelblue')+ 
+  geom_rect(data = data.frame(
+    xmin = x_min,
+    xmax = -y_max,
+    ymin = y_min,
+    ymax = y_max
+  ), aes(
+    xmin = xmin, xmax = xmax,
+    ymin = ymin, ymax = ymax
+  ), fill = "#61ffb844", alpha = 0.1) +
+  geom_rect(data = data.frame(
+    xmin = y_max,
+    xmax = x_max,
+    ymin = y_min,
+    ymax = y_max
+  ), aes(
+    xmin = xmin, xmax = xmax,
+    ymin = ymin, ymax = ymax
+  ), fill = "#ff696144", alpha = 0.1) +
+ geom_ribbon(data = line_data, aes(x = x, ymin = y, ymax = y_max), fill = "#ff696144", alpha = 0.1) +  # Shade area above the line
+  geom_ribbon(data = line_data, aes(x = x, ymin = y_min, ymax = y), fill = "#61ffb844", alpha = 0.1) +  # Shade area below the line
+  geom_line(data = x_axis, aes(x = x, y = y),linetype = "solid") +
+  geom_line(data = y_axis, aes(x = x, y = y),linetype = "solid") +
+  scale_x_continuous(limits = c(x_min, x_max)) +
+  scale_y_continuous(limits = c(y_min, y_max)) +
+  theme_minimal() +
+  theme(
+    panel.grid = element_blank(),  # Remove grid lines
+    panel.background = element_blank(),  # Remove background
+    axis.line = element_blank(),  # Remove default axis lines
+    axis.ticks = element_blank(),  # Remove axis ticks
+    axis.text = element_blank(),
+    axis.title=element_blank(),
+  ) +
+  annotate("text", x = x_max*.98, y = y_max*0.05, label = "Increased Tax Burden",fontface = "bold", hjust = 1) +  # Label at the end of positive x-axis
+  annotate("text", x = x_min*.98, y = y_max*0.05, label = "Decreased Tax Burden",fontface = "bold", hjust = 0) +  # Label at the end of negative x-axis
+  annotate("text", x = 0, y = y_max*.95, label = "Increased Levy", fontface = "bold") + # Label at the top of x-axis
+  annotate("text", x = 0, y = y_min*.95, label = "Decreased Levy", fontface = "bold") +  # Label at the top of x-axis
+  annotate("text", x = x_max*.5, y = y_max*.5, label = "Tax Bill Increases") +
+  annotate("text", x = x_min*.5, y = y_min*.5, label = "Tax Bill Decreases") 
+```
+
+
 ## What are property taxes?
 
 Property tax is owed by property owners annually, for both residential and commercial properties. 
@@ -396,19 +467,29 @@ Every `r render_name("PIN", render_pin14)` belongs to multiple tax districts (lo
 
 The Cook County Assessor's Office, the State, and county taxing districts (schools, parks, etc.) work together to calculate fair property taxes for residents.
 
+## My Property (TODO) (where to get parcel metadata)
+
+```{r, eval=FALSE}
+#This is `r render_name("property parcel", render_pin14)` which is located at `r pin_address`. It was last assessed in `r last_assessed_year` at a fair market value of `r fmv`. According to the Accessor's Office, this property is classified as a `r pin_details` -->
+
+
+```
+
 
 ## Why Did my Property Tax Bill Change?
-The tax bill for `r render_name(render_pin14)` was approximately `r label_dol_amt(prior_year_tax_bill_summary$sum_final_tax_to_dist)` in `r prior_year` and `r label_dol_amt(latter_year_tax_bill_summary$sum_final_tax_to_dist)` in `r current_year`, resulting in `r if (tax_bill_change<0) "a" else "an"` __`r change_str(tax_bill_change, 'word')`__ of __`r label_dol_amt(abs(tax_bill_change))`__. This change can be broken down into main components as shown below.
+The tax bill for `r render_name(render_pin14)` was approximately `r label_dol_amt(prior_year_tax_bill_summary$sum_final_tax_to_dist)` in `r prior_year` and `r label_dol_amt(latter_year_tax_bill_summary$sum_final_tax_to_dist)` in `r current_year`, resulting in `r if (tax_bill_change<0) "a" else "an"` __`r change_str(tax_bill_change, 'word')`__ of `r render_name(label_dol_amt(abs(tax_bill_change)),change_str(tax_bill_change, 'past'))`. This change can be broken down into main components as shown below.
 
 ```{r}
-change_from_levy_text <- paste("Your tax bill ", change_str(change_from_levy, "past"), " by approximately __", label_dol_amt(abs(change_from_levy)), "__ due to the change in your taxing districts' levies. ",
-    "This is the change in the tax bill outside your control, is uniformly felt by everyone, and refers to the increase in the cost of providing services.",
+
+
+change_from_levy_text <- paste("Your tax bill ", change_str(change_from_levy, "past"), " by approximately ", render_name(label_dol_amt(abs(change_from_levy)),change_str(change_from_levy, "past")), " due to the ", change_str(change_from_levy, 'word'), " in your taxing districts' levies. ",
+    "This is the change in the tax bill outside your control, is the same for everyone, and refers to the increase in the cost of providing services.",
     sep = ""
 )
-change_from_share_text <- paste("Your tax bill ", change_str(change_from_share, "past"), " by approximately __", label_dol_amt(abs(change_from_share)), "__ due to your property's assessed value changing differently than other properties in your area. ",
-    "This is the change in the tax bill that is based on your property value, and represents the change in your relative burden of property taxes compared to your neighbours",
-    sep = ""
-)
+
+change_from_share_subtext = if (change_from_share >0) "up faster" else "down slower"
+
+change_from_share_text <- paste("Your tax bill ", change_str(change_from_share, "past"), " by approximately ", render_name(label_dol_amt(abs(change_from_share)),change_str(change_from_share, "past")), " due to your property's assessed value going", change_from_share_subtext, "than other properties in your area on average.")
 
 if (abs(change_from_levy) > abs(change_from_share)) {
     first_text <- change_from_levy_text
@@ -434,6 +515,14 @@ if (abs(change_from_levy) > abs(change_from_share)) {
 >There is also a `r label_dol_amt(abs(change_leftover))` `r change_str(change_from_share, 'word')` that was caused by a combination of both factors.
 :::
 
+Since your tax levy `r change_str(change_from_levy, 'past')` and your `r change_str(change_from_share, 'past')`, your tax bill `r change_str(tax_bill_change, 'past')`. 
+
+```{r}
+#| fig-width: 5
+#| fig-height: 5
+#| fig-align: center
+quadrant_chart
+```
 ---
 
 This property’s tax bill was determined by the following calculation:
@@ -712,30 +801,11 @@ This is the total tax amount you owe to `r render_name(first_school$agency_name)
     `r if(pin_exe_total == 0) {"<!--"}` 
     This is taking into account the exemptions that your property qualifies for.
     The total exemption value is `r render_name(label_dol_amt(pin_exe_total), render_pin14)`
-    This property currently has the following exemptions applied - 
     `r if(pin_exe_total == 0) {"-->"}`
     `r if(pin_exe_total != 0) {"<!--"}`  
     This property currently has NO exemptions applied - 
     `r if(pin_exe_total != 0) {"-->"}`
-    ```{r}
-    pin_exe_details %>%
-        select(name, value) %>%
-        mutate(p_signifier = fontawesome::fa("check","green")) %>%
-        mutate(n_signifier = fontawesome::fa("xmark","red")) %>%
-        mutate(signifier = ifelse(value > 0, p_signifier, n_signifier)) %>%
-        mutate(signifier = map(signifier, html)) %>%
-        select(!c(p_signifier, n_signifier)) %>%
-        gt() %>%
-        cols_label(
-            name = "Exemption Type",
-            signifier = "Exemption Active",
-            value = "Exemption Amount"
-        ) %>%
-        fmt_currency(value) %>%
-        fmt(columns = name, fns = exe_clean) %>%
-        cols_hide(columns = value)
-    ``` 
-
+   
 ```{r increment-tax-bill-1-5}
 tax_bill_current %>%
     filter(agency_name == first_school$agency_name) %>%
