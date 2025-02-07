@@ -11,7 +11,6 @@ from fastapi.templating import Jinja2Templates
 
 VERSION = "2.0.0"
 
-
 app = FastAPI()
 
 # Set up Jinja2 templates
@@ -32,9 +31,8 @@ async def read_root(request: Request):
     )
 
 
-@app.post("/address_suggestions")
-async def address_suggestions(
-    request: Request, search_term: str = Form(...), exact_match: bool = False
+async def search_address(
+    search_term: str = Form(...), exact_match: bool = False
 ):
     add_df = pl.scan_csv("data/Address_Points.csv", infer_schema=False)
     parsed_address = {k: v.lower() for v, k in usaddress.parse(search_term)}
@@ -63,11 +61,10 @@ async def address_suggestions(
 
             f = False
             filtered_df = filtered_df.filter(f_exact if exact_match else f_inexact)
-            print(filtered_df.collect().shape)
 
     if f:
         return []
-
+    
     suggestions = (
         filtered_df.select("ADDRDELIV", "PIN")
         .rename({"ADDRDELIV": "key", "PIN": "value"})
@@ -75,11 +72,18 @@ async def address_suggestions(
         .collect()
         .to_dicts()
     )
+
+    return suggestions
+
+
+@app.post("/address_suggestions")
+async def address_suggestions(
+    request: Request, search_term: str = Form(...), exact_match: bool = False
+):
+    
+    suggestions = await search_address(search_term, exact_match)
     return JSONResponse(content=suggestions)
 
-
-# @app.get("/outputs/", response_class=HTMLResponse)
-# async def return_file(pin: str):
 
 @app.get("/searchdb", response_class=HTMLResponse)
 async def search_db(
@@ -116,7 +120,10 @@ async def handle_pin(
     elif len(search_term_hidden) == 14 and search_term_hidden.isdigit():
         pin = search_term_hidden
 
-    ### add address handling 
+    elif isinstance(search_term, str):
+        suggestions = await search_address(search_term, exact_match=False)
+        if len(suggestions) > 0:
+            pin = suggestions[0]['value']
 
     else:
         wrong_pin = search_term
@@ -129,17 +136,13 @@ async def handle_pin(
         if not await search_db(request, given_pin=pin):
             if search_term:
                 return HTMLResponse(
-                content=f"<h1>Error: PIN or Address Not Found in Database - {pin}</h1>",
+                content=f"<h1>Error: PIN or Address Not Found in Database - {search_term}</h1>",
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
-            # add address mapping here - currently if you search by address that has a pin with 0 entries, it displays pin (which should stay hidden)
-            # adjust address_suggestions to break down to just search_address(search_term)? and get_address_suggestions(search_term)
-
 
         else:
             # Render the Quarto document with the provided PIN
             print(f"Quarto file path: {qmd_file}")  # Debug: print the path
-            print(f"{pin=}")
             subprocess.run(
                 [
                     "quarto",
