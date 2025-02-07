@@ -17,7 +17,7 @@ params:
         value: 2022
     pin_14:
         label: "PIN"
-        value: "15361000280000"
+        value: "20114070180000"
         input: text
 ---
 
@@ -37,6 +37,10 @@ library(glue)
 library(sf)
 library(rmarkdown)
 library(stringr)
+library(ccao)
+library(formattable)
+
+
 
 library(gtExtras)
 library(svglite)
@@ -64,6 +68,9 @@ prior_year <- params$prior_year
 
 ptaxsim_db_conn <- dbConnect(SQLite(), db_path)
 tax_bases_res_com_share <- readRDS("data/tax_bases_res_com_share.rda")
+
+
+
 ```
 
 
@@ -387,22 +394,15 @@ css_get_colors <- function(vals) {
 ```
 
 ```{r}
-levy_y = (total_levy_current-total_levy_prior)/total_levy_prior
-
-share_current = sum(tax_bill_current$tax_amt_post_exe)/sum(tax_bill_current$agency_total_ext)
-share_prior = sum(tax_bill_prior$tax_amt_post_exe)/sum(tax_bill_prior$agency_total_ext)
-
-share_x = (share_current - share_prior)/ share_prior
-
-if (levy_y > share_x) {
-  min = -1.2*abs(levy_y)
-  max = 1.2*abs(levy_y)
+if (change_from_levy > change_from_share) {
+  min = -1.2*abs(change_from_levy)
+  max = 1.2*abs(change_from_levy)
 } else {
-  min = -1.2*abs(share_x)
-  max = 1.2*abs(share_x)
+  min = -1.2*abs(change_from_share)
+  max = 1.2*abs(change_from_share)
 }
 
-pin_date = data.frame(x = c(share_x), y = c(levy_y))
+pin_date = data.frame(x = c(change_from_share), y = c(change_from_levy))
 
 
 line_data <- data.frame(x = c(-max, -min), y = c(max, min))
@@ -448,12 +448,13 @@ quadrant_chart = ggplot() +
     axis.text = element_blank(),
     axis.title=element_blank(),
   ) +
-  annotate("text", x = max*.98, y = max*0.05, label = "Increased Tax Burden",fontface = "bold", hjust = 1) +  # Label at the end of positive x-axis
-  annotate("text", x = min*.98, y = max*0.05, label = "Decreased Tax Burden",fontface = "bold", hjust = 0) +  # Label at the end of negative x-axis
-  annotate("text", x = 0, y = max*.95, label = "Increased Levy", fontface = "bold") + # Label at the top of x-axis
-  annotate("text", x = 0, y = min*.95, label = "Decreased Levy", fontface = "bold") +  # Label at the top of x-axis
-  annotate("text", x = max*.5, y = max*.5, label = "Tax Bill Increases") +
-  annotate("text", x = min*.5, y = min*.5, label = "Tax Bill Decreases")
+  annotate("text", x = max*.98, y = max*0.05, label = "Increased Tax Share", hjust = 1,size =3.5) +  # Label at the end of positive x-axis
+  annotate("text", x = min*.98, y = max*0.05, label = "Decreased Tax Share", hjust = 0, size =3.5) +  # Label at the end of negative x-axis
+  annotate("text", x = 0, y = max*.95, label = "Increased Levy", size =3.5) + # Label at the top of x-axis
+  annotate("text", x = 0, y = min*.95, label = "Decreased Levy", size = 3.5) +  # Label at the top of x-axis
+  annotate("text", x = max*.5, y = max*.5, label = "Tax Bill Increases",fontface = "bold") +
+  annotate("text", x = min*.5, y = min*.5, label = "Tax Bill Decreases",fontface = "bold") +
+  annotate("text", x = change_from_share, y = change_from_levy*.9, label = "Your Bill", size = 3)
 ```
 
 
@@ -467,13 +468,60 @@ Every `r render_name("PIN", render_pin14)` belongs to multiple tax districts (lo
 
 The Cook County Assessor's Office, the State, and county taxing districts (schools, parks, etc.) work together to calculate fair property taxes for residents.
 
-## My Property (TODO) (where to get parcel metadata)
+## My Property
 
-```{r, eval=FALSE}
-#This is `r render_name("property parcel", render_pin14)` which is located at `r pin_address`. It was last assessed in `r last_assessed_year` at a fair market value of `r fmv`. According to the Accessor's Office, this property is classified as a `r pin_details` -->
+```{r}
+#https://github.com/ccao-data/data-architecture/blob/master/dbt/seeds/ccao/ccao.class_dict.csv
+class_desc = read_csv("data/ccao.class_dict.csv")  %>% 
+           select("class_code", "major_class_type","class_desc") %>% 
+            filter(class_code == pin_details_current$class)
 
 
+
+if (str_sub(pin_details_current$class, 1, 1) %in% c("2", "3")) {
+    level_of_assessment <- 0.1
+} else if (str_sub(pin_details_current$class, 1, 1) == "4") {
+    level_of_assessment <- 0.2
+} else {
+    level_of_assessment <- 0.25
+}
+
+# get first row of tax_bill_current, just first two characters of tax_code
+town_code = str_sub(tax_bill_current$tax_code[1], 1, 2)
+
+assessment_year = town_get_assmnt_year(town_code, year = current_year,round_type = "floor")
+
+# sq ft, address, num bedrooms, 
+pin_details_display = pin_details_current %>%
+  mutate("Market Value" = as.character(currency(av/level_of_assessment,digits = 0)),
+         "Total Exemptions Amount" = as.character(currency((exe_homeowner + exe_senior + exe_freeze + exe_longtime_homeowner + 
+         exe_disabled + exe_vet_returning + exe_vet_dis_lt50 + exe_vet_dis_50_69 +
+         exe_vet_dis_ge70 + exe_abate),digits = 0)),
+         # count if any exe_* is greater than zero
+         "Total Exemptions" = as.character(rowSums(across(starts_with("exe_")) > 0)),
+         "Last Assessment Year" = as.character(assessment_year),
+         )  %>%
+  left_join(class_desc, by = c("class" = "class_code")) %>%
+  mutate("Class" = paste(major_class_type, class_desc, sep = " - ")) %>%
+  select("pin","Market Value","Class","Last Assessment Year","Total Exemptions","Total Exemptions Amount",) %>%
+  # rotate to make table with columns all in one row
+  pivot_longer(cols = everything(), names_to = "variable", values_to = "value") %>%
+  gt() %>%
+  #not show headers
+  tab_style(
+    style = cell_text(weight = "bold"),
+    locations = cells_body(
+      columns = everything(),
+      rows = everything()
+    )) %>%
+  tab_options(
+    column_labels.hidden = TRUE
+  )
 ```
+
+This is `r render_name("property parcel", render_pin14)` which is located at TODO. See additional details below. 
+
+`r pin_details_display`
 
 
 ## Why Did my Property Tax Bill Change?
