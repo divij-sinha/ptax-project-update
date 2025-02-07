@@ -394,51 +394,51 @@ share_prior = sum(tax_bill_prior$tax_amt_post_exe)/sum(tax_bill_prior$agency_tot
 
 share_x = (share_current - share_prior)/ share_prior
 
-y_min =  -1.2*abs(levy_y)
-y_max = 1.2*abs(levy_y)
-
-x_min = -1.2*abs(share_x)
-x_max = 1.2*abs(share_x)
+if (levy_y > share_x) {
+  min = -1.2*abs(levy_y)
+  max = 1.2*abs(levy_y)
+} else {
+  min = -1.2*abs(share_x)
+  max = 1.2*abs(share_x)
+}
 
 pin_date = data.frame(x = c(share_x), y = c(levy_y))
 
-if (y_max < x_max) {
-  line_data <- data.frame(x = c(-y_max, -y_min), y = c(y_max, y_min))
-} else {
-  line_data <- data.frame(x = c(x_min, x_max), y = c(-x_min, -x_max))
-}
 
-x_axis <- data.frame(x = c(x_min, x_max), y = c(0,0))
-y_axis <- data.frame(x = c(0, 0), y = c(y_min*.9, y_max*.9))
+line_data <- data.frame(x = c(-max, -min), y = c(max, min))
+
+
+x_axis <- data.frame(x = c(min, max), y = c(0,0))
+y_axis <- data.frame(x = c(0, 0), y = c(min*.9, max*.9))
 
 
 quadrant_chart = ggplot() +
   geom_line(data = line_data, aes(x = x, y = y), linetype = "dashed") +
   geom_point(data = pin_date, aes(x = x, y = y),size = 5, color = 'steelblue')+ 
   geom_rect(data = data.frame(
-    xmin = x_min,
-    xmax = -y_max,
-    ymin = y_min,
-    ymax = y_max
+    xmin = min,
+    xmax = -max,
+    ymin = min,
+    ymax = max
   ), aes(
     xmin = xmin, xmax = xmax,
     ymin = ymin, ymax = ymax
   ), fill = "#61ffb844", alpha = 0.1) +
   geom_rect(data = data.frame(
-    xmin = y_max,
-    xmax = x_max,
-    ymin = y_min,
-    ymax = y_max
+    xmin = max,
+    xmax = max,
+    ymin = min,
+    ymax = max
   ), aes(
     xmin = xmin, xmax = xmax,
     ymin = ymin, ymax = ymax
   ), fill = "#ff696144", alpha = 0.1) +
- geom_ribbon(data = line_data, aes(x = x, ymin = y, ymax = y_max), fill = "#ff696144", alpha = 0.1) +  # Shade area above the line
-  geom_ribbon(data = line_data, aes(x = x, ymin = y_min, ymax = y), fill = "#61ffb844", alpha = 0.1) +  # Shade area below the line
+ geom_ribbon(data = line_data, aes(x = x, ymin = y, ymax = max), fill = "#ff696144", alpha = 0.1) +  # Shade area above the line
+  geom_ribbon(data = line_data, aes(x = x, ymin = min, ymax = y), fill = "#61ffb844", alpha = 0.1) +  # Shade area below the line
   geom_line(data = x_axis, aes(x = x, y = y),linetype = "solid") +
   geom_line(data = y_axis, aes(x = x, y = y),linetype = "solid") +
-  scale_x_continuous(limits = c(x_min, x_max)) +
-  scale_y_continuous(limits = c(y_min, y_max)) +
+  scale_x_continuous(limits = c(min, max)) +
+  scale_y_continuous(limits = c(min, max)) +
   theme_minimal() +
   theme(
     panel.grid = element_blank(),  # Remove grid lines
@@ -448,12 +448,12 @@ quadrant_chart = ggplot() +
     axis.text = element_blank(),
     axis.title=element_blank(),
   ) +
-  annotate("text", x = x_max*.98, y = y_max*0.05, label = "Increased Tax Burden",fontface = "bold", hjust = 1) +  # Label at the end of positive x-axis
-  annotate("text", x = x_min*.98, y = y_max*0.05, label = "Decreased Tax Burden",fontface = "bold", hjust = 0) +  # Label at the end of negative x-axis
-  annotate("text", x = 0, y = y_max*.95, label = "Increased Levy", fontface = "bold") + # Label at the top of x-axis
-  annotate("text", x = 0, y = y_min*.95, label = "Decreased Levy", fontface = "bold") +  # Label at the top of x-axis
-  annotate("text", x = x_max*.5, y = y_max*.5, label = "Tax Bill Increases") +
-  annotate("text", x = x_min*.5, y = y_min*.5, label = "Tax Bill Decreases") 
+  annotate("text", x = max*.98, y = max*0.05, label = "Increased Tax Burden",fontface = "bold", hjust = 1) +  # Label at the end of positive x-axis
+  annotate("text", x = min*.98, y = max*0.05, label = "Decreased Tax Burden",fontface = "bold", hjust = 0) +  # Label at the end of negative x-axis
+  annotate("text", x = 0, y = max*.95, label = "Increased Levy", fontface = "bold") + # Label at the top of x-axis
+  annotate("text", x = 0, y = min*.95, label = "Decreased Levy", fontface = "bold") +  # Label at the top of x-axis
+  annotate("text", x = max*.5, y = max*.5, label = "Tax Bill Increases") +
+  annotate("text", x = min*.5, y = min*.5, label = "Tax Bill Decreases")
 ```
 
 
