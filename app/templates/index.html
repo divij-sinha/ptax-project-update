@@ -3,34 +3,41 @@
 {% block content %}
 <div class="container mt-4">
     <div class="tab-content" id="nav-tabContent">
-        <div class="tab-pane fade show active" id="text-search" role="tabpanel" aria-labelledby="text-search-tab"
-            tabindex="0">
+        <div class="tab-pane fade show active" id="text-search" role="tabpanel" aria-labelledby="text-search-tab" tabindex="0">
             <div class="container pt-4">
                 <form method="post" autocomplete="off" action="/submit">
-                    <div class="row justify-content-around mb-3 gap-2">
-                        <div class="input-group">
-                            <input type="text" name="search_term" class="form form-control align-self-end"
-                                id="search_term" placeholder="Enter an address, or PIN...">
-                            <ul class="dropdown-menu" role="menu" id="suggestions_dropdown"></ul>
-                        </div>
-                        <div class="input-group">
-                            <input type="hidden" name="search_term_hidden" class="form form-control align-self-end"
-                                id="search_term_hidden" placeholder="NEVER SEE THIS">
-                        </div>
-                        <div class="row justify-content-center">
-                            <div class="col-md-4">
-                                <button class="btn btn-primary btn-lg btn-block bg-info w-100"
-                                    id="search-button">Search</button>
+                    <div class="row justify-content-center mb-3 gap-2">
+                        <div class="col-auto">
+                            <div class="input-group">
+                                <select name="search_category" id="search_category" class="form-select w-auto" required>
+                                    <option value="" disabled selected>Compare to bill...</option>
+                                    <option value="one_year">1 year ago</option>
+                                    <option value="three_years">3 years ago</option>
+                                    <option value="five_years">5 years ago</option>
+                                </select>                                                             
                             </div>
                         </div>
-                    </div>
 
+                        <input type="hidden" name="search_category_hidden" id="search_category_hidden">
+
+                        <div class="col-md-5">
+                            <div class="input-group">
+                                <input type="text" name="search_term" class="form-control" id="search_term" placeholder="Enter an address, or PIN...">
+                                <ul class="dropdown-menu" role="menu" id="suggestions_dropdown"></ul>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="search_term_hidden" id="search_term_hidden">
+
+                        <div class="col-auto">
+                            <button class="btn btn-primary btn-lg bg-info w-100" id="search-button">Search</button>
+                        </div>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
-
 {% endblock %}
 
 {% block script %}

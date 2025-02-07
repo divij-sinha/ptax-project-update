@@ -108,11 +108,18 @@ async def search_db(
 
 @app.post("/submit", response_class=RedirectResponse)
 async def handle_pin(
-    request: Request, search_term: str = Form(...), search_term_hidden: str = Form(...)
+    request: Request, search_category: str = Form(...), search_term: str = Form(...), search_term_hidden: str = Form(...)
 ):
     """Handle PIN input and render the QMD file."""
     base_dir = os.path.dirname(__file__)  # Directory of the current script
     qmd_file = os.path.abspath(os.path.join(base_dir, "../ptaxsim_explainer.qmd"))
+
+    if search_category == "three_years":
+        prior_year = 2020
+    elif search_category == "five_years":
+        prior_year = 2018
+    else:
+        prior_year = 2022
 
     if len(search_term) == 14 and search_term.isdigit():
         pin = search_term
@@ -143,6 +150,7 @@ async def handle_pin(
         else:
             # Render the Quarto document with the provided PIN
             print(f"Quarto file path: {qmd_file}")  # Debug: print the path
+            print("prior year", prior_year)
             subprocess.run(
                 [
                     "quarto",
@@ -154,6 +162,10 @@ async def handle_pin(
                     f"{pin}.html",
                     "--output-dir",
                     f"outputs/v{VERSION}",
+                    "--execute-param",
+                    "current_year=2023",
+                    "--execute-param",
+                    f"prior_year={prior_year}",
                     "--execute-param",
                     f"pin_14={pin}",
                 ],

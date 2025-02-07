@@ -66,7 +66,20 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchCategory = document.getElementById("search_category");
+        const searchCategoryHidden = document.getElementById("search_category_hidden");
+    
+        // Set default hidden input value on page load
+        selectElement.value = "one_year"; // Set the default value here
+    
+        selectElement.addEventListener('change', function() {
+            if (this.value) {
+                this.querySelector('option[value=""]').disabled = true; // Disable placeholder
+            }
+        });
+    });    
+    
     searchTermInput.addEventListener('focusout', function () {
         if (!suggestionsDropdown.matches(':hover')) {  // Use matches for modern browsers
             suggestionsDropdown.classList.remove('show');
