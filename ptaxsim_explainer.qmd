@@ -68,7 +68,7 @@ last_assessment_year_flag <- params$last_assessment_year_flag
 prior_year <- params$prior_year
 
 ptaxsim_db_conn <- dbConnect(SQLite(), db_path)
-tax_bases_res_com_share <- readRDS("data/tax_bases_res_com_share.rda")
+tax_bases_res_com_share <- readRDS("data/tax_bases_res_com_share.rds")
 ```
 
 
