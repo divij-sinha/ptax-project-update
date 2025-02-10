@@ -239,6 +239,40 @@ pin_exe_total <- pin_exe_details %>%
 
 ```
 
+```{r defaults}
+render_pin14 <- glue("Parcel ({render_pin(pin_14)})")
+
+column_colors <- brewer.pal(3, "Pastel1")
+column_alpha <- 0.5
+
+map_road_alpha <- 0.3
+map_road_lwd <- 0.3
+map_fg_fill_alpha <- 0.33
+map_bg_fill_alpha <- 0.33
+map_color_alpha <- 0.5
+map_fg_lwd <- 1.1
+map_bg_lwd <- 1.05
+
+map_colors <- c(
+    "#88CCEE", "#CC6677", "#DDCC77", "#117733", "#332288", "#AA4499",
+    "#44AA99", "#999933", "#882255", "#661100", "#6699CC", "#888888"
+)
+map_names <- c(
+    render_pin14, "Cook County",
+    shp_bnd_all_schools$agency_name %>% as.character()
+)
+css_names <- c(map_names, "increased", "decreased")
+map_names <- factor(map_names, levels = map_names, ordered = TRUE)
+map_colors <- name_map_colors(map_colors, map_names)
+css_colors <- paste0(map_colors, "44")
+css_colors <- c(css_colors, "#ff696144", "#61ffb844")
+css_colors <- name_map_colors(css_colors, css_names)
+
+css_get_colors <- function(vals) {
+    mapply(css_get_color, vals)
+}
+```
+
 ```{r explainer-1a}
 # calculate change in bill for proportionn of res base changing only
 
@@ -363,39 +397,81 @@ total_res_com_share_incident <- sum(df_1b$incident)
 combined_bill_1b <- display_two_bills(tax_bill_prior_all, df_1b, "com_share")
 ```
 
-```{r defaults}
-render_pin14 <- glue("Parcel ({render_pin(pin_14)})")
 
-column_colors <- brewer.pal(3, "Pastel1")
-column_alpha <- 0.5
+```{r explainer-1c}
+# calculate change in bill for proportionn of exemptions changing only
 
-map_road_alpha <- 0.3
-map_road_lwd <- 0.3
-map_fg_fill_alpha <- 0.33
-map_bg_fill_alpha <- 0.33
-map_color_alpha <- 0.5
-map_fg_lwd <- 1.1
-map_bg_lwd <- 1.05
+# calculate for each district and then sum at the end
+agencies_old <- tax_bill_prior_all$agency_num
 
-map_colors <- c(
-    "#88CCEE", "#CC6677", "#DDCC77", "#117733", "#332288", "#AA4499",
-    "#44AA99", "#999933", "#882255", "#661100", "#6699CC", "#888888"
-)
-map_names <- c(
-    render_pin14, "Cook County",
-    shp_bnd_all_schools$agency_name %>% as.character()
-)
-css_names <- c(map_names, "increased", "decreased")
-map_names <- factor(map_names, levels = map_names, ordered = TRUE)
-map_colors <- name_map_colors(map_colors, map_names)
-css_colors <- paste0(map_colors, "44")
-css_colors <- c(css_colors, "#ff696144", "#61ffb844")
-css_colors <- name_map_colors(css_colors, css_names)
+# replace in new tax bill
+pin_dt_new <- pin_details_prior %>%
+    select(-starts_with("exe")) %>%
+    cbind(pin_details_current %>% select(starts_with("exe"))) %>%
+    data.table::setDT(key = c("year", "pin"))
 
-css_get_colors <- function(vals) {
-    mapply(css_get_color, vals)
-}
+tax_bill_1c <- tax_bill(
+    year_vec = prior_year,
+    pin_vec = pin_14,
+    pin_dt = pin_dt_new,
+    simplify = F
+) %>% process_tax_bill()
+
+# print(glue('agency = {tax_bill_1a_current$agency_name}, adj_eav={adj_eav}, eav_res_share_incident = {eav_res_share_incident}'))
+# print(glue('bill_before = {tax_bill_1a_prior$tax_amt_post_exe}, after = {tax_bill_1a_current$tax_amt_post_exe}'))
+
+# add row to table
+total_exe_incident <- sum(tax_bill_1c$tax_amt_post_exe) - sum(tax_bill_prior_all$tax_amt_post_exe)
+
+
+pin_change_table <- pin_details_prior %>%
+    mutate(year_id = "prior") %>%
+    rbind(pin_details_current %>% mutate(year_id = "current")) %>%
+    column_to_rownames("year_id") %>%
+    t() %>%
+    as_tibble(rownames = "variable") %>%
+    filter(!variable %in% c("class", "av", "eav", "pin", "year")) %>%
+    filter(prior != 0 & current != 0) %>%
+    mutate(across(c(prior, current), parse_number)) %>%
+    mutate(change_in_value = current - prior) %>%
+    gt() %>%
+    fmt(columns = variable, fns = exe_clean) %>%
+    fmt_currency(c(prior, current, change_in_value)) %>%
+    grand_summary_rows(
+        fns = list(
+            label = "Total Exemptions",
+            id = "sum",
+            fn = "sum"
+        ),
+        columns = c(prior, current, change_in_value),
+        fmt = ~ fmt_currency(., rows = "sum")
+    ) %>%
+    tab_style(
+        style = list(
+            cell_text(weight = "bold")
+        ),
+        locations = list(
+            cells_stub_grand_summary(),
+            cells_grand_summary()
+        )
+    ) %>%
+    tab_options(row_group.as_column = T) %>%
+    data_color(
+        columns = change_in_value,
+        target_columns = everything(),
+        method = "factor",
+        palette = c(css_colors["increased"], css_colors["decreased"]),
+        autocolor_text = FALSE
+    ) %>%
+    cols_label(
+        variable = "Exemption Type",
+        prior = prior_year,
+        current = current_year,
+        change_in_value = "Change in exemptions"
+    )
+
 ```
+
 
 ```{r}
 if (change_from_levy > change_from_share) {
@@ -644,6 +720,16 @@ A second part of your tax bill changing is due to how much __all__ residential p
 
 ::: {.callout-tip collapse="true" title="District wise changes in Commercial Share"}
 `r combined_bill_1b`
+:::
+
+
+#### (C) Exemptions
+
+A final part of your tax bill change is due to a change in your exemptions. This change in exemptions between `r prior_year` and `r current_year` caused your tax bill to __`r change_str(total_exe_incident, 'word')`__ by  __`r render_name(label_dol_amt(abs(total_exe_incident)), change_str(total_exe_incident, 'past'))`__.  
+ Your exemptions changed as follows. -- 
+
+::: {.callout-tip collapse="true" title="Change in exemptions"}
+`r pin_change_table`
 :::
 
 ## [How did a change in the Tax Levy affect my bill?]{style="color: #E9AA01;"}
