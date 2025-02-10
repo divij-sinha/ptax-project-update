@@ -19,6 +19,8 @@ params:
         label: "PIN"
         value: "20114070180000"
         input: text
+    last_assessment_year_flag:
+        value: 0
 ---
 
 ```{r setup, include=FALSE, cache=FALSE}
@@ -39,8 +41,6 @@ library(rmarkdown)
 library(stringr)
 library(ccao)
 library(formattable)
-
-
 
 library(gtExtras)
 library(svglite)
@@ -64,6 +64,7 @@ prior_year <- 2022
 pin_14 <- toString(params$pin_14)
 pin_14 <- str_pad(pin_14, width = 14, pad = "0", side = "left")
 current_year <- params$current_year
+last_assessment_year_flag <- params$last_assessment_year_flag
 prior_year <- params$prior_year
 
 ptaxsim_db_conn <- dbConnect(SQLite(), db_path)
@@ -73,17 +74,23 @@ tax_bases_res_com_share <- readRDS("data/tax_bases_res_com_share.rds")
 
 ``` {r calculations}
 
-# create pin details
-pin_details_current <- lookup_pin(current_year, pin_14)
-pin_details_prior <- lookup_pin(prior_year, pin_14)
-
-
 # create tax bill info
 tax_bill_current <- tax_bill(
     year_vec = current_year,
     pin_vec = pin_14,
     simplify = F
 ) %>% process_tax_bill()
+
+town_code = str_sub(tax_bill_current$tax_code[1], 1, 2)
+assessment_year = town_get_assmnt_year(town_code, year = current_year,round_type = "floor")
+
+if (last_assessment_year_flag == 1) {
+    prior_year <- assessment_year
+}
+
+# create pin details
+pin_details_current <- lookup_pin(current_year, pin_14)
+pin_details_prior <- lookup_pin(prior_year, pin_14)
 
 tax_bill_prior <- tax_bill(
     year_vec = prior_year,

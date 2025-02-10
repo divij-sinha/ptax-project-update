@@ -118,8 +118,10 @@ async def handle_pin(
         prior_year = 2020
     elif search_category == "five_years":
         prior_year = 2018
-    else:
+    elif search_category == "one_year":
         prior_year = 2022
+    else:
+        last_assessment_year_flag = 1
 
     if len(search_term) == 14 and search_term.isdigit():
         pin = search_term
@@ -150,7 +152,6 @@ async def handle_pin(
         else:
             # Render the Quarto document with the provided PIN
             print(f"Quarto file path: {qmd_file}")  # Debug: print the path
-            print("prior year", prior_year)
             subprocess.run(
                 [
                     "quarto",
@@ -168,6 +169,8 @@ async def handle_pin(
                     f"prior_year={prior_year}",
                     "--execute-param",
                     f"pin_14={pin}",
+                    "--execute-param",
+                    f"last_assessment_year_flag={last_assessment_year_flag}"
                 ],
                 check=True,
                 capture_output=True,
