@@ -67,7 +67,7 @@ current_year <- params$current_year
 prior_year <- params$prior_year
 
 ptaxsim_db_conn <- dbConnect(SQLite(), db_path)
-tax_bases_res_com_share <- readRDS("data/tax_bases_res_com_share.rds")
+tax_bases_res_com_share <- readRDS("data/tax_bases_res_com_share.rda")
 ```
 
 
@@ -604,6 +604,7 @@ This share can be broken up into two parts that impact your bill:
 <div class="box-container">
   <div class="box"><b>(A) This Property's Share of all Residential Properties</b></div>
   <div class="box"> <b>(B) Commercial-Residential Ratio</b></div>
+  <div class="box"> <b>(C) Change from Exemptions</b></div>
 </div>
 
 
@@ -624,7 +625,7 @@ explanation_1a <- function() {
 }
 ```
 
-More important than how this specific property's value changed is how much it changed value compared to all other properties in your area. From `r prior_year` to `r current_year` this property's taxable value `r explanation_1a()`. This caused your tax bill to __`r change_str(total_eav_res_share_incident, "word")`__ by __`r label_dol_amt(abs(total_eav_res_share_incident))`__.
+More important than how this specific property's value changed is how much it changed value compared to all other properties in your area. From `r prior_year` to `r current_year` this property's taxable value `r explanation_1a()`. This caused your tax bill to __`r change_str(total_eav_res_share_incident, "word")`__ by `r render_name(label_dol_amt(abs(total_eav_res_share_incident)),change_str(total_eav_res_share_incident, "past"))`.
 
 ::: {.callout-tip collapse="true" title="District wise changes in EAV Residential Share"}
 `r combined_bill_1a`
@@ -632,7 +633,7 @@ More important than how this specific property's value changed is how much it ch
 
 #### (B) Commercial-Residential Ratio
 
-A second part of your tax bill changing is due to how much __all__ residential properties pay compared to __all__ commercial properties. Commercial properties are more likely to decrease their assessment value through appeals, which shifts the tax burden more onto residential properties. The share that all residential properties paid in `r current_year` `r change_str(total_res_com_share_incident, 'past')` causing a __`r label_dol_amt(abs(total_res_com_share_incident))` `r change_str(total_res_com_share_incident, 'word')`__ in your tax bill.
+A second part of your tax bill changing is due to how much __all__ residential properties pay compared to __all__ commercial properties. Commercial properties are more likely to decrease their assessment value through appeals, which shifts the tax burden more onto residential properties. The share that all residential properties paid in `r current_year` `r change_str(total_res_com_share_incident, 'past')` caused your tax bill to __`r change_str(total_res_com_share_incident, "word")`__ by `r render_name(label_dol_amt(abs(total_res_com_share_incident)),change_str(total_res_com_share_incident, "past"))`
 
 ::: {.callout-tip collapse="true" title="District wise changes in Commercial Share"}
 `r combined_bill_1b`
@@ -640,7 +641,7 @@ A second part of your tax bill changing is due to how much __all__ residential p
 
 ## [How did a change in the Tax Levy affect my bill?]{style="color: #E9AA01;"}
 
-Lastly, your tax bill may have also changed due to the change in the [**Tax Levy**]{style="color: #E9AA01;"}, or the total amount of taxes imposed by the government. The total [**Tax Levy**]{style="color: #E9AA01;"} for all tax districts for this property __`r change_str(total_levy_current-total_levy_prior, "past")`__ by __`r label_p_ltx(abs((total_levy_current-total_levy_prior)/total_levy_prior))`__ between `r current_year` and `r prior_year`. This `r change_str(total_levy_current-total_levy_prior, "word")` resulted in a __`r change_str(change_from_levy,"word")`__ of __`r label_dol_amt(abs(change_from_levy))`__ in your tax bill.
+Lastly, your tax bill may have also changed due to the change in the [**Tax Levy**]{style="color: #E9AA01;"}, or the total amount of taxes imposed by the government. The total [**Tax Levy**]{style="color: #E9AA01;"} for all tax districts for this property __`r change_str(total_levy_current-total_levy_prior, "past")`__ by __`r label_p_ltx(abs((total_levy_current-total_levy_prior)/total_levy_prior))`__ between `r current_year` and `r prior_year` which caused your tax bill to __`r change_str(total_levy_current-total_levy_prior, "word")`__ by `r render_name(label_dol_amt(abs(change_from_levy)),change_str(change_from_levy,"past"))`.
 
 ::: {.column-margin}
 See the break down of the tax levy change for each distinct in [Appendix C](appendix)
