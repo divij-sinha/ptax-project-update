@@ -5,7 +5,7 @@ label_b <- label_dollar(prefix = "\\$", suffix = "B", scale = 1e-9)
 label_p_ltx <- label_percent(accuracy = 0.01, suffix = "\\%")
 
 label_dol_amt <- function(val) {
-    if (any(val < 1e3)) {
+    if (any(val < 1e5)) {
         return(label_d(val))
     } else if (any(val < 1e6)) {
         return(label_k(val))

@@ -19,8 +19,6 @@ params:
         label: "PIN"
         value: "14294070931001"
         input: text
-    last_assessment_year_flag:
-        value: 0
 ---
 
 ```{r setup, include=FALSE, cache=FALSE}
@@ -52,19 +50,15 @@ source("helper_funcs.R")
 db_path <- "data/ptaxsim-2023.0.0.db"
 
 # example pins - defaults
-#pin_14 <- "20114070180000" # Hyde Park, Chicago
+# pin_14 <- "20114070180000" # Hyde Park, Chicago
 # pin_14 <- "15361000280000" # Riverside
 # pin_14 <- "16291280010000" # Cicero
 # pin_14 <- "14294070931001" # Wrightwood, Chicago - TIF
-pin_14 <- "16123090200000" # Kinzie - TIF
-
-current_year <- 2023
-prior_year <- 2022
+# pin_14 <- "16123090200000" # Kinzie - TIF
 
 pin_14 <- toString(params$pin_14)
 pin_14 <- str_pad(pin_14, width = 14, pad = "0", side = "left")
 current_year <- params$current_year
-last_assessment_year_flag <- params$last_assessment_year_flag
 prior_year <- params$prior_year
 
 ptaxsim_db_conn <- dbConnect(SQLite(), db_path)
@@ -82,9 +76,9 @@ tax_bill_current <- tax_bill(
 ) %>% process_tax_bill()
 
 town_code = str_sub(tax_bill_current$tax_code[1], 1, 2)
-assessment_year = town_get_assmnt_year(town_code, year = current_year,round_type = "floor")
+assessment_year = town_get_assmnt_year(town_code, year = current_year - 1,round_type = "floor")
 
-if (last_assessment_year_flag == 1) {
+if (prior_year == 1) {
     prior_year <- assessment_year
 }
 
@@ -201,14 +195,15 @@ combined_df2_simplified <- display_two_bills_simplified(tax_bill_prior_all, tax_
 ```
 
 ```{r appendix c}
-cook_roads <- roads("17", "031")
+# cook_roads <- roads("17", "031") %>% st_transform(4326)
+cook_roads <- readRDS("data/cookroads.rds")
 
 shp_bnd_pin <- get_shp_bnd_pin(pin_14, current_year)
 
 shp_buf_pin <- shp_bnd_pin %>%
     st_centroid() %>%
     st_transform(3857) %>%
-    st_buffer(650) %>%
+    st_buffer(500) %>%
     st_transform(4326)
 
 shp_bnd_cook <- get_shp_bnd_cook()
@@ -276,6 +271,34 @@ css_get_colors <- function(vals) {
     mapply(css_get_color, vals)
 }
 ```
+
+
+```{r appendix_a}
+# depends on class code, confirm this
+# https://prodassets.cookcountyassessor.com/s3fs-public/form_documents/Definitions%20for%20the%20Classification%20of%20Real%20Property%202024%20%28FINAL%29%202.5.2024.pdf?VersionId=FA6QKGgGaJwcNQnpBkbEpW3HyVbCNWIu
+
+if (str_sub(pin_details_current$class, 1, 1) %in% c("2", "3")) {
+    level_of_assessment <- 0.1
+} else if (str_sub(pin_details_current$class, 1, 1) == "4") {
+    level_of_assessment <- 0.2
+} else {
+    level_of_assessment <- 0.25
+}
+market_value <- pin_details_current$av / level_of_assessment
+
+eq_factor <- tbl(ptaxsim_db_conn, "eq_factor") %>%
+    collect() %>%
+    filter(year == current_year) %>%
+    pull(eq_factor_final)
+
+total_exe <- pin_details_current %>%
+    mutate(exe_total = exe_homeowner + exe_senior + exe_freeze + exe_longtime_homeowner +
+        exe_disabled + exe_vet_returning + exe_vet_dis_lt50 + exe_vet_dis_50_69 +
+        exe_vet_dis_ge70 + exe_abate) %>%
+    pull(exe_total)
+
+```
+
 
 ```{r explainer-1a}
 # calculate change in bill for proportionn of res base changing only
@@ -423,53 +446,55 @@ tax_bill_1c <- tax_bill(
 # add row to table
 total_exe_incident <- sum(tax_bill_1c$tax_amt_post_exe) - sum(tax_bill_prior_all$tax_amt_post_exe)
 
-
-pin_change_table <- pin_details_prior %>%
-    mutate(year_id = "prior") %>%
-    rbind(pin_details_current %>% mutate(year_id = "current")) %>%
-    column_to_rownames("year_id") %>%
-    t() %>%
-    as_tibble(rownames = "variable") %>%
-    filter(!variable %in% c("class", "av", "eav", "pin", "year")) %>%
-    filter(prior != 0 & current != 0) %>%
-    mutate(across(c(prior, current), parse_number)) %>%
-    mutate(change_in_value = current - prior) %>%
-    gt() %>%
-    fmt(columns = variable, fns = exe_clean) %>%
-    fmt_currency(c(prior, current, change_in_value)) %>%
-    grand_summary_rows(
-        fns = list(
-            label = "Total Exemptions",
-            id = "sum",
-            fn = "sum"
-        ),
-        columns = c(prior, current, change_in_value),
-        fmt = ~ fmt_currency(., rows = "sum")
-    ) %>%
-    tab_style(
-        style = list(
-            cell_text(weight = "bold")
-        ),
-        locations = list(
-            cells_stub_grand_summary(),
-            cells_grand_summary()
+if (total_exe_incident == 0 & pin_exe_total == 0) {
+    pin_change_table <- "NO CHANGE AND NO EXEMPTIONS"
+} else {
+    pin_change_table <- pin_details_prior %>%
+        mutate(year_id = "prior") %>%
+        rbind(pin_details_current %>% mutate(year_id = "current")) %>%
+        column_to_rownames("year_id") %>%
+        t() %>%
+        as_tibble(rownames = "variable") %>%
+        filter(!variable %in% c("class", "av", "eav", "pin", "year")) %>%
+        filter(prior != 0 & current != 0) %>%
+        mutate(across(c(prior, current), parse_number)) %>%
+        mutate(change_in_value = current - prior) %>%
+        gt() %>%
+        fmt(columns = variable, fns = exe_clean) %>%
+        fmt_currency(c(prior, current, change_in_value)) %>%
+        grand_summary_rows(
+            fns = list(
+                label = "Total Exemptions",
+                id = "sum",
+                fn = "sum"
+            ),
+            columns = c(prior, current, change_in_value),
+            fmt = ~ fmt_currency(., rows = "sum")
+        ) %>%
+        tab_style(
+            style = list(
+                cell_text(weight = "bold")
+            ),
+            locations = list(
+                cells_stub_grand_summary(),
+                cells_grand_summary()
+            )
+        ) %>%
+        tab_options(row_group.as_column = T) %>%
+        data_color(
+            columns = change_in_value,
+            target_columns = everything(),
+            method = "factor",
+            palette = c(css_colors["increased"], css_colors["decreased"]),
+            autocolor_text = FALSE
+        ) %>%
+        cols_label(
+            variable = "Exemption Type",
+            prior = prior_year,
+            current = current_year,
+            change_in_value = "Change in exemptions"
         )
-    ) %>%
-    tab_options(row_group.as_column = T) %>%
-    data_color(
-        columns = change_in_value,
-        target_columns = everything(),
-        method = "factor",
-        palette = c(css_colors["increased"], css_colors["decreased"]),
-        autocolor_text = FALSE
-    ) %>%
-    cols_label(
-        variable = "Exemption Type",
-        prior = prior_year,
-        current = current_year,
-        change_in_value = "Change in exemptions"
-    )
-
+}
 ```
 
 
@@ -568,9 +593,9 @@ total_exe <- pin_details_current %>%
 
 Property tax is owed by property owners annually, for both residential and commercial properties. 
 
-These liabilities are decided per `r render_name("property parcel", render_pin14)`, and each parcel is uniquely identifiable with a 14-digit `r render_name("Property Index Number", render_pin14)` or `r render_name("PIN", render_pin14)`
+These liabilities are decided per `r render_name("property parcel", render_pin14)`, and each parcel is uniquely identifiable with a 14-digit `r render_name("Property Index Number", render_pin14)` or `r render_name("PIN", render_pin14)`.
 
-Every `r render_name("PIN", render_pin14)` belongs to multiple tax districts (local government bodies), that need funds for their purposes. 
+Every `r render_name("PIN", render_pin14)` belongs to multiple tax districts (local government bodies), that each require funding for purposes like operating schools, libraries, parks etc.
 
 The Cook County Assessor's Office, the State, and county taxing districts (schools, parks, etc.) work together to calculate fair property taxes for residents.
 
@@ -612,6 +637,7 @@ pin_details_display = pin_details_current %>%
   left_join(class_desc, by = c("class" = "class_code")) %>%
   mutate("Class" = paste(major_class_type, class_desc, sep = " - ")) %>%
   select("pin","Market Value","Class","Last Assessment Year","Total Exemptions","Total Exemptions Amount",) %>%
+  rename(PIN = pin) %>%
   # rotate to make table with columns all in one row
   pivot_longer(cols = everything(), names_to = "variable", values_to = "value") %>%
   gt() %>%
@@ -627,13 +653,12 @@ pin_details_display = pin_details_current %>%
   )
 ```
 
-This is `r render_name("property parcel", render_pin14)` which is located at TODO. See additional details below. 
+This is `r render_name(render_pin14)` which is located at TODO. See additional details below. 
 
 `r pin_details_display`
 
-
-## Why Did Your Property Tax Bill Change?
-The tax bill for `r render_name(render_pin14)` was approximately `r label_dol_amt(prior_year_tax_bill_summary$sum_final_tax_to_dist)` in `r prior_year` and `r label_dol_amt(latter_year_tax_bill_summary$sum_final_tax_to_dist)` in `r current_year`, resulting in `r if (tax_bill_change<0) "a" else "an"` __`r change_str(tax_bill_change, 'word')`__ of `r render_name(label_dol_amt(abs(tax_bill_change)),change_str(tax_bill_change, 'past'))`. This change can be broken down into two main components as shown below.
+## Why Did my Property Tax Bill Change?
+The tax bill for `r render_name(render_pin14)` was approximately `r label_dol_amt(prior_year_tax_bill_summary$sum_final_tax_to_dist)` in `r prior_year` and `r label_dol_amt(latter_year_tax_bill_summary$sum_final_tax_to_dist)` in `r current_year`, resulting in `r if (tax_bill_change<0) "a" else "an"` __`r change_str(tax_bill_change, 'word')`__ of `r render_name(label_dol_amt(abs(tax_bill_change)),change_str(tax_bill_change, 'past'))`. This change can be broken down into two main components as shown below. The largest component of this change was [eav/commercial/levy/exemptions].
 
 ```{r}
 
@@ -671,7 +696,7 @@ if (abs(change_from_levy) > abs(change_from_share)) {
 >There is also a `r label_dol_amt(abs(change_leftover))` `r change_str(change_from_share, 'word')` that was caused by a combination of both factors.
 :::
 
-Since your tax levy `r change_str(change_from_levy, 'past')` and your `r change_str(change_from_share, 'past')`, your tax bill `r change_str(tax_bill_change, 'past')`. 
+Your tax levy `r change_str(change_from_levy, 'past')` and your assessed value `r change_str(change_from_share, 'past')`, while your combined tax bill `r change_str(tax_bill_change, 'past')`. 
 
 ```{r}
 #| fig-width: 5
@@ -732,7 +757,7 @@ A change in exemptions between `r prior_year` and `r current_year` caused your t
 A second reason your tax bill changed is due to the change in your property's taxable value compared to all other properties in your area. Your property's taxable value __`r change_str(eav_current-eav_prior, "past")`__ by __`r label_p_ltx(abs((eav_current-eav_prior)/eav_prior))`__ from `r label_dol_amt(prior_eav)` to `r label_dol_amt(current_eav)`. If the estimated market value of your home is significantly more than what you believe your home could sell for in the current real estate market, you should [file an appeal with the Cook County Assessor's Office](https://www.cookcountyaa.gov/appeal-your-assessment).
 
 ::: {.column-margin}
-Your property's fair market value (as determined by the Cook County Assessor's Office) is `r label_dol_amt(market_value)`. This is used to calculate your property's taxable value, called the Equalized Assessed Value (EAV). This year, your EAV was `r label_dol_amt(eav_current)`. See [Appendix A](#appendixA) for more details about this calculation. 
+Your property's fair market value (as determined by the Cook County Assessor's Office) is `r label_dol_amt(market_value)`. This is used to calculate your property's taxable value, called the Equalized Assessed Value (EAV). This year, your EAV was `r label_dol_amt(eav_current)`. See [exix A](#appendixA) for more details about this calculation. 
 :::
 
 ``` {r}
@@ -785,7 +810,7 @@ First, start with the Fair Market Value and multiply by the Level of Assessment,
 
 The resulting value is the Equalized Assessed Value.
 $$`r label_dol_amt(market_value)` \times `r label_p_ltx(level_of_assessment)` \times `r eq_factor` = `r label_dol_amt(eav_current)`$$
-$$`r label_dol_amt(eav_current)` - `r label_dol_amt(total_exe)` = `r label_dol_amt(eav_current)`$$
+$$`r label_dol_amt(eav_current)` - `r label_dol_amt(total_exe)` = `r label_dol_amt(eav_current - total_exe)`$$
 :::
 
 ::: {.callout-note appearance="minimal"}
