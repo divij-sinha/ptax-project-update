@@ -1,9 +1,9 @@
 import os
+import sqlite3
 import subprocess
 
 import polars as pl
 import usaddress
-import sqlite3
 from fastapi import FastAPI, Form, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -31,9 +31,7 @@ async def read_root(request: Request):
     )
 
 
-async def search_address(
-    search_term: str = Form(...), exact_match: bool = False
-):
+async def search_address(search_term: str = Form(...), exact_match: bool = False):
     add_df = pl.scan_csv("data/Address_Points.csv", infer_schema=False)
     parsed_address = {k: v.lower() for v, k in usaddress.parse(search_term)}
 
@@ -64,7 +62,7 @@ async def search_address(
 
     if f:
         return []
-    
+
     suggestions = (
         filtered_df.select("ADDRDELIV", "PIN")
         .rename({"ADDRDELIV": "key", "PIN": "value"})
@@ -80,26 +78,23 @@ async def search_address(
 async def address_suggestions(
     request: Request, search_term: str = Form(...), exact_match: bool = False
 ):
-    
     suggestions = await search_address(search_term, exact_match)
     return JSONResponse(content=suggestions)
 
 
 @app.get("/searchdb", response_class=HTMLResponse)
-async def search_db(
-    request: Request, given_pin: str = Form(...)
-):
+async def search_db(request: Request, given_pin: str = Form(...)):
     """Search database."""
 
     base_dir = os.path.dirname(__file__)  # Directory of the current script
-    db_path = os.path.join(base_dir, "../data/ptaxsim-2023.0.0.db") 
+    db_path = os.path.join(base_dir, "../data/ptaxsim-2023.0.0.db")
     con = sqlite3.connect(db_path)
 
     cur = con.cursor()
     cur.execute("SELECT * FROM pin WHERE pin = ?", (given_pin,))
     res = cur.fetchall()
     con.close()
-    
+
     if len(res) == 0:
         return False
     else:
@@ -108,7 +103,10 @@ async def search_db(
 
 @app.post("/submit", response_class=RedirectResponse)
 async def handle_pin(
-    request: Request, search_category: str = Form(...), search_term: str = Form(...), search_term_hidden: str = Form(...)
+    request: Request,
+    search_category: str = Form(...),
+    search_term: str = Form(...),
+    search_term_hidden: str = Form(...),
 ):
     """Handle PIN input and render the QMD file."""
     base_dir = os.path.dirname(__file__)  # Directory of the current script
@@ -121,18 +119,18 @@ async def handle_pin(
     elif search_category == "one_year":
         prior_year = 2022
     else:
-        last_assessment_year_flag = 1
+        prior_year = 1
 
     if len(search_term) == 14 and search_term.isdigit():
         pin = search_term
-    
+
     elif len(search_term_hidden) == 14 and search_term_hidden.isdigit():
         pin = search_term_hidden
 
     elif isinstance(search_term, str):
         suggestions = await search_address(search_term, exact_match=False)
         if len(suggestions) > 0:
-            pin = suggestions[0]['value']
+            pin = suggestions[0]["value"]
 
     else:
         wrong_pin = search_term
@@ -145,9 +143,9 @@ async def handle_pin(
         if not await search_db(request, given_pin=pin):
             if search_term:
                 return HTMLResponse(
-                content=f"<h1>Error: PIN or Address Not Found in Database - {search_term}</h1>",
-                status_code=status.HTTP_400_BAD_REQUEST,
-            )
+                    content=f"<h1>Error: PIN or Address Not Found in Database - {search_term}</h1>",
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                )
 
         else:
             # Render the Quarto document with the provided PIN
@@ -169,8 +167,6 @@ async def handle_pin(
                     f"prior_year={prior_year}",
                     "--execute-param",
                     f"pin_14={pin}",
-                    "--execute-param",
-                    f"last_assessment_year_flag={last_assessment_year_flag}"
                 ],
                 check=True,
                 capture_output=True,
