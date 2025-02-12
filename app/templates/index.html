@@ -8,10 +8,10 @@
                 <form method="post" autocomplete="off" action="/submit">
                     <div class="row justify-content-center mb-3 gap-2">
                         <div class="col-auto">
+                            <label for="search_category" class="form-label">Compare to bill from:</label>
                             <div class="input-group">
                                 <select name="search_category" id="search_category" class="form-select w-auto" required>
-                                    <option value="" disabled selected>Compare to bill...</option>
-                                    <option value="last_assessment_year">From last assessment year</option>
+                                    <option value="last_assessment_year"selected>Last assessment year</option>
                                     <option value="one_year">1 year ago</option>
                                     <option value="three_years">3 years ago</option>
                                     <option value="five_years">5 years ago</option>
@@ -22,15 +22,16 @@
                         <input type="hidden" name="search_category_hidden" id="search_category_hidden">
 
                         <div class="col-md-5">
+                            <label for="search_term" class="form-label">Enter an address, or PIN:</label>
                             <div class="input-group">
-                                <input type="text" name="search_term" class="form-control" id="search_term" placeholder="Enter an address, or PIN...">
+                                <input type="text" name="search_term" class="form-control" id="search_term">
                                 <ul class="dropdown-menu" role="menu" id="suggestions_dropdown"></ul>
                             </div>
                         </div>
 
                         <input type="hidden" name="search_term_hidden" id="search_term_hidden">
 
-                        <div class="col-auto">
+                        <div class="col-auto mt-3">
                             <button class="btn btn-primary btn-lg bg-info w-100" id="search-button">Search</button>
                         </div>
                     </div>
