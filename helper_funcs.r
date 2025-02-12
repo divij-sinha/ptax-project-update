@@ -1,7 +1,7 @@
-label_d <- label_dollar(prefix = "\\$")
-label_k <- label_dollar(prefix = "\\$", suffix = "K", scale = 1e-3)
-label_m <- label_dollar(prefix = "\\$", suffix = "M", scale = 1e-6)
-label_b <- label_dollar(prefix = "\\$", suffix = "B", scale = 1e-9)
+label_d <- label_dollar(prefix = "\\$", accuracy = 1)
+label_k <- label_dollar(prefix = "\\$", suffix = "K", scale = 1e-3, accuracy = 1)
+label_m <- label_dollar(prefix = "\\$", suffix = "M", scale = 1e-6, accuracy = 1)
+label_b <- label_dollar(prefix = "\\$", suffix = "B", scale = 1e-9, accuracy = 1)
 label_p_ltx <- label_percent(accuracy = 0.01, suffix = "\\%")
 
 label_dol_amt <- function(val) {

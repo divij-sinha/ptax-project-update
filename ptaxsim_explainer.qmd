@@ -629,12 +629,26 @@ This is `r render_name(render_pin14)` which is located at TODO. See additional d
 
 `r pin_details_display`
 
+``` {r}
+# find max of value of assign text based on that
+max_val = max(abs(change_from_levy), abs(total_exe_incident), abs(total_eav_res_share_incident), abs(total_res_com_share_incident))
+
+if (max_val == abs(change_from_levy)) {
+    biggest_change =  "the taxing districts' levies changing"
+} else if (max_val == abs(total_exe_incident)) {
+    biggest_change = "your property's exemptions changing"
+} else if (max_val == abs(total_eav_res_share_incident)) {
+    biggest_change = "your property's share of all residential properties changing"
+} else {
+    biggest_change = "the burden of taxes between commercial and residential properties changed"
+}
+```
+
+
 ## Why Did my Property Tax Bill Change?
-The tax bill for `r render_name(render_pin14)` was approximately `r label_dol_amt(prior_year_tax_bill_summary$sum_final_tax_to_dist)` in `r prior_year` and `r label_dol_amt(latter_year_tax_bill_summary$sum_final_tax_to_dist)` in `r current_year`, resulting in `r if (tax_bill_change<0) "a" else "an"` __`r change_str(tax_bill_change, 'word')`__ of `r render_name(label_dol_amt(abs(tax_bill_change)),change_str(tax_bill_change, 'past'))`. This change can be broken down into two main components as shown below. The largest component of this change was [eav/commercial/levy/exemptions].
+The tax bill for `r render_name(render_pin14)` was approximately `r label_dol_amt(prior_year_tax_bill_summary$sum_final_tax_to_dist)` in `r prior_year` and `r label_dol_amt(latter_year_tax_bill_summary$sum_final_tax_to_dist)` in `r current_year`, resulting in `r if (tax_bill_change<0) "a" else "an"` __`r change_str(tax_bill_change, 'word')`__ of `r render_name(label_dol_amt(abs(tax_bill_change)),change_str(tax_bill_change, 'past'))`. This change can be broken down into two main components as shown below. The largest change in your bill was due to __`r biggest_change`__.
 
 ```{r}
-
-
 change_from_levy_text <- paste("Your tax bill ", change_str(change_from_levy, "past"), " by approximately ", render_name(label_dol_amt(abs(change_from_levy)),change_str(change_from_levy, "past")), " due to the ", change_str(change_from_levy, 'word'), " in your taxing districts' levies. ",
     "This is the change in the tax bill outside your control, is the same for everyone, and refers to the increase in the cost of providing services.",
     sep = ""
@@ -718,18 +732,23 @@ This share can be broken up into two parts that impact your bill:
 
 Your tax bill may have changed due to a change in your exemptions. Property tax exemptions are savings that contribute to lowering a homeowner’s property tax bill. Learn more about exemptions, including how to apply, at the [Cook County Assessor's Office's website](https://www.cookcountyaa.gov/property-tax-exemptions). 
 
-A change in exemptions between `r prior_year` and `r current_year` caused your tax bill to __`r change_str(total_exe_incident, 'word')`__ by  `r render_name(label_dol_amt(abs(total_exe_incident)), change_str(total_exe_incident, 'past'))`.  
+`r if(total_exe_incident > 0) {
+  paste0("A change in exemptions between ", prior_year, " and ", current_year, " caused your tax bill to __", change_str(total_exe_incident, 'word'), "__ by ", render_name(label_dol_amt(abs(total_exe_incident)), change_str(total_exe_incident, 'past')), ".")
+} else {
+    paste0("Your exemptions did not change between ", prior_year, " and ", current_year, " so your tax bill did not change.")
+}`
 
-::: {.callout-tip collapse="true" title="Change By Exemption"}
-`r pin_change_table`
-:::
+`r if(total_exe_incident > 0) {
+  paste0('::: {.callout-tip collapse="true" title="Change By Exemption"}
+', pin_change_table, '
+:::')} `
 
 #### (B) Change from your Property's Share of all Residential Properties
 
 A second reason your tax bill changed is due to the change in your property's taxable value compared to all other properties in your area. Your property's taxable value __`r change_str(eav_current-eav_prior, "past")`__ by __`r label_p_ltx(abs((eav_current-eav_prior)/eav_prior))`__ from `r label_dol_amt(prior_eav)` to `r label_dol_amt(current_eav)`. If the estimated market value of your home is significantly more than what you believe your home could sell for in the current real estate market, you should [file an appeal with the Cook County Assessor's Office](https://www.cookcountyaa.gov/appeal-your-assessment).
 
 ::: {.column-margin}
-Your property's fair market value (as determined by the Cook County Assessor's Office) is `r label_dol_amt(market_value)`. This is used to calculate your property's taxable value, called the Equalized Assessed Value (EAV). This year, your EAV was `r label_dol_amt(eav_current)`. See [exix A](#appendixA) for more details about this calculation. 
+Your property's fair market value (as determined by the Cook County Assessor's Office) is `r label_dol_amt(market_value)`. This is used to calculate your property's taxable value, called the Equalized Assessed Value (EAV). This year, your EAV was `r label_dol_amt(eav_current)`. See [Appendix A](#sec-appendixA) for more details about this calculation. 
 :::
 
 ``` {r}
@@ -745,7 +764,7 @@ More important than how this specific property's value changed is how much it ch
 
 ::: {.callout-tip collapse="true" title="Change by District"}
 `r combined_bill_1a_simplified`
-See the breakdown of the change in EAV Residential Share for each district in [Appendix D](appendix)
+See the breakdown of the change in EAV Residential Share for each district in [Appendix D](#sec-appendixD)
 :::
 
 #### (C) Change from Commercial-Residential Ratio
@@ -754,7 +773,7 @@ A third reason part your tax bill changed is due to how much __all__ residential
 
 ::: {.callout-tip collapse="true" title="Change by District"}
 `r combined_bill_1b_simplified`
-See the breakdown of the change in Commercial Share for each district in [Appendix D](appendix)
+See the breakdown of the change in Commercial Share for each district in [Appendix D](#sec-appendixD)
 :::
 
 ## [How did a change in the Tax Levy affect my bill?]{style="color: #E9AA01;"}
@@ -762,7 +781,7 @@ See the breakdown of the change in Commercial Share for each district in [Append
 Lastly, your tax bill may have also changed due to the change in the [**Tax Levy**]{style="color: #E9AA01;"}, or the total amount of taxes imposed by the government. The total [**Tax Levy**]{style="color: #E9AA01;"} for all tax districts for your property __`r change_str(total_levy_current-total_levy_prior, "past")`__ by __`r label_p_ltx(abs((total_levy_current-total_levy_prior)/total_levy_prior))`__ between `r current_year` and `r prior_year` which caused your tax bill to __`r change_str(total_levy_current-total_levy_prior, "word")`__ by `r render_name(label_dol_amt(abs(change_from_levy)),change_str(change_from_levy,"past"))`.
 
 ::: {.column-margin}
-See the break down of the tax levy change for each distinct in [Appendix C](appendix)
+See the break down of the tax levy change for each distinct in [Appendix C](#sec-appendixC)
 :::
 
 ::: {.callout-tip collapse="true" title="District wise changes in Levies"}
@@ -776,7 +795,7 @@ Typically, the tax levy for each distinct increases each year. From 2006 to 2023
 ```
 
 ::: {.callout-note appearance="minimal"}
-#### Appendix A: Calculating Equalized Assessed Value {#appendixA}
+#### Appendix A: Calculating Equalized Assessed Value {#sec-appendixA}
 
 First, start with the Fair Market Value and multiply by the Level of Assessment, which is 10% for all residential property, and the State Equalizer, a multiplier whose goal is to make property tax rates roughly equal across all IL counties. Both of these values are the same for all property owners in this area. After this, subtract your valid exemptions. [^exemptionnote]
 
@@ -786,7 +805,7 @@ $$`r label_dol_amt(eav_current)` - `r label_dol_amt(total_exe)` = `r label_dol_a
 :::
 
 ::: {.callout-note appearance="minimal"}
-#### Appendix B: Calculating a Single District's Tax Bill {#appendixB}
+#### Appendix B: Calculating a Single District's Tax Bill {#sec-appendixB}
 
 Your property is in many tax districts. 
 
@@ -910,7 +929,7 @@ tax_bill_current %>%
 
 #### How much do you owe `r render_name(first_school$agency_name)`?
 
-As the owner of `r render_name(render_pin14)`, in the year `r current_year` your property is worth `r render_name(label_dol_amt(pin_details_current$av*10), render_pin14)`, of that, your taxable amount (or addition to the tax base) is `r render_name(label_dol_amt(pin_details_current$eav - pin_exe_total), render_pin14)`[^exemptionnote].
+As the owner of `r render_name(render_pin14)`, in the year `r current_year` your property is worth `r render_name(label_dol_amt(pin_details_current$av*10), render_pin14)`, of that, your taxable amount (or addition to the tax base) is `r render_name(label_dol_amt(pin_details_current$eav - pin_exe_total), render_pin14)`.
 
 The previously calculated `r render_name("rate", first_school$agency_name)` is then applied to your `r render_name("addition to the tax base", render_pin14)`:
 
@@ -952,7 +971,7 @@ See Appendix C for a detailed view of your tax bill for each tax district your p
 :::
 
 ::: {.callout-note appearance="minimal"}
-#### Appendix C: Properties Tax Districts {#appendixC}
+#### Appendix C: Properties Tax Districts {#sec-appendixC}
 
 Your property is a part of many tax districts. Your actual bill is calculated but taking the tax levy times your property's taxable value (EAV) divided by the sum of all taxable property (Tax Base) for *each tax district* you property in in. See each tax district your property is in, including the district's total tax base, levy, and the taxes owned to this district. See Appendix C below for a more detailed explanation for how your tax bill is calculated for each district.
 
@@ -967,7 +986,7 @@ tax_bill_current %>%
 
 
 ::: {.callout-note appearance="minimal"}
-#### Appendix D: Breakdown of Change by District {#appendixD}
+#### Appendix D: Breakdown of Change by District {#sec-appendixD}
 
 See the breakdown of the change in EAV Residential Share and Commercial Share for each district.
 
