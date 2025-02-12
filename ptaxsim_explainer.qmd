@@ -195,8 +195,8 @@ combined_df2_simplified <- display_two_bills_simplified(tax_bill_prior_all, tax_
 ```
 
 ```{r appendix c}
-# cook_roads <- roads("17", "031") %>% st_transform(4326)
-cook_roads <- readRDS("data/cookroads.rds")
+cook_roads <- roads("17", "031") %>% st_transform(4326)
+#cook_roads <- readRDS("data/cookroads.rds")
 
 shp_bnd_pin <- get_shp_bnd_pin(pin_14, current_year)
 
@@ -271,34 +271,6 @@ css_get_colors <- function(vals) {
     mapply(css_get_color, vals)
 }
 ```
-
-
-```{r appendix_a}
-# depends on class code, confirm this
-# https://prodassets.cookcountyassessor.com/s3fs-public/form_documents/Definitions%20for%20the%20Classification%20of%20Real%20Property%202024%20%28FINAL%29%202.5.2024.pdf?VersionId=FA6QKGgGaJwcNQnpBkbEpW3HyVbCNWIu
-
-if (str_sub(pin_details_current$class, 1, 1) %in% c("2", "3")) {
-    level_of_assessment <- 0.1
-} else if (str_sub(pin_details_current$class, 1, 1) == "4") {
-    level_of_assessment <- 0.2
-} else {
-    level_of_assessment <- 0.25
-}
-market_value <- pin_details_current$av / level_of_assessment
-
-eq_factor <- tbl(ptaxsim_db_conn, "eq_factor") %>%
-    collect() %>%
-    filter(year == current_year) %>%
-    pull(eq_factor_final)
-
-total_exe <- pin_details_current %>%
-    mutate(exe_total = exe_homeowner + exe_senior + exe_freeze + exe_longtime_homeowner +
-        exe_disabled + exe_vet_returning + exe_vet_dis_lt50 + exe_vet_dis_50_69 +
-        exe_vet_dis_ge70 + exe_abate) %>%
-    pull(exe_total)
-
-```
-
 
 ```{r explainer-1a}
 # calculate change in bill for proportionn of res base changing only
