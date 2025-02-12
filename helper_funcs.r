@@ -250,22 +250,11 @@ css_get_color <- function(val) {
 
 
 display_two_bills <- function(df1, df2, import_col) {
-    ic_df1 <- paste0(import_col, "_df1")
-    ic_df2 <- paste0(import_col, "_df2")
-    ic_change <- paste0("change_in_", import_col)
 
     df1 <- df1 %>%
         replace(is.na(.), 0) %>%
-        # mutate(final_tax = ifelse(agency_name == "Board Of Education", final_tax_to_dist + sum(tax_bill_data_prior_year$rpm_tif_to_cps), final_tax_to_dist)) %>%
         mutate(final_tax = tax_amt_post_exe) %>%
         mutate(com_share = 1 - res_share) %>%
-        # add_row(
-        #     agency_major_type = "TIF",
-        #     agency_name = df1 %>%
-        #         select(tif_agency_name) %>%
-        #         unique() %>% pull(),
-        #     final_tax = ifelse(sum(df1$rpm_tif_to_rpm) > 0, sum(tax_bill_data_prior_year$rpm_tif_to_rpm), sum(tax_bill_data_prior_year$final_tax_to_tif))
-        # ) %>%
         filter(final_tax > 0) %>%
         select(agency_major_type, agency_name, final_tax, agency_total_ext, eav_res_share, com_share) %>%
         group_by(agency_major_type) %>%
@@ -278,16 +267,8 @@ display_two_bills <- function(df1, df2, import_col) {
 
     df2 <- df2 %>%
         replace(is.na(.), 0) %>%
-        # mutate(final_tax = ifelse(agency_name == "Board Of Education", final_tax_to_dist + sum(tax_bill_data_prior_year$rpm_tif_to_cps), final_tax_to_dist)) %>%
         mutate(final_tax = tax_amt_post_exe) %>%
         mutate(com_share = 1 - res_share) %>%
-        # add_row(
-        #     agency_major_type = "TIF",
-        #     agency_name = df2 %>%
-        #         select(tif_agency_name) %>%
-        #         unique() %>% pull(),
-        #     final_tax = ifelse(sum(df1$rpm_tif_to_rpm) > 0, sum(tax_bill_data_prior_year$rpm_tif_to_rpm), sum(tax_bill_data_prior_year$final_tax_to_tif))
-        # ) %>%
         filter(final_tax > 0) %>%
         select(agency_major_type, agency_name, final_tax, agency_total_ext, eav_res_share, com_share) %>%
         group_by(agency_major_type) %>%
@@ -322,14 +303,6 @@ display_two_bills <- function(df1, df2, import_col) {
         fmt_currency(change_in_tax) %>%
         fmt_currency(c(agency_total_ext_df1, agency_total_ext_df2), suffixing = TRUE) %>%
         fmt_percent(c(change_in_agency_total_ext, change_in_eav_res_share, eav_res_share_df1, eav_res_share_df2, change_in_com_share, com_share_df1, com_share_df2)) %>%
-        # data_color(
-        #     method = "factor",
-        #     columns = agency_name,
-        #     target_columns = everything(),
-        #     fn = css_get_colors,
-        #     apply_to = "fill",
-        #     autocolor_text = FALSE
-        # ) %>%
         gtExtras::gt_plt_bar(column = change_in_tax_bar, color = "orange", width = 12) %>%
         tab_style(
             style = list(
@@ -343,7 +316,7 @@ display_two_bills <- function(df1, df2, import_col) {
         tab_options(row_group.as_column = T) %>%
         cols_label(
             agency_name = "Tax District",
-            change_in_tax = "Change in Tax amount",
+            change_in_tax = "Change in Tax Amount",
             change_in_tax_bar = "",
             agency_total_ext_df1 = "Tax Levy Prior",
             agency_total_ext_df2 = "Tax Levy Current",
@@ -356,4 +329,78 @@ display_two_bills <- function(df1, df2, import_col) {
             change_in_com_share = "Change in Commercial Share"
         ) %>%
         cols_hide(columns = !(contains(import_col) | c("agency_name", "change_in_tax", "change_in_tax_bar")))
+}
+
+display_two_bills_simplified <- function(df1, df2, import_col) {
+
+    df1 <- df1 %>%
+        replace(is.na(.), 0) %>%
+        mutate(final_tax = tax_amt_post_exe) %>%
+        mutate(com_share = 1 - res_share) %>%
+        filter(final_tax > 0) %>%
+        select(agency_major_type, agency_name, final_tax, agency_total_ext, eav_res_share, com_share) %>%
+        group_by(agency_major_type) %>%
+        rename(
+            final_tax_df1 = final_tax,
+            agency_total_ext_df1 = agency_total_ext,
+            eav_res_share_df1 = eav_res_share,
+            com_share_df1 = com_share
+        ) %>%
+        group_by(agency_major_type) %>%
+        summarise(
+            final_tax_group_df1 = sum(final_tax_df1),     
+        )
+
+    df2 <- df2 %>%
+        replace(is.na(.), 0) %>%
+        mutate(final_tax = tax_amt_post_exe) %>%
+        mutate(com_share = 1 - res_share) %>%
+        filter(final_tax > 0) %>%
+        select(agency_major_type, agency_name, final_tax, agency_total_ext, eav_res_share, com_share) %>%
+        group_by(agency_major_type) %>%
+        rename(
+            final_tax_df2 = final_tax,
+            agency_total_ext_df2 = agency_total_ext,
+            eav_res_share_df2 = eav_res_share,
+            com_share_df2 = com_share
+        )  %>%
+        group_by(agency_major_type) %>%
+        summarise(
+            final_tax_group_df2 = sum(final_tax_df2),     
+        )
+
+
+    full_join(df1, df2, by = join_by(agency_major_type == agency_major_type)) %>%
+        mutate(change_in_tax = final_tax_group_df2 - final_tax_group_df1) %>%
+        mutate(change_in_tax_bar = change_in_tax) %>%
+        select(!c(final_tax_group_df1, final_tax_group_df2)) %>%
+        group_by(agency_major_type) %>%
+        gt() %>%
+        grand_summary_rows(
+            fns = list(
+                label = "Total Tax Owed",
+                id = "sum",
+                fn = "sum"
+            ),
+            columns = c(change_in_tax),
+            fmt = ~ fmt_currency(., rows = "sum")
+        ) %>%
+        fmt_currency(change_in_tax) %>%
+        gtExtras::gt_plt_bar(column = change_in_tax_bar, color = "orange", width = 12) %>%
+        tab_style(
+            style = list(
+                cell_text(weight = "bold")
+            ),
+            locations = list(
+                cells_stub_grand_summary(),
+                cells_grand_summary()
+            )
+        ) %>%
+        tab_options(row_group.as_column = T) %>%
+        cols_label(
+            agency_major_type = "",
+            change_in_tax = "Change in Tax Amount",
+            change_in_tax_bar = "",
+        ) %>%
+        cols_hide(columns = !(contains(import_col) | c("agency_major_type", "change_in_tax", "change_in_tax_bar")))
 }
