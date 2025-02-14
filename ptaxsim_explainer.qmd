@@ -21,6 +21,18 @@ params:
         input: text
 ---
 
+::: {style="display: flex; align-items: center; margin-bottom: 20px;"}
+<form action="/email" method="post" style="display: flex; align-items: center; flex: 0 0 auto;">
+    <label for="email_term" style="font-weight: bold; margin-right: 10px;">Get your report by email:</label>
+    <input type="text" id="email_term" name="email_term" placeholder= "Email address" required style="margin-right: 10px;">
+    <button type="submit">Submit</button>
+</form>
+
+<div id="success-message" style="color: green; margin-top: 10px; display: none;">
+    Email sent successfully!
+</div>
+:::
+
 ```{r setup, include=FALSE, cache=FALSE}
 options(tigris_use_cache = TRUE)
 options(bitmapType = "cairo")
@@ -999,5 +1011,3 @@ __Change in Tax Bill from Commercial Share by District__
 __Change in Tax Bill from Levy Change by District__
 `r combined_df2`
 :::
-
-

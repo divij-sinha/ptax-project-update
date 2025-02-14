@@ -4,12 +4,21 @@ import subprocess
 
 import polars as pl
 import usaddress
+import smtplib
+import glob
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.application import MIMEApplication
+from email_validator import validate_email, EmailNotValidError
 from fastapi import FastAPI, Form, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 VERSION = "2.0.0"
+sender_email = "fatima.irfan12@gmail.com"
+sender_password = "iizo ecga limc qhdk"
 
 app = FastAPI()
 
@@ -30,6 +39,56 @@ async def read_root(request: Request):
         "index.html", {"request": request, "title": "Property Tax Explainer"}
     )
 
+@app.post("/email", response_class=HTMLResponse)
+# https://medium.com/@abdullahzulfiqar653/sending-emails-with-attachments-using-python-32b908909d73
+async def handle_email(request: Request):
+    """Handle emailing report."""
+    form_data = await request.form() 
+    email = form_data.get('email_term') 
+
+    success_message = None 
+
+    try:
+        emailinfo = validate_email(email, check_deliverability=False)
+    
+        if emailinfo:
+            subject = "Email Subject"
+            body = "This is the body of the text message"
+            recipient_email = email
+            smtp_server = 'smtp.gmail.com'
+            smtp_port = 465
+
+            path_to_folder = f"outputs/v{VERSION}/"
+            html_files = glob.glob(os.path.join(path_to_folder, "*.html"))
+            if html_files:
+                path_to_file = max(html_files, key=os.path.getmtime)
+
+            message = MIMEMultipart()
+            message['Subject'] = subject
+            message['From'] = sender_email
+            message['To'] = recipient_email
+            body_part = MIMEText(body)
+            message.attach(body_part)
+
+            with open(path_to_file,'rb') as file:
+                message.attach(MIMEApplication(file.read(), Name="tax_explainer_report.html"))
+
+            with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
+                server.login(sender_email, sender_password)
+                server.sendmail(sender_email, recipient_email, message.as_string())
+
+            success_message = "Email sent successfully!"
+        
+    except EmailNotValidError as e:
+        print(str(e))
+
+    html_file = "outputs/" + os.path.basename(path_to_file)
+    redirect_url = f"{html_file}#success_message"
+
+    return RedirectResponse(                 
+        url=redirect_url,
+        status_code=status.HTTP_302_FOUND             
+        )
 
 async def search_address(search_term: str = Form(...), exact_match: bool = False):
     add_df = pl.scan_csv("data/Address_Points.csv", infer_schema=False)
@@ -131,6 +190,8 @@ async def handle_pin(
         suggestions = await search_address(search_term, exact_match=False)
         if len(suggestions) > 0:
             pin = suggestions[0]["value"]
+        else:
+            pin = 0
 
     else:
         wrong_pin = search_term
@@ -141,11 +202,13 @@ async def handle_pin(
 
     try:
         if not await search_db(request, given_pin=pin):
-            if search_term:
-                return HTMLResponse(
-                    content=f"<h1>Error: PIN or Address Not Found in Database - {search_term}</h1>",
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                )
+            return HTMLResponse(
+                content=f"""
+                    <h1>Error: PIN or Address Not Found in Database - {search_term}</h1>
+                    <button onclick="window.location.href='/'">Back</button>
+                """,
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
 
         else:
             # Render the Quarto document with the provided PIN
@@ -173,13 +236,18 @@ async def handle_pin(
                 text=True,
             )
 
-            # Serve the generated HTML
-            return RedirectResponse(
-                url=f"/outputs/{pin}.html", status_code=status.HTTP_302_FOUND
-            )
+    # Serve the generated HTML             
+        return RedirectResponse(                 
+        url=f"/outputs/{pin}.html", 
+        status_code=status.HTTP_302_FOUND             
+        )
 
     except subprocess.CalledProcessError as e:
         return HTMLResponse(
-            content=f"<h1>Error rendering the QMD file</h1><p>{e.stderr}</p>",
+            content=f"""
+                <h1>Error rendering the QMD file</h1>
+                <p>{e.stderr}</p>
+                <button onclick="window.location.href='/'">Back</button>
+            """,
             status_code=500,
         )

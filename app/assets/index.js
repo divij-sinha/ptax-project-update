@@ -113,3 +113,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    if (window.location.hash === "#success_message") {
+        document.getElementById("success-message").style.display = "block";
+    }
+});
