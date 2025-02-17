@@ -15,10 +15,9 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from dotenv import load_dotenv, dotenv_values 
 
 VERSION = "2.0.0"
-sender_email = "fatima.irfan12@gmail.com"
-sender_password = "iizo ecga limc qhdk"
 
 app = FastAPI()
 
@@ -52,6 +51,9 @@ async def handle_email(request: Request):
         emailinfo = validate_email(email, check_deliverability=False)
     
         if emailinfo:
+            load_dotenv()
+            sender_email = os.getenv("sender_email")
+            sender_password = os.getenv("sender_password")
             subject = "Email Subject"
             body = "This is the body of the text message"
             recipient_email = email
@@ -199,6 +201,12 @@ async def handle_pin(
             content=f"<h1>Error: Invalid PIN or Address - {wrong_pin}</h1>",
             status_code=status.HTTP_400_BAD_REQUEST,
         )
+
+    # Store searches
+    output_file = "search_terms.txt"
+    with open(output_file, "a") as f:
+        # Write the values, separating them with commas
+        f.write(f"{search_term}, {search_category}\n")
 
     try:
         if not await search_db(request, given_pin=pin):
