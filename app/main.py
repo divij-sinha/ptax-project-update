@@ -1,21 +1,20 @@
+import glob
 import os
+import smtplib
 import sqlite3
 import subprocess
+from email.mime.application import MIMEApplication
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 import polars as pl
 import usaddress
-import smtplib
-import glob
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.application import MIMEApplication
-from email_validator import validate_email, EmailNotValidError
+from dotenv import load_dotenv
+from email_validator import EmailNotValidError, validate_email
 from fastapi import FastAPI, Form, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from dotenv import load_dotenv, dotenv_values 
 
 VERSION = "2.0.0"
 
@@ -34,22 +33,21 @@ app.mount("/outputs", StaticFiles(directory=f"outputs/v{VERSION}"), name="output
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     """Render the homepage."""
-    return templates.TemplateResponse(
-        "index.html", {"request": request, "title": "Property Tax Explainer"}
-    )
+    return templates.TemplateResponse("index.html", {"request": request, "title": "Property Tax Explainer"})
+
 
 @app.post("/email", response_class=HTMLResponse)
 # https://medium.com/@abdullahzulfiqar653/sending-emails-with-attachments-using-python-32b908909d73
 async def handle_email(request: Request):
     """Handle emailing report."""
-    form_data = await request.form() 
-    email = form_data.get('email_term') 
+    form_data = await request.form()
+    email = form_data.get("email_term")
 
-    success_message = None 
+    success_message = None
 
     try:
         emailinfo = validate_email(email, check_deliverability=False)
-    
+
         if emailinfo:
             load_dotenv()
             sender_email = os.getenv("sender_email")
@@ -57,7 +55,7 @@ async def handle_email(request: Request):
             subject = "Email Subject"
             body = "This is the body of the text message"
             recipient_email = email
-            smtp_server = 'smtp.gmail.com'
+            smtp_server = "smtp.gmail.com"
             smtp_port = 465
 
             path_to_folder = f"outputs/v{VERSION}/"
@@ -66,13 +64,13 @@ async def handle_email(request: Request):
                 path_to_file = max(html_files, key=os.path.getmtime)
 
             message = MIMEMultipart()
-            message['Subject'] = subject
-            message['From'] = sender_email
-            message['To'] = recipient_email
+            message["Subject"] = subject
+            message["From"] = sender_email
+            message["To"] = recipient_email
             body_part = MIMEText(body)
             message.attach(body_part)
 
-            with open(path_to_file,'rb') as file:
+            with open(path_to_file, "rb") as file:
                 message.attach(MIMEApplication(file.read(), Name="tax_explainer_report.html"))
 
             with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
@@ -80,17 +78,15 @@ async def handle_email(request: Request):
                 server.sendmail(sender_email, recipient_email, message.as_string())
 
             success_message = "Email sent successfully!"
-        
+
     except EmailNotValidError as e:
         print(str(e))
 
     html_file = "outputs/" + os.path.basename(path_to_file)
     redirect_url = f"{html_file}#success_message"
 
-    return RedirectResponse(                 
-        url=redirect_url,
-        status_code=status.HTTP_302_FOUND             
-        )
+    return RedirectResponse(url=redirect_url, status_code=status.HTTP_302_FOUND)
+
 
 async def search_address(search_term: str = Form(...), exact_match: bool = False):
     add_df = pl.scan_csv("data/Address_Points.csv", infer_schema=False)
@@ -107,16 +103,8 @@ async def search_address(search_term: str = Form(...), exact_match: bool = False
 
     for usaddress_field, pl_column in address_fields_mapping:
         if usaddress_field in parsed_address:
-            f_inexact = (
-                pl.col(pl_column)
-                .str.to_lowercase()
-                .str.contains(parsed_address.get(usaddress_field))
-            )
-            f_exact = pl.col(
-                pl_column
-            ).str.to_lowercase().str.strip_chars() == parsed_address.get(
-                usaddress_field
-            )
+            f_inexact = pl.col(pl_column).str.to_lowercase().str.contains(parsed_address.get(usaddress_field))
+            f_exact = pl.col(pl_column).str.to_lowercase().str.strip_chars() == parsed_address.get(usaddress_field)
 
             f = False
             filtered_df = filtered_df.filter(f_exact if exact_match else f_inexact)
@@ -124,21 +112,13 @@ async def search_address(search_term: str = Form(...), exact_match: bool = False
     if f:
         return []
 
-    suggestions = (
-        filtered_df.select("ADDRDELIV", "PIN")
-        .rename({"ADDRDELIV": "key", "PIN": "value"})
-        .head(5)
-        .collect()
-        .to_dicts()
-    )
+    suggestions = filtered_df.select("ADDRDELIV", "PIN").rename({"ADDRDELIV": "key", "PIN": "value"}).head(5).collect().to_dicts()
 
     return suggestions
 
 
 @app.post("/address_suggestions")
-async def address_suggestions(
-    request: Request, search_term: str = Form(...), exact_match: bool = False
-):
+async def address_suggestions(request: Request, search_term: str = Form(...), exact_match: bool = False):
     suggestions = await search_address(search_term, exact_match)
     return JSONResponse(content=suggestions)
 
@@ -228,6 +208,7 @@ async def handle_pin(
                     qmd_file,
                     "--to",
                     "html",
+                    "--no-clean",
                     "--output",
                     f"{pin}.html",
                     "--output-dir",
@@ -244,11 +225,8 @@ async def handle_pin(
                 text=True,
             )
 
-    # Serve the generated HTML             
-        return RedirectResponse(                 
-        url=f"/outputs/{pin}.html", 
-        status_code=status.HTTP_302_FOUND             
-        )
+        # Serve the generated HTML
+        return RedirectResponse(url=f"/outputs/{pin}.html", status_code=status.HTTP_302_FOUND)
 
     except subprocess.CalledProcessError as e:
         return HTMLResponse(
