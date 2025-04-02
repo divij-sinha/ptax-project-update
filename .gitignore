@@ -15,3 +15,5 @@ data/*
 ptaxsim*html
 
 !output/
+
+.env

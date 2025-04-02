@@ -55,8 +55,8 @@ async def handle_email(request: Request):
             subject = "Email Subject"
             body = "This is the body of the text message"
             recipient_email = email
-            smtp_server = "smtp.gmail.com"
-            smtp_port = 465
+            smtp_server = os.getenv("smtp_server")
+            smtp_port = os.getenv("smtp_port")
 
             path_to_folder = f"outputs/v{VERSION}/"
             html_files = glob.glob(os.path.join(path_to_folder, "*.html"))
