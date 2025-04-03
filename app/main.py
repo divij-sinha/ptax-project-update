@@ -198,14 +198,14 @@ async def handle_pin(
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
 
-        elif os.path.exists(f"outputs/v{VERSION}/{pin}.html"):
+        elif os.path.exists(f"outputs/v{VERSION}/{pin}/{pin}.html"):
             # If the file already exists, redirect to it
-            return RedirectResponse(url=f"/outputs/{pin}.html", status_code=status.HTTP_302_FOUND)
+            return RedirectResponse(url=f"/outputs/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
 
         else:
             # Render the Quarto document with the provided PIN
             print(f"Quarto file path: {qmd_file}")  # Debug: print the path
-            subprocess.run(
+            res = subprocess.run(
                 [
                     "quarto",
                     "render",
@@ -216,7 +216,7 @@ async def handle_pin(
                     "--output",
                     f"{pin}.html",
                     "--output-dir",
-                    f"outputs/v{VERSION}",
+                    f"outputs/v{VERSION}/{pin}",
                     "--execute-param",
                     "current_year=2023",
                     "--execute-param",
@@ -228,9 +228,11 @@ async def handle_pin(
                 capture_output=True,
                 text=True,
             )
+            print(res)
+            print(res.stdout)
 
         # Serve the generated HTML
-        return RedirectResponse(url=f"/outputs/{pin}.html", status_code=status.HTTP_302_FOUND)
+        return RedirectResponse(url=f"/outputs/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
 
     except subprocess.CalledProcessError as e:
         return HTMLResponse(
