@@ -1,0 +1,26 @@
+{% extends "_base.html" %}
+
+{% block content %}
+
+{% block meta %}
+<meta http-equiv="refresh" content="5;url=/check_complete?pin={{pin}}" />
+{% endblock %}
+
+<div class="container mt-4">
+    <div class="tab-content" id="nav-tabContent">
+        <div class="tab-pane fade show active" id="text-search" role="tabpanel" aria-labelledby="text-search-tab"
+            tabindex="0">
+            <div class="container pt-4">
+                <h1 class="display-6">Processing for PIN {{ pin }}</h1>
+                <h1 class="display-6">Result should display within 30 seconds!</h1>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="assets/index.js"></script>
+{% endblock %}

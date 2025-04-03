@@ -11,7 +11,7 @@ import polars as pl
 import usaddress
 from dotenv import load_dotenv
 from email_validator import EmailNotValidError, validate_email
-from fastapi import FastAPI, Form, Request, status
+from fastapi import BackgroundTasks, FastAPI, Form, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -88,6 +88,18 @@ async def handle_email(request: Request):
     return RedirectResponse(url=redirect_url, status_code=status.HTTP_302_FOUND)
 
 
+def get_address_pin(pin: str):
+    """Get address from pin."""
+    try:
+        add_df = pl.scan_csv("data/Address_Points.csv", infer_schema=False)
+        filtered = add_df.filter(pl.col("PIN") == pin).select("PIN", "ADDRDELIV").collect().to_dict(as_series=False)
+        print(filtered)
+        return filtered["ADDRDELIV"][0]
+    except Exception as e:
+        print(f"Error retrieving address for PIN {pin}: {e}")
+        return "<NOT FOUND>"
+
+
 async def search_address(search_term: str = Form(...), exact_match: bool = False):
     add_df = pl.scan_csv("data/Address_Points.csv", infer_schema=False)
     parsed_address = {k: v.lower() for v, k in usaddress.parse(search_term)}
@@ -145,6 +157,7 @@ async def search_db(request: Request, given_pin: str = Form(...)):
 @app.post("/submit", response_class=RedirectResponse)
 async def handle_pin(
     request: Request,
+    background_tasks: BackgroundTasks,
     search_category: str = Form(...),
     search_term: str = Form(...),
     search_term_hidden: str = Form(...),
@@ -205,34 +218,20 @@ async def handle_pin(
         else:
             # Render the Quarto document with the provided PIN
             print(f"Quarto file path: {qmd_file}")  # Debug: print the path
-            res = subprocess.run(
-                [
-                    "quarto",
-                    "render",
-                    qmd_file,
-                    "--to",
-                    "html",
-                    "--no-clean",
-                    "--output",
-                    f"{pin}.html",
-                    "--output-dir",
-                    f"outputs/v{VERSION}/{pin}",
-                    "--execute-param",
-                    "current_year=2023",
-                    "--execute-param",
-                    f"prior_year={prior_year}",
-                    "--execute-param",
-                    f"pin_14={pin}",
-                ],
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-            print(res)
-            print(res.stdout)
+            addy = get_address_pin(pin)
+            print(f"Address for PIN {pin}: {addy}")
 
-        # Serve the generated HTML
-        return RedirectResponse(url=f"/outputs/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
+            background_tasks.add_task(
+                run_quarto,
+                qmd_file=qmd_file,
+                pin=pin,
+                prior_year=prior_year,
+                addy=addy,
+            )
+            print(f"Running Quarto for PIN {pin} with address {addy}")
+            response = RedirectResponse(url=f"/processing?pin={pin}", status_code=status.HTTP_303_SEE_OTHER)
+            # print(response)
+            return response
 
     except subprocess.CalledProcessError as e:
         return HTMLResponse(
@@ -243,3 +242,46 @@ async def handle_pin(
             """,
             status_code=500,
         )
+
+
+@app.get("/processing")
+async def processing_page(request: Request, pin: str):
+    # Render a template that shows "processing" and auto-refreshes
+    return templates.TemplateResponse("processing.html", {"request": request, "pin": pin})
+
+
+@app.get("/check_complete")
+async def check_complete(request: Request, pin: str):
+    # Check if output file exists or some other completion indicator
+    if os.path.exists(f"outputs/v{VERSION}/{pin}/{pin}.html"):
+        return RedirectResponse(url=f"/outputs/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
+    else:
+        return RedirectResponse(url=f"/processing?pin={pin}")
+
+
+def run_quarto(qmd_file: str, pin: str, prior_year: int, addy: str):
+    subprocess.run(
+        [
+            "quarto",
+            "render",
+            qmd_file,
+            "--to",
+            "html",
+            "--no-clean",
+            "--output",
+            f"{pin}.html",
+            "--output-dir",
+            f"outputs/v{VERSION}/{pin}",
+            "--execute-param",
+            "current_year=2023",
+            "--execute-param",
+            f"prior_year={prior_year}",
+            "--execute-param",
+            f"pin_14={pin}",
+            "--execute-param",
+            f"address={addy}",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    )

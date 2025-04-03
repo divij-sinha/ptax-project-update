@@ -3,7 +3,7 @@ title: "Property Tax Bill Explainer"
 execute:
   echo: false
   warning: false
-  cache: true
+  cache: false
 format:
   html:
     embed-resources: true
@@ -20,6 +20,10 @@ params:
     pin_14:
         label: "PIN"
         value: "14294070931001"
+        input: text
+    address:
+        label: "Address"
+        value: ""
         input: text
 ---
 
@@ -75,6 +79,7 @@ pin_14 <- toString(params$pin_14)
 pin_14 <- str_pad(pin_14, width = 14, pad = "0", side = "left")
 current_year <- params$current_year
 prior_year <- params$prior_year
+address <- params$address
 
 ptaxsim_db_conn <- dbConnect(SQLite(), db_path)
 tax_bases_res_com_share <- readRDS("data/tax_bases_res_com_share.rds")
@@ -640,7 +645,7 @@ pin_details_display = pin_details_current %>%
   )
 ```
 
-This is `r render_name(render_pin14)` which is located at TODO. See additional details below. 
+This is `r render_name(render_pin14)` which is located at `r address`. See additional details below. 
 
 `r pin_details_display`
 
