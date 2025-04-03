@@ -3,6 +3,7 @@ title: "Property Tax Bill Explainer"
 execute:
   echo: false
   warning: false
+  cache: true
 format:
   html:
     embed-resources: true
