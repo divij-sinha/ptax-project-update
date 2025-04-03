@@ -198,6 +198,10 @@ async def handle_pin(
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
 
+        elif os.path.exists(f"outputs/v{VERSION}/{pin}.html"):
+            # If the file already exists, redirect to it
+            return RedirectResponse(url=f"/outputs/{pin}.html", status_code=status.HTTP_302_FOUND)
+
         else:
             # Render the Quarto document with the provided PIN
             print(f"Quarto file path: {qmd_file}")  # Debug: print the path
