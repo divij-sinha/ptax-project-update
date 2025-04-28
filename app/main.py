@@ -16,7 +16,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-VERSION = "2.0.0"
+VERSION = "2.0.1"
 
 app = FastAPI()
 
