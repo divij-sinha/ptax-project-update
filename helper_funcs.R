@@ -250,7 +250,6 @@ css_get_color <- function(val) {
 
 
 display_two_bills <- function(df1, df2, import_col) {
-
     df1 <- df1 %>%
         replace(is.na(.), 0) %>%
         mutate(final_tax = tax_amt_post_exe) %>%
@@ -332,7 +331,6 @@ display_two_bills <- function(df1, df2, import_col) {
 }
 
 display_two_bills_simplified <- function(df1, df2, import_col) {
-
     df1 <- df1 %>%
         replace(is.na(.), 0) %>%
         mutate(final_tax = tax_amt_post_exe) %>%
@@ -348,7 +346,7 @@ display_two_bills_simplified <- function(df1, df2, import_col) {
         ) %>%
         group_by(agency_major_type) %>%
         summarise(
-            final_tax_group_df1 = sum(final_tax_df1),     
+            final_tax_group_df1 = sum(final_tax_df1),
         )
 
     df2 <- df2 %>%
@@ -363,10 +361,10 @@ display_two_bills_simplified <- function(df1, df2, import_col) {
             agency_total_ext_df2 = agency_total_ext,
             eav_res_share_df2 = eav_res_share,
             com_share_df2 = com_share
-        )  %>%
+        ) %>%
         group_by(agency_major_type) %>%
         summarise(
-            final_tax_group_df2 = sum(final_tax_df2),     
+            final_tax_group_df2 = sum(final_tax_df2),
         )
 
 

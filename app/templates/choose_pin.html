@@ -11,6 +11,12 @@
             tabindex="0">
             <div class="container pt-4">
                 <h1 class="display-6">Multiple PINs found at {{given_pin}}</h1>
+                <div class="row justify-content-center mb-3">
+                    <div class="alert alert-primary col-md-9 gap-2 text-center" role="alert">
+                        You can find your exact pin using <a href="https://maps.cookcountyil.gov/cookviewer/"> Cook
+                            County's Cookviewer tool here - https://maps.cookcountyil.gov/cookviewer/</a>!
+                    </div>
+                </div>
                 <h1 class="display-6">Please select the correct PIN</h1>
                 <div class="list-group">
                     {% for pin in pins|sort %}

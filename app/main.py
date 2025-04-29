@@ -277,14 +277,22 @@ async def handle_pin(
 
 
 @app.get("/processing")
-async def processing_page(request: Request, pin: str):
+async def processing_page(request: Request, pin: str, n: int = 1):
     # Render a template that shows "processing" and auto-refreshes
-    return templates.TemplateResponse("processing.html", {"request": request, "pin": pin})
+    return templates.TemplateResponse("processing.html", {"request": request, "pin": pin, "n": n + 1})
 
 
 @app.get("/check_complete")
-async def check_complete(request: Request, pin: str):
+async def check_complete(request: Request, pin: str, n: int = 1):
     # Check if output file exists or some other completion indicator
+    if n >= 12:
+        return templates.TemplateResponse(
+            "message.html",
+            {"request": request, "message": f"Error: Error processing PIN {pin}! Please try again, error reported to admin."},
+            status_code=500,
+        )
+        with open("error_log.txt", "a") as f:
+            f.write(f"Error processing PIN {pin} after 10 attempts.\n")
     if os.path.exists(f"outputs/v{VERSION}/{pin}/{pin}.html"):
         return RedirectResponse(url=f"/outputs/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
     else:

@@ -241,8 +241,9 @@ combined_df2_simplified <- display_two_bills_simplified(tax_bill_prior_all, tax_
 # missing_dis <- c(missing_dis_school)
 
 first_school <- tax_bill_current %>%
-    # filter(agency_major_type == "School") %>%
-    slice_max(order_by=tax_amt_post_exe, n=1)
+    filter(agency_major_type == "School") %>%
+    slice_max(order_by=tax_amt_post_exe, n=1) %>%
+    slice_head(n=1)
 
 ```
 
