@@ -491,7 +491,7 @@ if (total_exe_incident == 0 & pin_exe_total == 0) {
 
 
 ```{r}
-if (change_from_levy > change_from_share) {
+if (abs(change_from_levy) > abs(change_from_share)) {
   min = -1.2*abs(change_from_levy)
   max = 1.2*abs(change_from_levy)
 } else {
