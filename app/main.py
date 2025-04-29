@@ -296,7 +296,7 @@ async def check_complete(request: Request, pin: str, n: int = 1):
     if os.path.exists(f"outputs/v{VERSION}/{pin}/{pin}.html"):
         return RedirectResponse(url=f"/outputs/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
     else:
-        return RedirectResponse(url=f"/processing?pin={pin}")
+        return RedirectResponse(url=f"/processing?pin={pin}&n={n+1}")
 
 
 def run_quarto(qmd_file: str, pin: str, prior_year: int, address: str):
