@@ -215,34 +215,34 @@ combined_df2_simplified <- display_two_bills_simplified(tax_bill_prior_all, tax_
 ```
 
 ```{r appendix c}
-cook_roads <- roads("17", "031") %>% st_transform(4326)
+#cook_roads <- roads("17", "031") %>% st_transform(4326)
 #cook_roads <- readRDS("data/cookroads.rds")
 
-shp_bnd_pin <- get_shp_bnd_pin(pin_14, current_year)
+# shp_bnd_pin <- get_shp_bnd_pin(pin_14, current_year)
 
-shp_buf_pin <- shp_bnd_pin %>%
-    st_centroid() %>%
-    st_transform(3857) %>%
-    st_buffer(500) %>%
-    st_transform(4326)
+# shp_buf_pin <- shp_bnd_pin %>%
+#     st_centroid() %>%
+#     st_transform(3857) %>%
+#     st_buffer(500) %>%
+#     st_transform(4326)
 
-shp_bnd_cook <- get_shp_bnd_cook()
+# shp_bnd_cook <- get_shp_bnd_cook()
 
-shp_bnd_all_schools <- tax_bill_current %>%
-    filter(agency_major_type == "School") %>%
-    pull(agency_num) %>%
-    get_shp_all_schools() %>%
-    correct_shp_names() %>%
-    mutate(agency_name = as.factor(agency_name))
+# shp_bnd_all_schools <- tax_bill_current %>%
+#     filter(agency_major_type == "School") %>%
+#     pull(agency_num) %>%
+#     get_shp_all_schools() %>%
+#     correct_shp_names() %>%
+#     mutate(agency_name = as.factor(agency_name))
 
 
-missing_dis_school <- get_missing_dis(shp_bnd_all_schools, "School")
+# missing_dis_school <- get_missing_dis(shp_bnd_all_schools, "School")
 
-missing_dis <- c(missing_dis_school)
+# missing_dis <- c(missing_dis_school)
 
-first_school <- shp_bnd_all_schools %>%
-    slice_max(shape_area) %>%
-    left_join(tax_bill_current, by = join_by(AGENCY == agency_num, agency_name))
+first_school <- tax_bill_current %>%
+    # filter(agency_major_type == "School") %>%
+    slice_max(order_by=tax_amt_post_exe, n=1)
 
 ```
 
@@ -942,7 +942,7 @@ Let's look at the line item of the bill for `r render_name(render_pin14)` in `r 
 
 ```{r increment-tax-bill-1}
 tax_bill_current %>%
-    filter(agency_num == first_school$AGENCY) %>%
+    filter(agency_num == first_school$agency_num) %>%
     render_bill(
         c("School")
     ) %>%
@@ -1017,7 +1017,7 @@ $$
 
 ```{r increment-tax-bill-1-3}
 tax_bill_current %>%
-    filter(agency_num == first_school$AGENCY) %>%
+    filter(agency_num == first_school$agency_num) %>%
     render_bill(
         c("School")
     ) %>%
