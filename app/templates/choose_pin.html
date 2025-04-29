@@ -13,7 +13,7 @@
                 <h1 class="display-6">Multiple PINs found at {{given_pin}}</h1>
                 <h1 class="display-6">Please select the correct PIN</h1>
                 <div class="list-group">
-                    {% for pin in pins %}
+                    {% for pin in pins|sort %}
                     <a href="renderdoc?pin={{pin}}&prior_year={{prior_year}}"
                         class="list-group-item list-group-item-action">
                         {{ pin }}

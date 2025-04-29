@@ -16,7 +16,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-VERSION = "2.0.1"
+VERSION = "2.0.2"
 
 app = FastAPI()
 
@@ -97,7 +97,7 @@ def get_address_pin(pin: str):
         return filtered["ADDRDELIV"][0]
     except Exception as e:
         print(f"Error retrieving address for PIN {pin}: {e}")
-        return "<NOT FOUND>"
+        return "--NOT FOUND--"
 
 
 async def search_address(search_term: str = Form(...), exact_match: bool = False):
@@ -137,7 +137,7 @@ async def address_suggestions(request: Request, search_term: str = Form(...), ex
 
 
 @app.get("/searchdb", response_class=RedirectResponse)
-async def search_db(request: Request, given_pin: str, prior_year: int):
+async def search_db(request: Request, given_pin: str, prior_year: int, address: str):
     """Search database."""
 
     base_dir = os.path.dirname(__file__)  # Directory of the current script
@@ -166,7 +166,9 @@ async def search_db(request: Request, given_pin: str, prior_year: int):
 
     else:
         con.close()
-        return RedirectResponse(f"/renderdoc?pin={given_pin}&prior_year={prior_year}", status_code=status.HTTP_302_FOUND)
+        return RedirectResponse(
+            f"/renderdoc?pin={given_pin}&prior_year={prior_year}&address={address}", status_code=status.HTTP_302_FOUND
+        )
 
 
 @app.get("/renderdoc")
@@ -175,22 +177,23 @@ async def render_doc(
     background_tasks: BackgroundTasks,
     pin: str,
     prior_year: int,
+    address: str = None,
 ):
     base_dir = os.path.dirname(__file__)  # Directory of the current script
     qmd_file = os.path.abspath(os.path.join(base_dir, "../ptaxsim_explainer.qmd"))
     try:
         print(f"Quarto file path: {qmd_file}")  # Debug: print the path
-        addy = get_address_pin(pin)
-        print(f"Address for PIN {pin}: {addy}")
+        if address is None:
+            address = get_address_pin(pin)
+        print(f"Address for PIN {pin}: {address}")
 
         background_tasks.add_task(
             run_quarto,
             qmd_file=qmd_file,
             pin=pin,
             prior_year=prior_year,
-            addy=addy,
+            address=address,
         )
-        print(f"Running Quarto for PIN {pin} with address {addy}")
         response = RedirectResponse(url=f"/processing?pin={pin}", status_code=status.HTTP_303_SEE_OTHER)
         # print(response)
         return response
@@ -223,14 +226,17 @@ async def handle_pin(
 
     if len(search_term) == 14 and search_term.isdigit():
         pin = search_term
+        address = get_address_pin(pin)
 
     elif len(search_term_hidden) == 14 and search_term_hidden.isdigit():
         pin = search_term_hidden
+        address = search_term
 
     elif isinstance(search_term, str):
         suggestions = await search_address(search_term, exact_match=False)
         if len(suggestions) > 0:
             pin = suggestions[0]["value"]
+            address = suggestions[0]["key"]
         else:
             wrong_pin = search_term
             return templates.TemplateResponse(
@@ -258,7 +264,9 @@ async def handle_pin(
         return RedirectResponse(url=f"/outputs/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
 
     else:
-        return RedirectResponse(f"/searchdb?given_pin={pin}&prior_year={prior_year}", status_code=status.HTTP_302_FOUND)
+        return RedirectResponse(
+            f"/searchdb?given_pin={pin}&prior_year={prior_year}&address={address}", status_code=status.HTTP_302_FOUND
+        )
         # return HTMLResponse(
         #     content=f"""
         #         <h1>Error: PIN or Address Not Found in Database - {search_term}</h1>
@@ -283,7 +291,7 @@ async def check_complete(request: Request, pin: str):
         return RedirectResponse(url=f"/processing?pin={pin}")
 
 
-def run_quarto(qmd_file: str, pin: str, prior_year: int, addy: str):
+def run_quarto(qmd_file: str, pin: str, prior_year: int, address: str):
     subprocess.run(
         [
             "quarto",
@@ -303,7 +311,7 @@ def run_quarto(qmd_file: str, pin: str, prior_year: int, addy: str):
             "--execute-param",
             f"pin_14={pin}",
             "--execute-param",
-            f"address={addy}",
+            f"address={address}",
         ],
         check=True,
         capture_output=True,
