@@ -279,7 +279,7 @@ async def handle_pin(
 @app.get("/processing")
 async def processing_page(request: Request, pin: str, n: int = 1):
     # Render a template that shows "processing" and auto-refreshes
-    return templates.TemplateResponse("processing.html", {"request": request, "pin": pin, "n": n + 1})
+    return templates.TemplateResponse("processing.html", {"request": request, "pin": pin, "n": n})
 
 
 @app.get("/check_complete")
