@@ -1,0 +1,30 @@
+{% extends "_base.html" %}
+
+{% block content %}
+
+{% block meta %}
+{% endblock %}
+
+<div class="container mt-4">
+    <div class="tab-content" id="nav-tabContent">
+        <div class="tab-pane fade show active" id="text-search" role="tabpanel" aria-labelledby="text-search-tab"
+            tabindex="0">
+            <div class="container pt-4">
+                <h1 class="display-6">Multiple PINs found at {{given_pin}}</h1>
+                <h1 class="display-6">Please select the correct PIN</h1>
+                <div class="list-group">
+                    {% for pin in pins %}
+                    <a href="renderdoc?pin={{pin}}&prior_year={{prior_year}}"
+                        class="list-group-item list-group-item-action">
+                        {{ pin }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block script %}
+    <script src="assets/index.js"></script>
+    {% endblock %}

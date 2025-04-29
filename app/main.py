@@ -107,6 +107,7 @@ async def search_address(search_term: str = Form(...), exact_match: bool = False
     filtered_df = add_df.clone()
     address_fields_mapping = [
         ("StreetName", "STNAMECOM"),
+        ("StreetNamePreDirectional", "St_PreDir"),
         ("AddressNumber", "ADDRNOCOM"),
         ("OccupancyIdentifier", "SUBADDCOM"),
         ("PlaceName", "PLACENAME"),
@@ -135,8 +136,8 @@ async def address_suggestions(request: Request, search_term: str = Form(...), ex
     return JSONResponse(content=suggestions)
 
 
-@app.get("/searchdb", response_class=HTMLResponse)
-async def search_db(request: Request, given_pin: str = Form(...)):
+@app.get("/searchdb", response_class=RedirectResponse)
+async def search_db(request: Request, given_pin: str, prior_year: int):
     """Search database."""
 
     base_dir = os.path.dirname(__file__)  # Directory of the current script
@@ -146,25 +147,70 @@ async def search_db(request: Request, given_pin: str = Form(...)):
     cur = con.cursor()
     cur.execute("SELECT * FROM pin WHERE pin = ?", (given_pin,))
     res = cur.fetchall()
-    con.close()
-
     if len(res) == 0:
-        return False
+        # try subpins
+        cur.execute(f"SELECT * FROM pin WHERE pin like '{given_pin[:-4]}%'")
+        res = cur.fetchall()
+        con.close()
+        pins = set([r[1] for r in res])
+        if len(pins) > 0:
+            return templates.TemplateResponse(
+                "choose_pin.html", {"request": request, "pins": pins, "given_pin": given_pin, "prior_year": prior_year}
+            )
+        else:
+            return templates.TemplateResponse(
+                "message.html",
+                {"request": request, "message": f"Error: PIN or Address Not Found in Database - {given_pin}"},
+                status_code=404,
+            )
+
     else:
-        return True
+        con.close()
+        return RedirectResponse(f"/renderdoc?pin={given_pin}&prior_year={prior_year}", status_code=status.HTTP_302_FOUND)
+
+
+@app.get("/renderdoc")
+async def render_doc(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    pin: str,
+    prior_year: int,
+):
+    base_dir = os.path.dirname(__file__)  # Directory of the current script
+    qmd_file = os.path.abspath(os.path.join(base_dir, "../ptaxsim_explainer.qmd"))
+    try:
+        print(f"Quarto file path: {qmd_file}")  # Debug: print the path
+        addy = get_address_pin(pin)
+        print(f"Address for PIN {pin}: {addy}")
+
+        background_tasks.add_task(
+            run_quarto,
+            qmd_file=qmd_file,
+            pin=pin,
+            prior_year=prior_year,
+            addy=addy,
+        )
+        print(f"Running Quarto for PIN {pin} with address {addy}")
+        response = RedirectResponse(url=f"/processing?pin={pin}", status_code=status.HTTP_303_SEE_OTHER)
+        # print(response)
+        return response
+
+    except subprocess.CalledProcessError as e:
+        return templates.TemplateResponse(
+            "message.html",
+            {"request": request, "message": "Error rendering the QMD file - " + e.stderr},
+            status_code=500,
+        )
 
 
 @app.post("/submit", response_class=RedirectResponse)
 async def handle_pin(
     request: Request,
-    background_tasks: BackgroundTasks,
     search_category: str = Form(...),
     search_term: str = Form(...),
     search_term_hidden: str = Form(...),
 ):
     """Handle PIN input and render the QMD file."""
-    base_dir = os.path.dirname(__file__)  # Directory of the current script
-    qmd_file = os.path.abspath(os.path.join(base_dir, "../ptaxsim_explainer.qmd"))
 
     if search_category == "three_years":
         prior_year = 2020
@@ -186,13 +232,19 @@ async def handle_pin(
         if len(suggestions) > 0:
             pin = suggestions[0]["value"]
         else:
-            pin = 0
+            wrong_pin = search_term
+            return templates.TemplateResponse(
+                "message.html",
+                {"request": request, "message": f"Error: Invalid PIN or Address - {wrong_pin}"},
+                status_code=400,
+            )
 
     else:
         wrong_pin = search_term
-        return HTMLResponse(
-            content=f"<h1>Error: Invalid PIN or Address - {wrong_pin}</h1>",
-            status_code=status.HTTP_400_BAD_REQUEST,
+        return templates.TemplateResponse(
+            "message.html",
+            {"request": request, "message": f"Error: Invalid PIN or Address - {wrong_pin}"},
+            status_code=400,
         )
 
     # Store searches
@@ -201,47 +253,19 @@ async def handle_pin(
         # Write the values, separating them with commas
         f.write(f"{search_term}, {search_category}\n")
 
-    try:
-        if not await search_db(request, given_pin=pin):
-            return HTMLResponse(
-                content=f"""
-                    <h1>Error: PIN or Address Not Found in Database - {search_term}</h1>
-                    <button onclick="window.location.href='/'">Back</button>
-                """,
-                status_code=status.HTTP_400_BAD_REQUEST,
-            )
+    if os.path.exists(f"outputs/v{VERSION}/{pin}/{pin}.html"):
+        # If the file already exists, redirect to it
+        return RedirectResponse(url=f"/outputs/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
 
-        elif os.path.exists(f"outputs/v{VERSION}/{pin}/{pin}.html"):
-            # If the file already exists, redirect to it
-            return RedirectResponse(url=f"/outputs/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
-
-        else:
-            # Render the Quarto document with the provided PIN
-            print(f"Quarto file path: {qmd_file}")  # Debug: print the path
-            addy = get_address_pin(pin)
-            print(f"Address for PIN {pin}: {addy}")
-
-            background_tasks.add_task(
-                run_quarto,
-                qmd_file=qmd_file,
-                pin=pin,
-                prior_year=prior_year,
-                addy=addy,
-            )
-            print(f"Running Quarto for PIN {pin} with address {addy}")
-            response = RedirectResponse(url=f"/processing?pin={pin}", status_code=status.HTTP_303_SEE_OTHER)
-            # print(response)
-            return response
-
-    except subprocess.CalledProcessError as e:
-        return HTMLResponse(
-            content=f"""
-                <h1>Error rendering the QMD file</h1>
-                <p>{e.stderr}</p>
-                <button onclick="window.location.href='/'">Back</button>
-            """,
-            status_code=500,
-        )
+    else:
+        return RedirectResponse(f"/searchdb?given_pin={pin}&prior_year={prior_year}", status_code=status.HTTP_302_FOUND)
+        # return HTMLResponse(
+        #     content=f"""
+        #         <h1>Error: PIN or Address Not Found in Database - {search_term}</h1>
+        #         <button onclick="window.location.href='/'">Back</button>
+        #     """,
+        #     status_code=status.HTTP_400_BAD_REQUEST,
+        # )
 
 
 @app.get("/processing")
