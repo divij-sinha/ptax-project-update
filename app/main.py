@@ -15,8 +15,15 @@ from fastapi import BackgroundTasks, FastAPI, Form, Request, status
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from redis import Redis
+from rq import Queue
 
-VERSION = "2.0.2"
+VERSION = "2.0.3"
+
+redis_conn = Redis()
+queue = Queue(connection=redis_conn)
+
+pin_job = {}
 
 app = FastAPI()
 
@@ -116,8 +123,12 @@ async def search_address(search_term: str = Form(...), exact_match: bool = False
 
     for usaddress_field, pl_column in address_fields_mapping:
         if usaddress_field in parsed_address:
-            f_inexact = pl.col(pl_column).str.to_lowercase().str.contains(parsed_address.get(usaddress_field))
-            f_exact = pl.col(pl_column).str.to_lowercase().str.strip_chars() == parsed_address.get(usaddress_field)
+            if usaddress_field == "AddressNumber":
+                f_exact = pl.col(pl_column).str.to_lowercase().str.strip_chars() == parsed_address.get(usaddress_field)
+                f_inexact = f_exact
+            else:
+                f_inexact = pl.col(pl_column).str.to_lowercase().str.contains(parsed_address.get(usaddress_field))
+                f_exact = pl.col(pl_column).str.to_lowercase().str.strip_chars() == parsed_address.get(usaddress_field)
 
             f = False
             filtered_df = filtered_df.filter(f_exact if exact_match else f_inexact)
@@ -187,13 +198,24 @@ async def render_doc(
             address = get_address_pin(pin)
         print(f"Address for PIN {pin}: {address}")
 
-        background_tasks.add_task(
-            run_quarto,
-            qmd_file=qmd_file,
-            pin=pin,
-            prior_year=prior_year,
-            address=address,
+        # background_tasks.add_task(
+        #     run_quarto,
+        #     qmd_file=qmd_file,
+        #     pin=pin,
+        #     prior_year=prior_year,
+        #     address=address,
+        # )
+        job = queue.enqueue(
+            "app.main.run_quarto",
+            qmd_file,
+            pin,
+            prior_year,
+            address,
+            result_ttl=86400,  # keep result for 1 day
         )
+        pin_job[pin] = job.id
+        print(f"Job ID {job.id} for PIN {pin} enqueued.")
+
         response = RedirectResponse(url=f"/processing?pin={pin}", status_code=status.HTTP_303_SEE_OTHER)
         # print(response)
         return response
@@ -277,51 +299,66 @@ async def handle_pin(
 
 
 @app.get("/processing")
-async def processing_page(request: Request, pin: str, n: int = 1):
+async def processing_page(request: Request, pin: str, n: int = 1, status: str = ""):
+    print(status)
     # Render a template that shows "processing" and auto-refreshes
     return templates.TemplateResponse("processing.html", {"request": request, "pin": pin, "n": n})
 
 
 @app.get("/check_complete")
 async def check_complete(request: Request, pin: str, n: int = 1):
+    if os.path.exists(f"outputs/v{VERSION}/{pin}/{pin}.html"):
+        return RedirectResponse(url=f"/outputs/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
+    # Check if the job is complete
+    job_id = pin_job.get(pin)
+    if job_id:
+        job = queue.fetch_job(job_id)
+        job_status = job.get_status()
+        if job.is_finished:
+            # Job is finished, redirect to the output file
+            return RedirectResponse(url=f"/outputs/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
     # Check if output file exists or some other completion indicator
-    if n >= 12:
+    if job_status == "failed":
         return templates.TemplateResponse(
             "message.html",
             {"request": request, "message": f"Error: Error processing PIN {pin}! Please try again, error reported to admin."},
-            status_code=500,
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
         with open("error_log.txt", "a") as f:
             f.write(f"Error processing PIN {pin} after 10 attempts.\n")
-    if os.path.exists(f"outputs/v{VERSION}/{pin}/{pin}.html"):
-        return RedirectResponse(url=f"/outputs/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
     else:
-        return RedirectResponse(url=f"/processing?pin={pin}&n={n+1}")
+        return RedirectResponse(url=f"/processing?pin={pin}&n={n+1}&status={job_status}")
 
 
 def run_quarto(qmd_file: str, pin: str, prior_year: int, address: str):
-    subprocess.run(
-        [
-            "quarto",
-            "render",
-            qmd_file,
-            "--to",
-            "html",
-            "--no-clean",
-            "--output",
-            f"{pin}.html",
-            "--output-dir",
-            f"outputs/v{VERSION}/{pin}",
-            "--execute-param",
-            "current_year=2023",
-            "--execute-param",
-            f"prior_year={prior_year}",
-            "--execute-param",
-            f"pin_14={pin}",
-            "--execute-param",
-            f"address={address}",
-        ],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
+    try:
+        result = subprocess.run(
+            [
+                "quarto",
+                "render",
+                qmd_file,
+                "--to",
+                "html",
+                "--no-clean",
+                "--output",
+                f"{pin}.html",
+                "--output-dir",
+                f"outputs/v{VERSION}/{pin}",
+                "--execute-param",
+                "current_year=2023",
+                "--execute-param",
+                f"prior_year={prior_year}",
+                "--execute-param",
+                f"pin_14={pin}",
+                "--execute-param",
+                f"address={address}",
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        return {"stdout": result.stdout, "stderr": result.stderr, "returncode": result.returncode}
+    except subprocess.CalledProcessError as e:
+        print(f"Error: {e.stderr}")
+        # print({"stdout": e.stdout, "stderr": e.stderr, "returncode": e.returncode})
+        raise e
