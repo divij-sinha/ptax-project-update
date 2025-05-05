@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function () {
     searchTermInput.addEventListener('input', debounce(function () {
         const searchTerm = this.value.toUpperCase();
 
-        if (searchTerm.length >= 2) {
+        if (searchTerm.length >= 5) {
             fetch('/address_suggestions', {
                 method: 'POST',
                 headers: {
