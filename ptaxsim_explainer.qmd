@@ -275,7 +275,8 @@ map_bg_lwd <- 1.05
 
 map_colors <- c(
     "#88CCEE", "#CC6677", "#DDCC77", "#117733", "#332288", "#AA4499",
-    "#44AA99", "#999933", "#882255", "#661100", "#6699CC", "#888888"
+    "#44AA99", "#999933", "#882255", "#661100", "#6699CC", "#888888",
+    "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2"
 )
 map_names <- c(
     render_pin14, "Cook County",
@@ -491,7 +492,7 @@ if (total_exe_incident == 0 & pin_exe_total == 0) {
 ```
 
 
-```{r}
+```{r quadrants}
 if (abs(change_from_levy) > abs(change_from_share)) {
   min = -1.2*abs(change_from_levy)
   max = 1.2*abs(change_from_levy)
@@ -600,7 +601,7 @@ Each year you receive one tax bill that is split across two payments. The first 
 
 The information below is from the year `r current_year`, combining both FIRST and SECOND installement tax bills.
 
-```{r}
+```{r pin-details-display}
 #https://github.com/ccao-data/data-architecture/blob/master/dbt/seeds/ccao/ccao.class_dict.csv
 class_desc = read_csv("data/ccao.class_dict.csv")  %>% 
            select("class_code", "major_class_type","class_desc") %>% 
@@ -672,7 +673,7 @@ Every `r render_name("PIN", render_pin14)` belongs to multiple tax districts. Yo
 
 ::: {.column-margin}
 
-```{r}
+```{r tax-district-pie}
 #| fig-width: 4
 #| fig-height: 4
 lookuptbl <- setNames(
@@ -703,7 +704,7 @@ tax_bill_current %>%
 
 :::
 
-```{r}
+```{r tax-district-list}
 tax_bill_current %>%
 select(agency_name, tax_amt_post_exe) %>%
 rename(
@@ -726,7 +727,7 @@ fmt_currency("Amount Owed")
 
 Your total tax bill is the result of the taxes you pay to each of these jurisdictions. The pie chart on the right shows how your tax bill was divided among the jurisdictions.
 
-``` {r}
+``` {r max-val-text}
 # find max of value of assign text based on that
 max_val = max(abs(change_from_levy), abs(total_exe_incident), abs(total_eav_res_share_incident), abs(total_res_com_share_incident))
 
@@ -756,7 +757,7 @@ In addition to these two factors, various exemptions that you claim, as well as 
 ## Why Did My Property Tax Bill Change From `r prior_year` to `r current_year`?
 The tax bill for `r render_name(render_pin14)` was approximately `r label_dol_amt(prior_year_tax_bill_summary$sum_final_tax_to_dist)` in `r prior_year` and `r label_dol_amt(latter_year_tax_bill_summary$sum_final_tax_to_dist)` in `r current_year`, representing `r if (tax_bill_change<0) "a" else "an"` __`r change_str(tax_bill_change, 'word')`__ of `r render_name(label_dol_amt(abs(tax_bill_change)),change_str(tax_bill_change, 'past'))`. This change can be broken down into the two main components described above, changes in the levy and changes in assessed values. The most significant change in your bill was due to __`r biggest_change`__.
 
-```{r}
+```{r change-levy-text}
 change_from_levy_text <- paste("Your tax bill ", change_str(change_from_levy, "past"), " by approximately ", render_name(label_dol_amt(abs(change_from_levy)),change_str(change_from_levy, "past")), " due to the ", change_str(change_from_levy, 'word'), " in your taxing districts' levies. ",
     "In other words, this is the part of your tax bill that went up because the government collected more taxes in ",
     current_year,
@@ -796,7 +797,7 @@ Your tax levy `r change_str(change_from_levy, 'past')`, and your assessed value 
 
 The change in your tax bill is depicted in the figure below.
 
-```{r}
+```{r quadrant-chart-display}
 #| fig-width: 5
 #| fig-height: 5
 #| fig-align: center
@@ -900,9 +901,7 @@ See the breakdown of the tax levy change for each district in [Appendix C](#sec-
 
 TODO 
 Typically, the tax levy for each distinct increases each year. From 2006 to 2023, the tax levy ...
-```{r}
-# TODO values and chart
-```
+
 
 ::: {.callout-note appearance="minimal"}
 #### Appendix A: Calculating Equalized Assessed Value {#sec-appendixA}
