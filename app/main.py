@@ -318,7 +318,7 @@ async def check_complete(request: Request, pin: str, n: int = 1):
             # Job is finished, redirect to the output file
             return RedirectResponse(url=f"/outputs/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
     # Check if output file exists or some other completion indicator
-    if job_status == "failed":
+    if not job_id or job_status == "failed":
         return templates.TemplateResponse(
             "message.html",
             {"request": request, "message": f"Error: Error processing PIN {pin}! Please try again, error reported to admin."},
