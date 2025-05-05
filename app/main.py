@@ -23,8 +23,6 @@ VERSION = "2.0.3"
 redis_conn = Redis()
 queue = Queue(connection=redis_conn)
 
-pin_job = {}
-
 app = FastAPI()
 
 # Set up Jinja2 templates
@@ -100,7 +98,6 @@ def get_address_pin(pin: str):
     try:
         add_df = pl.scan_csv("data/Address_Points.csv", infer_schema=False)
         filtered = add_df.filter(pl.col("PIN") == pin).select("PIN", "ADDRDELIV").collect().to_dict(as_series=False)
-        print(filtered)
         return filtered["ADDRDELIV"][0]
     except Exception as e:
         print(f"Error retrieving address for PIN {pin}: {e}")
@@ -213,7 +210,7 @@ async def render_doc(
             address,
             result_ttl=86400,  # keep result for 1 day
         )
-        pin_job[pin] = job.id
+        redis_conn.hset("pin_job_map", pin, job.id)
         print(f"Job ID {job.id} for PIN {pin} enqueued.")
 
         response = RedirectResponse(url=f"/processing?pin={pin}", status_code=status.HTTP_303_SEE_OTHER)
@@ -300,7 +297,6 @@ async def handle_pin(
 
 @app.get("/processing")
 async def processing_page(request: Request, pin: str, n: int = 1, status: str = ""):
-    print(status)
     # Render a template that shows "processing" and auto-refreshes
     return templates.TemplateResponse("processing.html", {"request": request, "pin": pin, "n": n})
 
@@ -310,24 +306,29 @@ async def check_complete(request: Request, pin: str, n: int = 1):
     if os.path.exists(f"outputs/v{VERSION}/{pin}/{pin}.html"):
         return RedirectResponse(url=f"/outputs/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
     # Check if the job is complete
-    job_id = pin_job.get(pin)
-    if job_id:
-        job = queue.fetch_job(job_id)
-        job_status = job.get_status()
-        if job.is_finished:
-            # Job is finished, redirect to the output file
-            return RedirectResponse(url=f"/outputs/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
-    # Check if output file exists or some other completion indicator
-    if not job_id or job_status == "failed":
+    job_id = redis_conn.hget("pin_job_map", pin).decode("utf-8")
+    if not job_id:
         return templates.TemplateResponse(
             "message.html",
             {"request": request, "message": f"Error: Error processing PIN {pin}! Please try again, error reported to admin."},
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
+    job = queue.fetch_job(job_id)
+    # if job is None:
+    #     return RedirectResponse(url=f"/processing?pin={pin}&n={n+1}&status={job.get_status()}")
+    if job.is_finished:
+        # Job is finished, redirect to the output file
+        return RedirectResponse(url=f"/outputs/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
+    # Check if output file exists or some other completion indicator
+    if job.is_failed:
         with open("error_log.txt", "a") as f:
             f.write(f"Error processing PIN {pin} after 10 attempts.\n")
-    else:
-        return RedirectResponse(url=f"/processing?pin={pin}&n={n+1}&status={job_status}")
+        return templates.TemplateResponse(
+            "message.html",
+            {"request": request, "message": f"Error: Error processing PIN {pin}! Please try again, error reported to admin."},
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+    return RedirectResponse(url=f"/processing?pin={pin}&n={n+1}&status={job.get_status()}")
 
 
 def run_quarto(qmd_file: str, pin: str, prior_year: int, address: str):
@@ -360,5 +361,4 @@ def run_quarto(qmd_file: str, pin: str, prior_year: int, address: str):
         return {"stdout": result.stdout, "stderr": result.stderr, "returncode": result.returncode}
     except subprocess.CalledProcessError as e:
         print(f"Error: {e.stderr}")
-        # print({"stdout": e.stdout, "stderr": e.stderr, "returncode": e.returncode})
         raise e
