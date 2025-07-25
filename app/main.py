@@ -304,15 +304,15 @@ async def handle_pin(
 
 
 @app.get("/processing")
-async def processing_page(request: Request, pin: str, n: int = 1, status: str = ""):
+async def processing_page(request: Request, pin: str, mode: str = MODE, n: int = 1, status: str = ""):
     # Render a template that shows "processing" and auto-refreshes
-    return templates.TemplateResponse("processing.html", {"request": request, "pin": pin, "n": n})
+    return templates.TemplateResponse("processing.html", {"request": request, "pin": pin, "n": n, "mode": mode})
 
 
 @app.get("/check_complete")
-async def check_complete(request: Request, pin: str, n: int = 1):
-    if os.path.exists(f"outputs/v{VERSION}/{pin}/{pin}.html"):
-        return RedirectResponse(url=f"/outputs/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
+async def check_complete(request: Request, pin: str, mode: str = MODE, n: int = 1):
+    if os.path.exists(f"outputs/v{VERSION}/{mode}/{pin}/{pin}.html"):
+        return RedirectResponse(url=f"/outputs/{mode}/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
     # Check if the job is complete
     job_id = redis_conn.hget("pin_job_map", pin).decode("utf-8")
     if not job_id:
@@ -336,7 +336,7 @@ async def check_complete(request: Request, pin: str, n: int = 1):
             {"request": request, "message": f"Error: Error processing PIN {pin}! Please try again, error reported to admin."},
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
-    return RedirectResponse(url=f"/processing?pin={pin}&n={n + 1}&status={job.get_status()}")
+    return RedirectResponse(url=f"/processing?pin={pin}&n={n + 1}&mode={mode}&status={job.get_status()}")
 
 
 def run_quarto(qmd_file: str, pin: str, prior_year: int, address: str):
