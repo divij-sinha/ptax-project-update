@@ -192,7 +192,7 @@ async def render_doc(
 ):
     base_dir = os.path.dirname(__file__)  # Directory of the current script
     if mode == "TIF":
-        qmd_file = os.path.abspath(os.path.join(base_dir, "../ptaxsim_explainer.qmd"))
+        qmd_file = os.path.abspath(os.path.join(base_dir, "../ptaxsim_explainer_tif.qmd"))
     else:
         qmd_file = os.path.abspath(os.path.join(base_dir, "../ptaxsim_explainer.qmd"))
     try:
