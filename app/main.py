@@ -192,7 +192,7 @@ async def render_doc(
 ):
     base_dir = os.path.dirname(__file__)  # Directory of the current script
     if mode == "TIF":
-        qmd_file = os.path.abspath(os.path.join(base_dir, "../ptaxsim_explainer_tif.qmd"))
+        qmd_file = os.path.abspath(os.path.join(base_dir, "../ptaxsim_explainer_tif.Rmd"))
     else:
         qmd_file = os.path.abspath(os.path.join(base_dir, "../ptaxsim_explainer.qmd"))
     try:
@@ -218,6 +218,30 @@ async def render_doc(
         )
         redis_conn.hset("pin_job_map", pin, job.id)
         print(f"Job ID {job.id} for PIN {pin} enqueued.")
+        print(
+            " ".join(
+                [
+                    "quarto",
+                    "render",
+                    qmd_file,
+                    "--to",
+                    "html",
+                    "--no-clean",
+                    "--output",
+                    f"{pin}.html",
+                    "--output-dir",
+                    f"outputs/v{VERSION}/{MODE}/{pin}",
+                    "--execute-param",
+                    "current_year=2023",
+                    "--execute-param",
+                    f"prior_year={prior_year}",
+                    "--execute-param",
+                    f"pin_14={pin}",
+                    "--execute-param",
+                    f"address={address}",
+                ]
+            )
+        )
 
         response = RedirectResponse(url=f"/processing?pin={pin}", status_code=status.HTTP_303_SEE_OTHER)
         # print(response)
