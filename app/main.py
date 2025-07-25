@@ -18,7 +18,8 @@ from fastapi.templating import Jinja2Templates
 from redis import Redis
 from rq import Queue
 
-VERSION = "2.0.3"
+MODE = "TIF"
+VERSION = "2.0.4"
 
 redis_conn = Redis()
 queue = Queue(connection=redis_conn)
@@ -145,7 +146,7 @@ async def address_suggestions(request: Request, search_term: str = Form(...), ex
 
 
 @app.get("/searchdb", response_class=RedirectResponse)
-async def search_db(request: Request, given_pin: str, prior_year: int, address: str):
+async def search_db(request: Request, given_pin: str, prior_year: int, address: str, mode: str = MODE):
     """Search database."""
 
     base_dir = os.path.dirname(__file__)  # Directory of the current script
@@ -163,7 +164,8 @@ async def search_db(request: Request, given_pin: str, prior_year: int, address: 
         pins = set([r[1] for r in res])
         if len(pins) > 0:
             return templates.TemplateResponse(
-                "choose_pin.html", {"request": request, "pins": pins, "given_pin": given_pin, "prior_year": prior_year}
+                "choose_pin.html",
+                {"request": request, "pins": pins, "given_pin": given_pin, "prior_year": prior_year, "mode": mode},
             )
         else:
             return templates.TemplateResponse(
@@ -175,7 +177,7 @@ async def search_db(request: Request, given_pin: str, prior_year: int, address: 
     else:
         con.close()
         return RedirectResponse(
-            f"/renderdoc?pin={given_pin}&prior_year={prior_year}&address={address}", status_code=status.HTTP_302_FOUND
+            f"/renderdoc?pin={given_pin}&prior_year={prior_year}&address={address}&mode={mode}", status_code=status.HTTP_302_FOUND
         )
 
 
@@ -186,9 +188,13 @@ async def render_doc(
     pin: str,
     prior_year: int,
     address: str = None,
+    mode: str = MODE,
 ):
     base_dir = os.path.dirname(__file__)  # Directory of the current script
-    qmd_file = os.path.abspath(os.path.join(base_dir, "../ptaxsim_explainer.qmd"))
+    if mode == "TIF":
+        qmd_file = os.path.abspath(os.path.join(base_dir, "../ptaxsim_explainer.qmd"))
+    else:
+        qmd_file = os.path.abspath(os.path.join(base_dir, "../ptaxsim_explainer.qmd"))
     try:
         print(f"Quarto file path: {qmd_file}")  # Debug: print the path
         if address is None:
@@ -231,8 +237,10 @@ async def handle_pin(
     search_category: str = Form(...),
     search_term: str = Form(...),
     search_term_hidden: str = Form(...),
+    mode: str = MODE,
 ):
     """Handle PIN input and render the QMD file."""
+    print(f"{mode=}")
 
     if search_category == "three_years":
         prior_year = 2020
@@ -284,7 +292,7 @@ async def handle_pin(
 
     else:
         return RedirectResponse(
-            f"/searchdb?given_pin={pin}&prior_year={prior_year}&address={address}", status_code=status.HTTP_302_FOUND
+            f"/searchdb?given_pin={pin}&prior_year={prior_year}&address={address}&mode={mode}", status_code=status.HTTP_302_FOUND
         )
         # return HTMLResponse(
         #     content=f"""
@@ -328,7 +336,7 @@ async def check_complete(request: Request, pin: str, n: int = 1):
             {"request": request, "message": f"Error: Error processing PIN {pin}! Please try again, error reported to admin."},
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
-    return RedirectResponse(url=f"/processing?pin={pin}&n={n+1}&status={job.get_status()}")
+    return RedirectResponse(url=f"/processing?pin={pin}&n={n + 1}&status={job.get_status()}")
 
 
 def run_quarto(qmd_file: str, pin: str, prior_year: int, address: str):
@@ -344,7 +352,7 @@ def run_quarto(qmd_file: str, pin: str, prior_year: int, address: str):
                 "--output",
                 f"{pin}.html",
                 "--output-dir",
-                f"outputs/v{VERSION}/{pin}",
+                f"outputs/v{VERSION}/{MODE}/{pin}",
                 "--execute-param",
                 "current_year=2023",
                 "--execute-param",
