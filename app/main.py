@@ -257,14 +257,16 @@ async def handle_pin(
     else:
         prior_year = 1
 
-    pin_parser = re.compile(r"^\d{14}$")
+    ## replace all non-numeric characters with empty string
+    search_term_parsed = re.sub(r"[^\d]", "", search_term)
+    search_term_hidden_parsed = re.sub(r"[^\d]", "", search_term_hidden)
 
-    if pin_parser.match(search_term):
-        pin = search_term
+    if search_term_parsed.isdigit() and len(search_term_parsed) == 14:
+        pin = search_term_parsed
         address = get_address_pin(pin)
 
-    elif pin_parser.match(search_term_hidden):
-        pin = search_term_hidden
+    elif search_term_hidden_parsed.isdigit() and len(search_term_hidden_parsed) == 14:
+        pin = search_term_hidden_parsed
         address = search_term
 
     elif isinstance(search_term, str):
