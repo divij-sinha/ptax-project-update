@@ -18,11 +18,15 @@ from fastapi.templating import Jinja2Templates
 from redis import Redis
 from rq import Queue
 
-MODE = "TIF"
-VERSION = "2.0.4"
+MODE = "TIF"  # default mode, can be changed to "PTAX" for explainer
+VERSION = "2.1.0"
 
 redis_conn = Redis()
 queue = Queue(connection=redis_conn)
+print(f"Redis connection established: {redis_conn}")
+
+os.makedirs(f"outputs/v{VERSION}/TIF/", exist_ok=True)
+os.makedirs(f"outputs/v{VERSION}/PTAX/", exist_ok=True)
 
 app = FastAPI()
 
@@ -193,13 +197,15 @@ async def render_doc(
     base_dir = os.path.dirname(__file__)  # Directory of the current script
     if mode == "TIF":
         qmd_file = os.path.abspath(os.path.join(base_dir, "../ptaxsim_explainer_tif.Rmd"))
-    else:
+    elif mode == "PTAX":
         qmd_file = os.path.abspath(os.path.join(base_dir, "../ptaxsim_explainer.qmd"))
+    else:
+        raise ValueError(f"Invalid mode: {mode}. Expected 'TIF' or 'PTAX'.")
     try:
-        print(f"Quarto file path: {qmd_file}")  # Debug: print the path
+        # print(f"Quarto file path: {qmd_file}")  # Debug: print the path
         if address is None:
             address = get_address_pin(pin)
-        print(f"Address for PIN {pin}: {address}")
+        # print(f"Address for PIN {pin}: {address}")
 
         # background_tasks.add_task(
         #     run_quarto,
@@ -218,32 +224,8 @@ async def render_doc(
         )
         redis_conn.hset("pin_job_map", pin, job.id)
         print(f"Job ID {job.id} for PIN {pin} enqueued.")
-        print(
-            " ".join(
-                [
-                    "quarto",
-                    "render",
-                    qmd_file,
-                    "--to",
-                    "html",
-                    "--no-clean",
-                    "--output",
-                    f"{pin}.html",
-                    "--output-dir",
-                    f"outputs/v{VERSION}/{MODE}/{pin}",
-                    "--execute-param",
-                    "current_year=2023",
-                    "--execute-param",
-                    f"prior_year={prior_year}",
-                    "--execute-param",
-                    f"pin_14={pin}",
-                    "--execute-param",
-                    f"address={address}",
-                ]
-            )
-        )
 
-        response = RedirectResponse(url=f"/processing?pin={pin}", status_code=status.HTTP_303_SEE_OTHER)
+        response = RedirectResponse(url=f"/processing?pin={pin}&mode={mode}", status_code=status.HTTP_303_SEE_OTHER)
         # print(response)
         return response
 
@@ -261,10 +243,9 @@ async def handle_pin(
     search_category: str = Form(...),
     search_term: str = Form(...),
     search_term_hidden: str = Form(...),
-    mode: str = MODE,
+    mode: str = Form(...),
 ):
     """Handle PIN input and render the QMD file."""
-    print(f"{mode=}")
 
     if search_category == "three_years":
         prior_year = 2020
@@ -275,11 +256,11 @@ async def handle_pin(
     else:
         prior_year = 1
 
-    if len(search_term) == 14 and search_term.isdigit():
+    if ((len(search_term) == 14) or (len(search_term.replace("-", "")) == 14)) and search_term.isdigit():
         pin = search_term
         address = get_address_pin(pin)
 
-    elif len(search_term_hidden) == 14 and search_term_hidden.isdigit():
+    elif ((len(search_term_hidden) == 14) or (len(search_term_hidden.replace("-", "")) == 14)) and search_term_hidden.isdigit():
         pin = search_term_hidden
         address = search_term
 
@@ -310,9 +291,9 @@ async def handle_pin(
         # Write the values, separating them with commas
         f.write(f"{search_term}, {search_category}\n")
 
-    if os.path.exists(f"outputs/v{VERSION}/{pin}/{pin}.html"):
+    if os.path.exists(f"outputs/v{VERSION}/{mode}/{pin}/{pin}.html"):
         # If the file already exists, redirect to it
-        return RedirectResponse(url=f"/outputs/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
+        return RedirectResponse(url=f"/outputs/{mode}/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
 
     else:
         return RedirectResponse(
@@ -350,7 +331,7 @@ async def check_complete(request: Request, pin: str, mode: str = MODE, n: int = 
     #     return RedirectResponse(url=f"/processing?pin={pin}&n={n+1}&status={job.get_status()}")
     if job.is_finished:
         # Job is finished, redirect to the output file
-        return RedirectResponse(url=f"/outputs/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
+        return RedirectResponse(url=f"/outputs/{mode}/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
     # Check if output file exists or some other completion indicator
     if job.is_failed:
         with open("error_log.txt", "a") as f:
