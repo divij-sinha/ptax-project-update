@@ -1,5 +1,6 @@
 import glob
 import os
+import re
 import smtplib
 import sqlite3
 import subprocess
@@ -256,11 +257,13 @@ async def handle_pin(
     else:
         prior_year = 1
 
-    if ((len(search_term) == 14) or (len(search_term.replace("-", "")) == 14)) and search_term.isdigit():
+    pin_parser = re.compile(r"^\d{14}$")
+
+    if pin_parser.match(search_term):
         pin = search_term
         address = get_address_pin(pin)
 
-    elif ((len(search_term_hidden) == 14) or (len(search_term_hidden.replace("-", "")) == 14)) and search_term_hidden.isdigit():
+    elif pin_parser.match(search_term_hidden):
         pin = search_term_hidden
         address = search_term
 
