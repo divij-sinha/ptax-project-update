@@ -221,6 +221,7 @@ async def render_doc(
             pin,
             prior_year,
             address,
+            mode,
             result_ttl=86400,  # keep result for 1 day
         )
         redis_conn.hset("pin_job_map", pin, job.id)
@@ -349,7 +350,7 @@ async def check_complete(request: Request, pin: str, mode: str = MODE, n: int = 
     return RedirectResponse(url=f"/processing?pin={pin}&n={n + 1}&mode={mode}&status={job.get_status()}")
 
 
-def run_quarto(qmd_file: str, pin: str, prior_year: int, address: str):
+def run_quarto(qmd_file: str, pin: str, prior_year: int, address: str, mode: str = MODE):
     try:
         result = subprocess.run(
             [
@@ -362,7 +363,7 @@ def run_quarto(qmd_file: str, pin: str, prior_year: int, address: str):
                 "--output",
                 f"{pin}.html",
                 "--output-dir",
-                f"outputs/v{VERSION}/{MODE}/{pin}",
+                f"outputs/v{VERSION}/{mode}/{pin}",
                 "--execute-param",
                 "current_year=2023",
                 "--execute-param",
