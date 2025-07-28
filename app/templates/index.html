@@ -38,8 +38,6 @@
               id="search_category_hidden"
             />
 
-            <input type="hidden" name="mode" id="mode" value="TIF" />
-
             <div class="col-md-5">
               <label for="search_term" class="form-label"
                 >Enter an address or PIN:</label
@@ -72,7 +70,23 @@
               id="search_term_hidden"
             />
 
-            <div class="col-auto mt-3">
+            <div class="col-auto">
+              <label for="mode" class="form-label">Explainer Mode:</label>
+              <div class="input-group">
+                <select
+                  name="mode"
+                  id="mode"
+                  class="form-select w-auto"
+                  required
+                >
+                  <option value="TIF" selected>TIF explainer</option>
+                  <option value="PTAX">PTAX explainer</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="row justify-content-center mb-3">
+            <div class="col-md-4 mt-3">
               <button
                 class="btn btn-primary btn-lg bg-info w-100"
                 id="search-button"
@@ -95,6 +109,7 @@
               Cook County's Cookviewer tool here -
               https://maps.cookcountyil.gov/cookviewer/</a
             >
+            or in the window below.
           </div>
         </div>
       </div>
