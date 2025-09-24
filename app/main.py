@@ -151,7 +151,7 @@ async def address_suggestions(request: Request, search_term: str = Form(...), ex
 
 
 @app.get("/searchdb", response_class=RedirectResponse)
-async def search_db(request: Request, given_pin: str, prior_year: int, address: str, mode: str = MODE):
+async def search_db(request: Request, given_pin: str, prior_year: int, address: str, mode: str):
     """Search database."""
 
     base_dir = os.path.dirname(__file__)  # Directory of the current script
@@ -192,8 +192,8 @@ async def render_doc(
     background_tasks: BackgroundTasks,
     pin: str,
     prior_year: int,
+    mode: str,
     address: str = None,
-    mode: str = MODE,
 ):
     base_dir = os.path.dirname(__file__)  # Directory of the current script
     if mode == "TIF":
@@ -315,13 +315,13 @@ async def handle_pin(
 
 
 @app.get("/processing")
-async def processing_page(request: Request, pin: str, mode: str = MODE, n: int = 1, status: str = ""):
+async def processing_page(request: Request, pin: str, mode: str, n: int = 1, status: str = ""):
     # Render a template that shows "processing" and auto-refreshes
     return templates.TemplateResponse("processing.html", {"request": request, "pin": pin, "n": n, "mode": mode})
 
 
 @app.get("/check_complete")
-async def check_complete(request: Request, pin: str, mode: str = MODE, n: int = 1):
+async def check_complete(request: Request, pin: str, mode: str, n: int = 1):
     if os.path.exists(f"outputs/v{VERSION}/{mode}/{pin}/{pin}.html"):
         return RedirectResponse(url=f"/outputs/{mode}/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
     # Check if the job is complete
@@ -350,7 +350,7 @@ async def check_complete(request: Request, pin: str, mode: str = MODE, n: int = 
     return RedirectResponse(url=f"/processing?pin={pin}&n={n + 1}&mode={mode}&status={job.get_status()}")
 
 
-def run_quarto(qmd_file: str, pin: str, prior_year: int, address: str, mode: str = MODE):
+def run_quarto(qmd_file: str, pin: str, prior_year: int, address: str, mode: str):
     try:
         result = subprocess.run(
             [
