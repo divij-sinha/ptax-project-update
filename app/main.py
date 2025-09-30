@@ -20,7 +20,7 @@ from redis import Redis
 from rq import Queue
 
 MODE = "TIF"  # default mode, can be changed to "PTAX" for explainer
-VERSION = "2.1.0"
+VERSION = "2.1.1"
 
 redis_conn = Redis()
 queue = Queue(connection=redis_conn)

@@ -27,18 +27,6 @@ params:
         input: text
 ---
 
-::: {style="display: flex; align-items: center; margin-bottom: 20px;"}
-<form action="/email" method="post" style="display: flex; align-items: center; flex: 0 0 auto;">
-    <label for="email_term" style="font-weight: bold; margin-right: 10px;">Get your report by email:</label>
-    <input type="text" id="email_term" name="email_term" placeholder= "Currently disabled!" required style="margin-right: 10px;" disabled>
-    <button type="submit" style="margin-right: 10px;">Submit</button>
-    <button onclick="window.location.href='/'">New Search</button>
-</form>
-
-<div id="success-message" style="color: green; margin-top: 10px; display: none;">
-    Email sent successfully!
-</div>
-:::
 
 ```{r setup, include=FALSE, cache=FALSE}
 options(tigris_use_cache = TRUE)
@@ -62,7 +50,6 @@ library(formattable)
 library(gtExtras)
 library(svglite)
 
-source("maps.R")
 source("helper_funcs.R")
 
 # set the following variables and run
@@ -599,7 +586,7 @@ Each home in Cook County is uniquely identified by a 14-digit `r render_name("Pr
 
 Each year you receive one tax bill that is split across two payments. The first installment is due by March 1st and will be 55% of the last year's tax bill. The second installment is sent around June 30 and is for the remaining taxes due.
 
-The information below is from the year `r current_year`, combining both FIRST and SECOND installement tax bills.
+The information below is from the year `r current_year`, combining both FIRST and SECOND installment tax bills.
 
 ```{r pin-details-display}
 #https://github.com/ccao-data/data-architecture/blob/master/dbt/seeds/ccao/ccao.class_dict.csv
@@ -744,7 +731,7 @@ if (max_val == abs(change_from_levy)) {
 
 ## How Is My Tax Determined?
 
-Your tax bill is determined primarily by two key factors, which are represented in the figure below. First is the assessor’s estimate of your property value, which is based on an analysis of other similar homes that have sold recently. Second is the amount of property taxes charged by the taxing jurisdictions that your property is within, known as the levy. Most properties to belong to multiple taxing jurisdictions, such as a county, city, and school district, and pay a separate tax to each one. 
+Your tax bill is determined primarily by two key factors, which are represented in the figure below. First is the assessors' estimate of your property value, which is based on an analysis of other similar homes that have sold recently. Second is the amount of property taxes charged by the taxing jurisdictions that your property is within, known as the levy. Most properties to belong to multiple taxing jurisdictions, such as a county, city, and school district, and pay a separate tax to each one. 
 
 ![Tax Bill Calculation](figures/tax_bill_fig.png){fig-align="center"}
 
@@ -793,8 +780,6 @@ if (abs(change_from_levy) > abs(change_from_share)) {
 >There is also a `r label_dol_amt(abs(change_leftover))` `r change_str(change_from_share, 'word')` that was caused by a combination of both factors.
 :::
 
-Your tax levy `r change_str(change_from_levy, 'past')`, and your assessed value `r change_str(change_from_share, 'past')`, so your combined tax bill `r change_str(tax_bill_change, 'past')` TODO more/less than it would have if only one of these two factors had increased/decreased.
-
 The change in your tax bill is depicted in the figure below.
 
 ```{r quadrant-chart-display}
@@ -841,7 +826,6 @@ This share can be broken up into three parts that impact your bill:
 
 Your tax bill may have changed due to a change in your exemptions. Property tax exemptions are savings that contribute to lowering a homeowner’s property tax bill. Some exemptions need to be claimed each year, while other exemptions continue after being claimed once.
 
-There may be other exemptions that you qualify for. Learn more about exemptions, including how to apply, at the [Cook County Assessor's Office's website](https://www.cookcountyaa.gov/property-tax-exemptions). 
 
 `r if(total_exe_incident > 0) {
   paste0("A change in exemptions between ", prior_year, " and ", current_year, " caused your tax bill to __", change_str(total_exe_incident, 'word'), "__ by ", render_name(label_dol_amt(abs(total_exe_incident)), change_str(total_exe_incident, 'past')), ".")
@@ -855,12 +839,6 @@ There may be other exemptions that you qualify for. Learn more about exemptions,
 
 #### (B) Change in your Property's Share of all Residential Properties
 
-Your tax bill will change when there is a change in your property's taxable value compared to all other properties in your area. Your property's taxable value __`r change_str(eav_current-eav_prior, "past")`__ by __`r label_p_ltx(abs((eav_current-eav_prior)/eav_prior))`__ from `r label_dol_amt(prior_eav)` to `r label_dol_amt(current_eav)`. If the estimated market value of your home is significantly more than what you believe your home could sell for in the current real estate market, you may [file an appeal with the Cook County Assessor's Office](https://www.cookcountyaa.gov/appeal-your-assessment).
-
-::: {.column-margin}
-Your property's fair market value (as estimated by the Cook County Assessor's Office) is `r label_dol_amt(market_value)`. The estimated fair market value is used to calculate your property's taxable value, called the Equalized Assessed Value (EAV). This year, your EAV was `r label_dol_amt(eav_current)`. See [Appendix A](#sec-appendixA) for more details about this calculation. 
-:::
-
 ``` {r}
 explanation_1a <- function() {
     explanation <- ""
@@ -870,7 +848,12 @@ explanation_1a <- function() {
 }
 ```
 
-More important than how this specific property's value changed is how much it changed value compared to all other properties in your area. From `r prior_year` to `r current_year` your property's taxable value `r explanation_1a()`. This caused your tax bill to __`r change_str(total_eav_res_share_incident, "word")`__ by `r render_name(label_dol_amt(abs(total_eav_res_share_incident)),change_str(total_eav_res_share_incident, "past"))`.
+Your tax bill will change when there is a change in your property's taxable value compared to all other properties in your area. From `r prior_year` to `r current_year` your property's taxable value `r explanation_1a()`. This caused your tax bill to __`r change_str(total_eav_res_share_incident, "word")`__ by `r render_name(label_dol_amt(abs(total_eav_res_share_incident)),change_str(total_eav_res_share_incident, "past"))`.
+
+::: {.column-margin}
+Your property's fair market value (as estimated by the Cook County Assessor's Office) is `r label_dol_amt(market_value)`. The estimated fair market value is used to calculate your property's taxable value, called the Equalized Assessed Value (EAV). This year, your EAV was `r label_dol_amt(eav_current - total_exe)`. See [Appendix A](#sec-appendixA) for more details about this calculation. 
+:::
+
 
 ::: {.callout-tip collapse="true" title="Change by District"}
 `r combined_bill_1a_simplified`
@@ -903,10 +886,12 @@ TODO
 Typically, the tax levy for each distinct increases each year. From 2006 to 2023, the tax levy ...
 
 
+## Appendicies
+
 ::: {.callout-note appearance="minimal"}
 #### Appendix A: Calculating Equalized Assessed Value {#sec-appendixA}
 
-First, start with the Fair Market Value and multiply by the Level of Assessment, which is 10% for all residential property, and the State Equalizer, a multiplier whose goal is to make property tax rates roughly equal across all IL counties. Both of these values are the same for all property owners in this area. After this, subtract your valid exemptions. [^exemptionnote]
+First, start with the Fair Market Value and multiply by the Level of Assessment, which is 10% for all residential property, and the State Equalizer, a multiplier whose goal is to make property tax rates roughly equal across all IL counties. Both of these values are the same for all property owners in this area. After this, subtract your valid exemptions.
 
 The resulting value is the Equalized Assessed Value.
 $$`r label_dol_amt(market_value)` \times `r label_p_ltx(level_of_assessment)` \times `r eq_factor` = `r label_dol_amt(eav_current)`$$
@@ -960,7 +945,7 @@ tax_bill_current %>%
     )
 ```
 
-For the purpose of operating `r render_name(first_school$agency_name)`, in `r current_year`, it needs to collect `r first_school %>% pull(agency_total_ext) %>% label_dol_amt() %>% render_name(first_school$agency_name) %>% toupper()` in order to provide services.
+For the purpose of operating `r render_name(first_school$agency_name)`, in `r current_year`, it needs to collect about `r first_school %>% pull(agency_total_ext) %>% label_dol_amt() %>% render_name(first_school$agency_name) %>% toupper()` in order to provide services.
 
 ```{r increment-tax-bill-1-1}
 tax_bill_current %>%
@@ -982,8 +967,9 @@ tax_bill_current %>%
 ```
 
 But where can `r render_name(first_school$agency_name)` raise the money from? From all the properties within the district boundaries!  
+
 The total taxable value of all properties falling in `r render_name(first_school$agency_name)` make up its **tax base**. 
-For `r current_year`, this was `r first_school %>% pull(agency_total_eav) %>% label_dol_amt() %>% render_name(first_school$agency_name)`
+For `r current_year`, this was about `r first_school %>% pull(agency_total_eav) %>% label_dol_amt() %>% render_name(first_school$agency_name)`.
 
 ```{r increment-tax-bill-1-2}
 tax_bill_current %>%
@@ -1044,16 +1030,8 @@ $$
 (`r label_dol_amt(pin_details_current$eav - pin_exe_total)` * `r label_p_ltx(first_school$agency_tax_rate)`) = `r label_dol_amt((pin_details_current$eav - pin_exe_total)*first_school$agency_tax_rate)`
 $$
 
-This is the part of your bill that goes to to the `r render_name(first_school$agency_name)`
+This is the part of your bill that goes to to the `r render_name(first_school$agency_name)`:
 
-[^exemptionnote]:  
-    `r if(pin_exe_total == 0) {"<!--"}` 
-    This is taking into account the exemptions that your property qualifies for.
-    The total exemption value is `r render_name(label_dol_amt(pin_exe_total), render_pin14)`
-    `r if(pin_exe_total == 0) {"-->"}`
-    `r if(pin_exe_total != 0) {"<!--"}`  
-    Your property currently has NO exemptions applied - 
-    `r if(pin_exe_total != 0) {"-->"}`
    
 ```{r increment-tax-bill-1-5}
 tax_bill_current %>%
@@ -1106,3 +1084,11 @@ __Change in Tax Bill from Commercial Share by District__
 __Change in Tax Bill from Levy Change by District__
 `r combined_df2`
 :::
+
+
+## What can I do?
+
+If the estimated market value of your home is significantly more than what you believe your home could sell for in the current real estate market, you may [file an appeal with the Cook County Assessor's Office](https://www.cookcountyaa.gov/appeal-your-assessment) or at the [Cook County Board of Review](https://www.cookcountyboardofreview.com/).
+
+There may be exemptions that you qualify for. Learn more about exemptions, including how to apply, at the [Cook County Assessor's Office's website](https://www.cookcountyaa.gov/property-tax-exemptions).
+
