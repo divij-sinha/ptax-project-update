@@ -857,7 +857,7 @@ Your property's fair market value (as estimated by the Cook County Assessor's Of
 
 ::: {.callout-tip collapse="true" title="Change by District"}
 `r combined_bill_1a_simplified`
-See the breakdown of the change in EAV Residential Share for each district in [Appendix D](#sec-appendixD)
+See the breakdown of the change in residential property share for each district in [Appendix D](#sec-appendixD)
 :::
 
 #### (C) Change from Commercial-Residential Ratio
@@ -889,7 +889,7 @@ Typically, the tax levy for each distinct increases each year. From 2006 to 2023
 ## Appendicies
 
 ::: {.callout-note appearance="minimal"}
-#### Appendix A: Calculating Equalized Assessed Value {#sec-appendixA}
+### Appendix A: Calculating Equalized Assessed Value
 
 First, start with the Fair Market Value and multiply by the Level of Assessment, which is 10% for all residential property, and the State Equalizer, a multiplier whose goal is to make property tax rates roughly equal across all IL counties. Both of these values are the same for all property owners in this area. After this, subtract your valid exemptions.
 
@@ -899,7 +899,7 @@ $$`r label_dol_amt(eav_current)` - `r label_dol_amt(total_exe)` = `r label_dol_a
 :::
 
 ::: {.callout-note appearance="minimal"}
-#### Appendix B: Calculating a Single District's Tax Bill {#sec-appendixB}
+### Appendix B: Calculating a Single District's Tax Bill
 
 ::: {.column-margin}
 
@@ -1056,7 +1056,7 @@ See Appendix C for a detailed view of your tax bill for each tax district your p
 :::
 
 ::: {.callout-note appearance="minimal"}
-#### Appendix C: Properties Tax Districts {#sec-appendixC}
+### Appendix C: Properties Tax Districts
 
 Your property is a part of many tax districts. Your actual bill is calculated by taking the tax levy times your property's taxable value (EAV) divided by the sum of all taxable property (Tax Base) for *each tax district* you property is in. See each tax district your property is in, including the district's total tax base, levy, and the taxes owed to this district. See Appendix C below for a more detailed explanation of how your tax bill is calculated for each district.
 
@@ -1071,17 +1071,17 @@ tax_bill_current %>%
 
 
 ::: {.callout-note appearance="minimal"}
-#### Appendix D: Breakdown of Change by District {#sec-appendixD}
+### Appendix D: Breakdown of Change by District
 
 See the breakdown of the change in EAV Residential Share and Commercial Share for each district.
 
-__Change in Tax Bill from EAV Residential Share by District__
+#### __Change in Tax Bill from EAV Residential Share by District__
 `r combined_bill_1a`
 
-__Change in Tax Bill from Commercial Share by District__
+#### __Change in Tax Bill from Commercial Share by District__
 `r combined_bill_1b`
 
-__Change in Tax Bill from Levy Change by District__
+#### __Change in Tax Bill from Levy Change by District__
 `r combined_df2`
 :::
 

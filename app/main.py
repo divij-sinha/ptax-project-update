@@ -20,7 +20,7 @@ from redis import Redis
 from rq import Queue
 
 MODE = "TIF"  # default mode, can be changed to "PTAX" for explainer
-VERSION = "2.1.1"
+VERSION = "2.1.2"
 
 redis_conn = Redis()
 queue = Queue(connection=redis_conn)
@@ -102,8 +102,9 @@ async def handle_email(request: Request):
 def get_address_pin(pin: str):
     """Get address from pin."""
     try:
+        pin2 = pin[:-4] + "0000" #condo addresses are for pin10
         add_df = pl.scan_csv("data/Address_Points.csv", infer_schema=False)
-        filtered = add_df.filter(pl.col("PIN") == pin).select("PIN", "ADDRDELIV").collect().to_dict(as_series=False)
+        filtered = add_df.filter(pl.col("PIN").isin([pin, pin2])).select("PIN", "ADDRDELIV").collect().to_dict(as_series=False)
         return filtered["ADDRDELIV"][0]
     except Exception as e:
         print(f"Error retrieving address for PIN {pin}: {e}")
