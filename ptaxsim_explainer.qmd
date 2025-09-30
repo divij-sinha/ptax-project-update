@@ -55,10 +55,9 @@ pin_14 <- toString(params$pin_14)
 pin_14 <- str_pad(pin_14, width = 14, pad = "0", side = "left")
 current_year <- params$current_year
 prior_year <- params$prior_year
-address <- arrow::open_csv_dataset("data/Address_Points.csv") %>%
-  filter(PIN == {pin_14} | PIN == {str_glue("{str_sub(pin_14, 1, 10)}0000")}) %>%
-  select(ADDRDELIV) %>% 
-  collect()
+address <- read_csv("data/Address_Points.csv", col_select = c('PIN', 'ADDRDELIV')) %>%
+  filter(PIN == pin_14 | PIN == str_glue("{str_sub(pin_14, 1, 10)}0000")) %>%
+  select(ADDRDELIV) 
 
 if(nrow(address) > 0){
   address <- address %>% pull(ADDRDELIV)
