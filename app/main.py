@@ -47,6 +47,17 @@ async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request, "title": "Property Tax Explainer"})
 
 
+@app.get("/mode/{mode}", response_class=HTMLResponse)
+async def read_root_mode(request: Request, mode: str):
+    """Render the homepage."""
+    if mode.upper() == "PTAX":
+        return templates.TemplateResponse("index_ptax.html", {"request": request, "title": "Property Tax Explainer"})
+    elif mode.upper() == "TIF":
+        return templates.TemplateResponse("index_tif.html", {"request": request, "title": "TIF Explainer"})
+    else:
+        return templates.TemplateResponse("index.html", {"request": request, "title": "Property Tax & TIF Explainer"})
+
+
 @app.post("/email", response_class=HTMLResponse)
 # https://medium.com/@abdullahzulfiqar653/sending-emails-with-attachments-using-python-32b908909d73
 async def handle_email(request: Request):
@@ -102,7 +113,7 @@ async def handle_email(request: Request):
 def get_address_pin(pin: str):
     """Get address from pin."""
     try:
-        pin2 = pin[:-4] + "0000" #condo addresses are for pin10
+        pin2 = pin[:-4] + "0000"  # condo addresses are for pin10
         add_df = pl.scan_csv("data/Address_Points.csv", infer_schema=False)
         filtered = add_df.filter(pl.col("PIN").isin([pin, pin2])).select("PIN", "ADDRDELIV").collect().to_dict(as_series=False)
         return filtered["ADDRDELIV"][0]
