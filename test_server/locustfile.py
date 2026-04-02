@@ -7,18 +7,18 @@ Two user classes:
   PtaxSmokeUser — smoke test: single fixed PIN, 1 user, no wait time, stops after 1 render.
 
 Usage:
-    # Web UI (load test, choose class interactively):
-    locust -f test_server/locustfile.py --host http://localhost:8000
+    # Web UI (load test, all classes selectable):
+    locust -f test_server/locustfile.py --host http://localhost:8000 --class-picker
 
     # Headless load test — 10 users, ramp 2/sec, 5 min, save CSV:
     locust -f test_server/locustfile.py --host http://localhost:8000 \
         --users 10 --spawn-rate 2 --run-time 5m --headless \
-        --csv test_server/results/run
+        --csv test_server/results/run PtaxUser
 
     # Smoke test — 1 user, verify server responds correctly for a single render:
     locust -f test_server/locustfile.py --host http://localhost:8000 \
         --users 1 --spawn-rate 1 --run-time 5m --headless \
-        --class-picker PtaxSmokeUser
+        PtaxSmokeUser
 
     # To clear cached renders before a timing run (forces real renders):
     rm -rf outputs/v2.1.2/PTAX/
@@ -28,7 +28,7 @@ import random
 import time
 from pathlib import Path
 
-from locust import HttpUser, between, constant, task
+from locust import HttpUser, between, constant, events, task
 
 # Load PINs once at import time
 _pins_file = Path(__file__).parent / "test_pins.txt"
@@ -42,7 +42,17 @@ RENDER_TIMEOUT = 300  # seconds before giving up on a single render
 
 
 def _render_pin(user: HttpUser, pin: str):
-    """Submit a PIN and poll until the render completes. Used by both user classes."""
+    """
+    Submit a PIN, poll until the render completes, fetch the output HTML.
+
+    Records a synthetic 'GET /render [total]' event covering the full
+    wall-clock time from first POST to final HTML fetch.
+
+    Returns the HTML string on success, None on failure.
+    """
+    t_start = time.time()
+
+    # --- Submit ---
     with user.client.post(
         "/submit",
         data={
@@ -57,45 +67,82 @@ def _render_pin(user: HttpUser, pin: str):
     ) as resp:
         if resp.status_code != 200:
             resp.failure(f"submit failed with status {resp.status_code}")
-            return False
+            return None
 
-        # Already cached — served immediately
-        if "/outputs/" in resp.url and resp.url.endswith(".html"):
+        url = resp.url or ""
+
+        # Already cached — /submit redirected straight to the HTML
+        if "/outputs/" in url and url.endswith(".html"):
             resp.success()
-            return True
+            output_url = url
+        else:
+            resp.success()
+            output_url = None
 
-        resp.success()
-
-    # Poll /check_complete until the render finishes
-    deadline = time.time() + RENDER_TIMEOUT
-    while time.time() < deadline:
-        with user.client.get(
-            "/check_complete",
-            params={"pin": pin, "mode": "PTAX", "n": 1},
-            allow_redirects=True,
-            catch_response=True,
-            name="GET /check_complete",
-        ) as r:
-            if "/outputs/" in r.url and r.url.endswith(".html"):
+    # --- Poll until render finishes (skipped if already cached) ---
+    if output_url is None:
+        deadline = time.time() + RENDER_TIMEOUT
+        while time.time() < deadline:
+            with user.client.get(
+                "/check_complete",
+                params={"pin": pin, "mode": "PTAX", "n": 1},
+                allow_redirects=True,
+                catch_response=True,
+                name="GET /check_complete",
+            ) as r:
+                url = r.url or ""
+                if "/outputs/" in url and url.endswith(".html"):
+                    r.success()
+                    output_url = url
+                    break
+                if r.status_code >= 500:
+                    r.failure(f"render failed for PIN {pin}: status {r.status_code}")
+                    _fire_total(user, pin, t_start, None)
+                    return None
                 r.success()
-                return True
-            if r.status_code >= 500:
-                r.failure(f"render failed for PIN {pin}: status {r.status_code}")
-                return False
-            r.success()
 
-        time.sleep(POLL_INTERVAL)
+            time.sleep(POLL_INTERVAL)
+        else:
+            # Timed out
+            user.environment.events.request.fire(
+                request_type="GET",
+                name="GET /check_complete",
+                response_time=RENDER_TIMEOUT * 1000,
+                response_length=0,
+                exception=TimeoutError(f"PIN {pin} did not render within {RENDER_TIMEOUT}s"),
+                context={},
+            )
+            _fire_total(user, pin, t_start, None)
+            return None
 
-    # Timed out
+    # --- Fetch the finished output HTML ---
+    with user.client.get(
+        output_url,
+        catch_response=True,
+        name="GET /outputs [html]",
+    ) as r:
+        if r.status_code != 200:
+            r.failure(f"output fetch failed: {r.status_code}")
+            _fire_total(user, pin, t_start, None)
+            return None
+        r.success()
+        html = r.text
+
+    _fire_total(user, pin, t_start, html)
+    return html
+
+
+def _fire_total(user: HttpUser, pin: str, t_start: float, html: str | None):
+    """Fire a synthetic event recording total wall-clock render time."""
+    elapsed_ms = (time.time() - t_start) * 1000
     user.environment.events.request.fire(
-        request_type="GET",
-        name="GET /check_complete",
-        response_time=RENDER_TIMEOUT * 1000,
-        response_length=0,
-        exception=TimeoutError(f"PIN {pin} did not render within {RENDER_TIMEOUT}s"),
+        request_type="RENDER",
+        name="RENDER [total]",
+        response_time=elapsed_ms,
+        response_length=len(html) if html else 0,
+        exception=None if html else Exception(f"PIN {pin} failed"),
         context={},
     )
-    return False
 
 
 class PtaxUser(HttpUser):
@@ -113,9 +160,10 @@ class PtaxSmokeUser(HttpUser):
 
     @task
     def smoke_render(self):
-        success = _render_pin(self, SMOKE_PIN)
-        if success:
-            print(f"\n[smoke] PIN {SMOKE_PIN} rendered successfully.")
+        html = _render_pin(self, SMOKE_PIN)
+        if html:
+            size_kb = len(html) / 1024
+            print(f"\n[smoke] PIN {SMOKE_PIN} rendered successfully ({size_kb:.1f} KB).")
         else:
             print(f"\n[smoke] PIN {SMOKE_PIN} FAILED.")
         self.environment.runner.quit()
