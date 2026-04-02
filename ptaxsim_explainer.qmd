@@ -55,18 +55,21 @@ pin_14 <- toString(params$pin_14)
 pin_14 <- str_pad(pin_14, width = 14, pad = "0", side = "left")
 current_year <- params$current_year
 prior_year <- params$prior_year
-address <- read_csv("data/Address_Points.csv", col_select = c('PIN', 'ADDRDELIV')) %>%
-  filter(PIN == pin_14 | PIN == str_glue("{str_sub(pin_14, 1, 10)}0000")) %>%
-  select(ADDRDELIV) 
-
-if(nrow(address) > 0){
-  address <- address %>% pull(ADDRDELIV)
-  address <- address[1]
+if (!is.null(params$address) && nchar(params$address) > 0) {
+  address <- params$address
 } else {
-  address <- "(Address not found)"
+  address_df <- read_csv("data/Address_Points.csv", col_select = c('PIN', 'ADDRDELIV')) %>%
+    filter(PIN == pin_14 | PIN == str_glue("{str_sub(pin_14, 1, 10)}0000")) %>%
+    select(ADDRDELIV)
+  if (nrow(address_df) > 0) {
+    address <- address_df %>% pull(ADDRDELIV) %>% first()
+  } else {
+    address <- "(Address not found)"
+  }
 }
 
 ptaxsim_db_conn <- dbConnect(SQLite(), db_path)
+dbExecute(ptaxsim_db_conn, "PRAGMA cache_size = -131072")  # 128 MB page cache
 tax_bases_res_com_share <- readRDS("data/tax_bases_res_com_share.rds")
 ```
 
@@ -306,6 +309,8 @@ df_1b <- starter_df
 
 tax_code_prior <- lookup_tax_code(year = prior_year, pin = pin_14)
 
+agency_dt_base <- lookup_agency(year = prior_year, tax_code = tax_code_prior)
+
 for (agency in agencies_old) {
     single_agency_current <- tax_bill_current_all %>%
         filter(agency_num == agency)
@@ -320,9 +325,7 @@ for (agency in agencies_old) {
     # new res_vase to simulate old bill with just res / com share changings
     new_base <- (res_base_prior * (res_base_current + com_base_current)) / res_base_current
 
-    agency_dt <- lookup_agency(year = prior_year, tax_code = tax_code_prior)
-
-    agency_dt_new <- agency_dt %>%
+    agency_dt_new <- agency_dt_base %>%
         mutate(agency_total_eav = ifelse(agency_num == agency, new_base, agency_total_eav))
 
     tax_bill_1b <- tax_bill(

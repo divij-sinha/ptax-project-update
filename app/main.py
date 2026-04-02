@@ -26,6 +26,36 @@ redis_conn = Redis()
 queue = Queue(connection=redis_conn)
 print(f"Redis connection established: {redis_conn}")
 
+# Address CSV loaded once at startup — only the columns needed for lookup/search
+_ADDRESS_DF: pl.DataFrame | None = None
+
+
+def _get_address_df() -> pl.DataFrame:
+    global _ADDRESS_DF
+    if _ADDRESS_DF is None:
+        csv_path = "data/Address_Points.csv"
+        parquet_path = "data/address_points.parquet"
+        needed_cols = ["PIN", "ADDRDELIV", "STNAMECOM", "St_PreDir", "ADDRNOCOM", "SUBADDCOM", "PLACENAME"]
+        if os.path.exists(parquet_path):
+            _ADDRESS_DF = pl.read_parquet(parquet_path)
+        else:
+            _ADDRESS_DF = pl.read_csv(csv_path, infer_schema=False, columns=needed_cols)
+    return _ADDRESS_DF
+
+
+# SQLite connection opened once per process in read-only mode with a warm page cache
+_DB_PATH = os.path.join(os.path.dirname(__file__), "../data/ptaxsim-2023.0.0.db")
+_db_conn: sqlite3.Connection | None = None
+
+
+def get_db() -> sqlite3.Connection:
+    global _db_conn
+    if _db_conn is None:
+        _db_conn = sqlite3.connect(f"file:{_DB_PATH}?mode=ro", uri=True, check_same_thread=False)
+        _db_conn.execute("PRAGMA cache_size = -65536")  # 64 MB page cache
+        _db_conn.execute("PRAGMA temp_store = MEMORY")
+    return _db_conn
+
 os.makedirs(f"outputs/v{VERSION}/TIF/", exist_ok=True)
 os.makedirs(f"outputs/v{VERSION}/PTAX/", exist_ok=True)
 
@@ -114,8 +144,8 @@ def get_address_pin(pin: str):
     """Get address from pin."""
     try:
         pin2 = pin[:-4] + "0000"  # condo addresses are for pin10
-        add_df = pl.scan_csv("data/Address_Points.csv", infer_schema=False)
-        filtered = add_df.filter(pl.col("PIN").isin([pin, pin2])).select("PIN", "ADDRDELIV").collect().to_dict(as_series=False)
+        df = _get_address_df()
+        filtered = df.filter(pl.col("PIN").is_in([pin, pin2])).select("PIN", "ADDRDELIV").to_dict(as_series=False)
         return filtered["ADDRDELIV"][0]
     except Exception as e:
         print(f"Error retrieving address for PIN {pin}: {e}")
@@ -123,10 +153,9 @@ def get_address_pin(pin: str):
 
 
 async def search_address(search_term: str = Form(...), exact_match: bool = False):
-    add_df = pl.scan_csv("data/Address_Points.csv", infer_schema=False)
     parsed_address = {k: v.lower() for v, k in usaddress.parse(search_term)}
 
-    filtered_df = add_df.clone()
+    filtered_df = _get_address_df().lazy()
     address_fields_mapping = [
         ("StreetName", "STNAMECOM"),
         ("StreetNamePreDirectional", "St_PreDir"),
@@ -166,10 +195,7 @@ async def address_suggestions(request: Request, search_term: str = Form(...), ex
 async def search_db(request: Request, given_pin: str, prior_year: int, address: str, mode: str):
     """Search database."""
 
-    base_dir = os.path.dirname(__file__)  # Directory of the current script
-    db_path = os.path.join(base_dir, "../data/ptaxsim-2023.0.0.db")
-    con = sqlite3.connect(db_path)
-
+    con = get_db()
     cur = con.cursor()
     cur.execute("SELECT * FROM pin WHERE pin = ?", (given_pin,))
     res = cur.fetchall()
@@ -177,7 +203,6 @@ async def search_db(request: Request, given_pin: str, prior_year: int, address: 
         # try subpins
         cur.execute(f"SELECT * FROM pin WHERE pin like '{given_pin[:-4]}%'")
         res = cur.fetchall()
-        con.close()
         pins = set([r[1] for r in res])
         if len(pins) > 0:
             return templates.TemplateResponse(
@@ -192,7 +217,6 @@ async def search_db(request: Request, given_pin: str, prior_year: int, address: 
             )
 
     else:
-        con.close()
         return RedirectResponse(
             f"/renderdoc?pin={given_pin}&prior_year={prior_year}&address={address}&mode={mode}", status_code=status.HTTP_302_FOUND
         )
