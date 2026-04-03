@@ -51,25 +51,28 @@ source("helper_funcs.R")
 # set the following variables and run
 db_path <- "data/ptaxsim-2023.0.0.db"
 
-pin_14 <- toString(params$pin_14)
+pin_14 <- "02342010120000"
 pin_14 <- str_pad(pin_14, width = 14, pad = "0", side = "left")
-current_year <- params$current_year
-prior_year <- params$prior_year
-if (!is.null(params$address) && nchar(params$address) > 0) {
-  address <- params$address
-} else {
-  address_df <- arrow::read_parquet("data/address_points.parquet", col_select = c('PIN', 'ADDRDELIV')) %>%
-    filter(PIN == pin_14 | PIN == str_glue("{str_sub(pin_14, 1, 10)}0000")) %>%
-    select(ADDRDELIV)
-  if (nrow(address_df) > 0) {
-    address <- address_df %>% pull(ADDRDELIV) %>% first()
-  } else {
-    address <- "(Address not found)"
-  }
-}
+current_year <- 2023
+prior_year <- 2022
+address <- "(Address not found)"
+# if (!is.null(params$address) && nchar(params$address) > 0) {
+#     address <- params$address
+# } else {
+#     address_df <- arrow::read_parquet("data/address_points.parquet", col_select = c("PIN", "ADDRDELIV")) %>%
+#         filter(PIN == pin_14 | PIN == str_glue("{str_sub(pin_14, 1, 10)}0000")) %>%
+#         select(ADDRDELIV)
+#     if (nrow(address_df) > 0) {
+#         address <- address_df %>%
+#             pull(ADDRDELIV) %>%
+#             first()
+#     } else {
+#         address <- "(Address not found)"
+#     }
+# }
 
 ptaxsim_db_conn <- dbConnect(SQLite(), db_path, flags = RSQLite::SQLITE_RO)
-dbExecute(ptaxsim_db_conn, "PRAGMA cache_size = -131072")  # 128 MB page cache
+dbExecute(ptaxsim_db_conn, "PRAGMA cache_size = -131072") # 128 MB page cache
 tax_bases_res_com_share <- readRDS("data/tax_bases_res_com_share.rds")
 ```
 
@@ -152,7 +155,15 @@ prior_year_agency <- lookup_agency(year = prior_year, tax_code = lookup_tax_code
 prior_eav_current_levy <- current_year_agency %>%
     select(!c(year, agency_total_eav, tax_code)) %>%
     full_join(., prior_year_agency %>% select(!c(agency_total_ext)), by = join_by(agency_num == agency_num, agency_name == agency_name, agency_minor_type == agency_minor_type, agency_major_type == agency_major_type)) %>%
-    select(all_of(names(prior_year_agency)))
+    select(all_of(names(prior_year_agency))) %>%
+    mutate(
+        agency_total_ext = replace_na(agency_total_ext, 0),
+        year = zoo::na.locf(year, fromLast = TRUE),
+        tax_code = zoo::na.locf(tax_code, fromLast = TRUE)
+    ) %>%
+    left_join(current_year_agency %>% select(agency_num, agency_name, agency_total_eav), by = join_by(agency_num, agency_name), suffix = c("", "_b")) %>%
+    mutate(agency_total_eav = coalesce(agency_total_eav, agency_total_eav_b)) %>%
+    select(-agency_total_eav_b)
 
 
 # calculate tax bill if you kept levy constant
@@ -160,7 +171,15 @@ prior_eav_current_levy <- current_year_agency %>%
 current_eav_prior_levy <- prior_year_agency %>%
     select(!c(year, agency_total_eav, tax_code)) %>%
     full_join(., current_year_agency %>% select(!c(agency_total_ext)), by = join_by(agency_num == agency_num, agency_name == agency_name, agency_minor_type == agency_minor_type, agency_major_type == agency_major_type)) %>%
-    select(all_of(names(current_year_agency)))
+    select(all_of(names(current_year_agency))) %>%
+    mutate(
+        agency_total_ext = replace_na(agency_total_ext, 0),
+        year = zoo::na.locf(year, fromLast = TRUE),
+        tax_code = zoo::na.locf(tax_code, fromLast = TRUE)
+    ) %>%
+    left_join(prior_year_agency %>% select(agency_num, agency_name, agency_total_eav), by = join_by(agency_num, agency_name), suffix = c("", "_b")) %>%
+    mutate(agency_total_eav = coalesce(agency_total_eav, agency_total_eav_b)) %>%
+    select(-agency_total_eav_b)
 
 tax_bill_current_prior_eav_current_levy <- tax_bill(
     year_vec = prior_year,
@@ -190,15 +209,15 @@ tax_bill_current_current_eav_prior_levy <- tax_bill(
 
 tax_bill_change <- latter_year_tax_bill_summary$sum_final_tax_to_dist - prior_year_tax_bill_summary$sum_final_tax_to_dist
 
-change_from_levy <- sum(tax_bill_current_prior_eav_current_levy$tax_amt_post_exe) - sum(tax_bill_prior$tax_amt_post_exe)
+change_from_levy <- sum(tax_bill_current_prior_eav_current_levy$tax_amt_post_exe, na.rm = TRUE) - sum(tax_bill_prior$tax_amt_post_exe)
 
-change_from_share <- sum(tax_bill_current_current_eav_prior_levy$tax_amt_post_exe) - sum(tax_bill_prior$tax_amt_post_exe)
+change_from_share <- sum(tax_bill_current_current_eav_prior_levy$tax_amt_post_exe, na.rm = TRUE) - sum(tax_bill_prior$tax_amt_post_exe)
 
 change_leftover <- tax_bill_change - (change_from_levy + change_from_share)
 
-combined_df2 <- display_two_bills(tax_bill_prior_all, tax_bill_current_prior_eav_current_levy, "agency_total_ext")
+combined_df2 <- display_two_bills_MISMATCHED(tax_bill_prior_all, tax_bill_current_prior_eav_current_levy, "agency_total_ext")
 
-combined_df2_simplified <- display_two_bills_simplified(tax_bill_prior_all, tax_bill_current_prior_eav_current_levy, "agency_total_ext")
+combined_df2_simplified <- display_two_bills_simplified_MISMATCHED(tax_bill_prior_all, tax_bill_current_prior_eav_current_levy, "agency_total_ext")
 ```
 
 ```{r appendix c}
@@ -247,11 +266,15 @@ css_get_colors <- function(vals) {
 
 # calculate for each district and then sum at the end
 agencies_old <- tax_bill_prior_all$agency_num
+agencies_new <- tax_bill_current_all$agency_num
+common_agencies <- intersect(agencies_old, agencies_new)
+all_agencies <- union(agencies_old, agencies_new)
+
 starter_df <- tibble(agency = c("TOREMOVE"), agency_name = c(""), incident = c(0), tax_amt_post_exe = c(0), agency_major_type = c(""), agency_total_ext = c(0), eav_res_share = c(0), res_share = c(0))
 
 df_1a <- starter_df
 
-for (agency in agencies_old) {
+for (agency in common_agencies) {
     single_agency_current <- tax_bill_current_all %>%
         filter(agency_num == agency)
 
@@ -311,7 +334,7 @@ tax_code_prior <- lookup_tax_code(year = prior_year, pin = pin_14)
 
 agency_dt_base <- lookup_agency(year = prior_year, tax_code = tax_code_prior)
 
-for (agency in agencies_old) {
+for (agency in common_agencies) {
     single_agency_current <- tax_bill_current_all %>%
         filter(agency_num == agency)
 

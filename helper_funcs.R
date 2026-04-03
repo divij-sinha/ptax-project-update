@@ -254,7 +254,7 @@ display_two_bills <- function(df1, df2, import_col) {
         replace(is.na(.), 0) %>%
         mutate(final_tax = tax_amt_post_exe) %>%
         mutate(com_share = 1 - res_share) %>%
-        filter(final_tax > 0) %>%
+        filter(final_tax > 0 | all(final_tax == 0)) %>%
         select(agency_major_type, agency_name, final_tax, agency_total_ext, eav_res_share, com_share) %>%
         group_by(agency_major_type) %>%
         rename(
@@ -268,7 +268,7 @@ display_two_bills <- function(df1, df2, import_col) {
         replace(is.na(.), 0) %>%
         mutate(final_tax = tax_amt_post_exe) %>%
         mutate(com_share = 1 - res_share) %>%
-        filter(final_tax > 0) %>%
+        filter(final_tax > 0 | all(final_tax == 0)) %>%
         select(agency_major_type, agency_name, final_tax, agency_total_ext, eav_res_share, com_share) %>%
         group_by(agency_major_type) %>%
         rename(
@@ -279,7 +279,7 @@ display_two_bills <- function(df1, df2, import_col) {
         )
 
 
-    full_join(df1, df2, by = join_by(agency_name == agency_name, agency_major_type == agency_major_type)) %>%
+    inner_join(df1, df2, by = join_by(agency_name == agency_name, agency_major_type == agency_major_type)) %>%
         mutate(change_in_agency_total_ext = (agency_total_ext_df2 - agency_total_ext_df1) / agency_total_ext_df1) %>%
         mutate(change_in_eav_res_share = (eav_res_share_df2 - eav_res_share_df1) / eav_res_share_df1) %>%
         mutate(change_in_com_share = (com_share_df2 - com_share_df1) / com_share_df1) %>%
@@ -331,11 +331,172 @@ display_two_bills <- function(df1, df2, import_col) {
 }
 
 display_two_bills_simplified <- function(df1, df2, import_col) {
+    common_agencies <- intersect(df1$agency_name, df2$agency_name)
+
     df1 <- df1 %>%
         replace(is.na(.), 0) %>%
         mutate(final_tax = tax_amt_post_exe) %>%
         mutate(com_share = 1 - res_share) %>%
-        filter(final_tax > 0) %>%
+        filter(final_tax > 0 | all(final_tax == 0)) %>%
+        select(agency_major_type, agency_name, final_tax, agency_total_ext, eav_res_share, com_share) %>%
+        group_by(agency_major_type) %>%
+        rename(
+            final_tax_df1 = final_tax,
+            agency_total_ext_df1 = agency_total_ext,
+            eav_res_share_df1 = eav_res_share,
+            com_share_df1 = com_share
+        ) %>%
+        filter(agency_name %in% common_agencies) %>%
+        group_by(agency_major_type) %>%
+        summarise(
+            final_tax_group_df1 = sum(final_tax_df1),
+        )
+
+    df2 <- df2 %>%
+        replace(is.na(.), 0) %>%
+        mutate(final_tax = tax_amt_post_exe) %>%
+        mutate(com_share = 1 - res_share) %>%
+        filter(final_tax > 0 | all(final_tax == 0)) %>%
+        select(agency_major_type, agency_name, final_tax, agency_total_ext, eav_res_share, com_share) %>%
+        group_by(agency_major_type) %>%
+        rename(
+            final_tax_df2 = final_tax,
+            agency_total_ext_df2 = agency_total_ext,
+            eav_res_share_df2 = eav_res_share,
+            com_share_df2 = com_share
+        ) %>%
+        filter(agency_name %in% common_agencies) %>%
+        group_by(agency_major_type) %>%
+        summarise(
+            final_tax_group_df2 = sum(final_tax_df2),
+        )
+
+
+    inner_join(df1, df2, by = join_by(agency_major_type == agency_major_type)) %>%
+        mutate(change_in_tax = final_tax_group_df2 - final_tax_group_df1) %>%
+        mutate(change_in_tax_bar = change_in_tax) %>%
+        select(!c(final_tax_group_df1, final_tax_group_df2)) %>%
+        group_by(agency_major_type) %>%
+        gt() %>%
+        grand_summary_rows(
+            fns = list(
+                label = "Total Tax Owed",
+                id = "sum",
+                fn = "sum"
+            ),
+            columns = c(change_in_tax),
+            fmt = ~ fmt_currency(., rows = "sum")
+        ) %>%
+        fmt_currency(change_in_tax) %>%
+        gtExtras::gt_plt_bar(column = change_in_tax_bar, color = "orange", width = 12) %>%
+        tab_style(
+            style = list(
+                cell_text(weight = "bold")
+            ),
+            locations = list(
+                cells_stub_grand_summary(),
+                cells_grand_summary()
+            )
+        ) %>%
+        tab_options(row_group.as_column = T) %>%
+        cols_label(
+            agency_major_type = "",
+            change_in_tax = "Change in Tax Amount",
+            change_in_tax_bar = "",
+        ) %>%
+        cols_hide(columns = !(contains(import_col) | c("agency_major_type", "change_in_tax", "change_in_tax_bar")))
+}
+
+display_two_bills_MISMATCHED <- function(df1, df2, import_col) {
+    df1 <- df1 %>%
+        replace(is.na(.), 0) %>%
+        mutate(final_tax = tax_amt_post_exe) %>%
+        mutate(com_share = 1 - res_share) %>%
+        filter(final_tax > 0 | all(final_tax == 0)) %>%
+        select(agency_major_type, agency_name, final_tax, agency_total_ext, eav_res_share, com_share) %>%
+        group_by(agency_major_type) %>%
+        rename(
+            final_tax_df1 = final_tax,
+            agency_total_ext_df1 = agency_total_ext,
+            eav_res_share_df1 = eav_res_share,
+            com_share_df1 = com_share
+        )
+
+    df2 <- df2 %>%
+        replace(is.na(.), 0) %>%
+        mutate(final_tax = tax_amt_post_exe) %>%
+        mutate(com_share = 1 - res_share) %>%
+        filter(final_tax > 0 | all(final_tax == 0)) %>%
+        select(agency_major_type, agency_name, final_tax, agency_total_ext, eav_res_share, com_share) %>%
+        group_by(agency_major_type) %>%
+        rename(
+            final_tax_df2 = final_tax,
+            agency_total_ext_df2 = agency_total_ext,
+            eav_res_share_df2 = eav_res_share,
+            com_share_df2 = com_share
+        )
+
+
+    full_join(df1, df2, by = join_by(agency_name == agency_name, agency_major_type == agency_major_type)) %>%
+        replace(is.na(.), 0) %>%
+        mutate(change_in_agency_total_ext = (agency_total_ext_df2 - agency_total_ext_df1) / agency_total_ext_df1) %>%
+        mutate(change_in_eav_res_share = (eav_res_share_df2 - eav_res_share_df1) / eav_res_share_df1) %>%
+        mutate(change_in_com_share = (com_share_df2 - com_share_df1) / com_share_df1) %>%
+        mutate(change_in_tax = final_tax_df2 - final_tax_df1) %>%
+        mutate(change_in_tax_bar = change_in_tax) %>%
+        mutate(eav_res_share_df1 = eav_res_share_df1 * 1e4) %>%
+        mutate(eav_res_share_df2 = eav_res_share_df2 * 1e4) %>%
+        select(!c(final_tax_df1, final_tax_df2)) %>%
+        group_by(agency_major_type) %>%
+        gt() %>%
+        grand_summary_rows(
+            fns = list(
+                label = "Total Tax Owed",
+                id = "sum",
+                fn = "sum"
+            ),
+            columns = c(change_in_tax),
+            fmt = ~ fmt_currency(., rows = "sum")
+        ) %>%
+        fmt_currency(change_in_tax) %>%
+        fmt_currency(c(agency_total_ext_df1, agency_total_ext_df2), suffixing = TRUE) %>%
+        fmt_percent(c(change_in_agency_total_ext, change_in_eav_res_share, eav_res_share_df1, eav_res_share_df2, change_in_com_share, com_share_df1, com_share_df2)) %>%
+        gtExtras::gt_plt_bar(column = change_in_tax_bar, color = "orange", width = 12) %>%
+        tab_style(
+            style = list(
+                cell_text(weight = "bold")
+            ),
+            locations = list(
+                cells_stub_grand_summary(),
+                cells_grand_summary()
+            )
+        ) %>%
+        tab_options(row_group.as_column = T) %>%
+        cols_label(
+            agency_name = "Tax District",
+            change_in_tax = "Change in Tax Amount",
+            change_in_tax_bar = "",
+            agency_total_ext_df1 = "Tax Levy Prior",
+            agency_total_ext_df2 = "Tax Levy Current",
+            eav_res_share_df1 = "EAV Residential Share Prior",
+            eav_res_share_df2 = "EAV Residential Share Current",
+            com_share_df1 = "Commercial Share Prior",
+            com_share_df2 = "Commercial Share Current",
+            change_in_agency_total_ext = "Change in Tax Levy",
+            change_in_eav_res_share = "Change in EAV Residential Share",
+            change_in_com_share = "Change in Commercial Share"
+        ) %>%
+        cols_hide(columns = !(contains(import_col) | c("agency_name", "change_in_tax", "change_in_tax_bar")))
+}
+
+display_two_bills_simplified_MISMATCHED <- function(df1, df2, import_col) {
+    common_agencies <- intersect(df1$agency_name, df2$agency_name)
+
+    df1 <- df1 %>%
+        replace(is.na(.), 0) %>%
+        mutate(final_tax = tax_amt_post_exe) %>%
+        mutate(com_share = 1 - res_share) %>%
+        filter(final_tax > 0 | all(final_tax == 0)) %>%
         select(agency_major_type, agency_name, final_tax, agency_total_ext, eav_res_share, com_share) %>%
         group_by(agency_major_type) %>%
         rename(
@@ -353,7 +514,7 @@ display_two_bills_simplified <- function(df1, df2, import_col) {
         replace(is.na(.), 0) %>%
         mutate(final_tax = tax_amt_post_exe) %>%
         mutate(com_share = 1 - res_share) %>%
-        filter(final_tax > 0) %>%
+        filter(final_tax > 0 | all(final_tax == 0)) %>%
         select(agency_major_type, agency_name, final_tax, agency_total_ext, eav_res_share, com_share) %>%
         group_by(agency_major_type) %>%
         rename(
@@ -368,7 +529,7 @@ display_two_bills_simplified <- function(df1, df2, import_col) {
         )
 
 
-    full_join(df1, df2, by = join_by(agency_major_type == agency_major_type)) %>%
+    inner_join(df1, df2, by = join_by(agency_major_type == agency_major_type)) %>%
         mutate(change_in_tax = final_tax_group_df2 - final_tax_group_df1) %>%
         mutate(change_in_tax_bar = change_in_tax) %>%
         select(!c(final_tax_group_df1, final_tax_group_df2)) %>%
