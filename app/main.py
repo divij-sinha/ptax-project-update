@@ -1,6 +1,7 @@
 import glob
 import os
 import re
+import shutil
 import smtplib
 import sqlite3
 import subprocess
@@ -33,13 +34,7 @@ _ADDRESS_DF: pl.DataFrame | None = None
 def _get_address_df() -> pl.DataFrame:
     global _ADDRESS_DF
     if _ADDRESS_DF is None:
-        csv_path = "data/Address_Points.csv"
-        parquet_path = "data/address_points.parquet"
-        needed_cols = ["PIN", "ADDRDELIV", "STNAMECOM", "St_PreDir", "ADDRNOCOM", "SUBADDCOM", "PLACENAME"]
-        if os.path.exists(parquet_path):
-            _ADDRESS_DF = pl.read_parquet(parquet_path)
-        else:
-            _ADDRESS_DF = pl.read_csv(csv_path, infer_schema=False, columns=needed_cols)
+        _ADDRESS_DF = pl.read_parquet("data/address_points.parquet")
     return _ADDRESS_DF
 
 
@@ -251,6 +246,14 @@ async def render_doc(
         #     prior_year=prior_year,
         #     address=address,
         # )
+        job_map_key = f"{mode}:{pin}"
+        existing_id = redis_conn.hget("pin_job_map", job_map_key)
+        if existing_id:
+            existing_job = queue.fetch_job(existing_id.decode())
+            if existing_job and not existing_job.is_finished and not existing_job.is_failed:
+                print(f"Reusing job {existing_job.id} for PIN {pin} ({mode}).")
+                return RedirectResponse(url=f"/processing?pin={pin}&mode={mode}", status_code=status.HTTP_303_SEE_OTHER)
+
         job = queue.enqueue(
             "app.main.run_quarto",
             qmd_file,
@@ -260,8 +263,8 @@ async def render_doc(
             mode,
             result_ttl=86400,  # keep result for 1 day
         )
-        redis_conn.hset("pin_job_map", pin, job.id)
-        print(f"Job ID {job.id} for PIN {pin} enqueued.")
+        redis_conn.hset("pin_job_map", job_map_key, job.id)
+        print(f"Job ID {job.id} for PIN {pin} ({mode}) enqueued.")
 
         response = RedirectResponse(url=f"/processing?pin={pin}&mode={mode}", status_code=status.HTTP_303_SEE_OTHER)
         # print(response)
@@ -361,13 +364,14 @@ async def check_complete(request: Request, pin: str, mode: str, n: int = 1):
     if os.path.exists(f"outputs/v{VERSION}/{mode}/{pin}/{pin}.html"):
         return RedirectResponse(url=f"/outputs/{mode}/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
     # Check if the job is complete
-    job_id = redis_conn.hget("pin_job_map", pin).decode("utf-8")
-    if not job_id:
+    raw = redis_conn.hget("pin_job_map", f"{mode}:{pin}")
+    if not raw:
         return templates.TemplateResponse(
             "message.html",
             {"request": request, "message": f"Error: Error processing PIN {pin}! Please try again, error reported to admin."},
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
+    job_id = raw.decode("utf-8")
     job = queue.fetch_job(job_id)
     # if job is None:
     #     return RedirectResponse(url=f"/processing?pin={pin}&n={n+1}&status={job.get_status()}")
@@ -387,19 +391,32 @@ async def check_complete(request: Request, pin: str, mode: str, n: int = 1):
 
 
 def run_quarto(qmd_file: str, pin: str, prior_year: int, address: str, mode: str):
+    # Knitr reads the source file by name during execution, so concurrent renders
+    # of the same template would collide on ptaxsim_explainer.knit.md etc.
+    # We copy the source to a unique name per job; all relative paths ("data/...")
+    # still resolve correctly because the copy lives in the same directory.
+    # The copy and its _files/ build artifact are cleaned up in finally.
+    src_dir = os.path.abspath(os.path.dirname(qmd_file))
+    ext = os.path.splitext(qmd_file)[1]
+    job_stem = f"_job_{mode}_{pin}"
+    job_qmd = os.path.join(src_dir, f"{job_stem}{ext}")
+    files_dir = os.path.join(src_dir, f"{job_stem}_files")
+    output_dir = os.path.abspath(f"outputs/v{VERSION}/{mode}/{pin}")
+    os.makedirs(output_dir, exist_ok=True)
     try:
+        shutil.copy2(qmd_file, job_qmd)
         result = subprocess.run(
             [
                 "quarto",
                 "render",
-                qmd_file,
+                job_qmd,
                 "--to",
                 "html",
                 "--no-clean",
                 "--output",
                 f"{pin}.html",
                 "--output-dir",
-                f"outputs/v{VERSION}/{mode}/{pin}",
+                output_dir,
                 "--execute-param",
                 "current_year=2023",
                 "--execute-param",
@@ -417,3 +434,7 @@ def run_quarto(qmd_file: str, pin: str, prior_year: int, address: str, mode: str
     except subprocess.CalledProcessError as e:
         print(f"Error: {e.stderr}")
         raise e
+    finally:
+        if os.path.exists(job_qmd):
+            os.remove(job_qmd)
+        shutil.rmtree(files_dir, ignore_errors=True)

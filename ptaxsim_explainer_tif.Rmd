@@ -81,7 +81,7 @@ current_year <- params$current_year
 prior_year <- params$prior_year
 address <- ''
 
-ptaxsim_db_conn <- dbConnect(SQLite(), db_path)
+ptaxsim_db_conn <- dbConnect(SQLite(), db_path, flags = RSQLite::SQLITE_RO)
 tax_bases_res_com_share <- readRDS("data/tax_bases_res_com_share.rds")
 ```
 

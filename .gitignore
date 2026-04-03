@@ -17,3 +17,6 @@ ptaxsim*html
 !output/
 
 .env
+**/*.quarto_ipynb
+_job_*/
+_job_*.*
