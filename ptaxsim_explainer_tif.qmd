@@ -75,10 +75,10 @@ db_path <- "data/ptaxsim-2024.0.0-alpha.1.db"
 # ### for frozen eav and current eav???
 # tif_distribution <- tbl(ptaxsim_db_conn, "tif_distribution")
 
-pin_14 <- "17043000280000"
+pin_14 <- params$pin_14
 pin_14 <- str_pad(pin_14, width = 14, pad = "0", side = "left")
-current_year <- 2023
-prior_year <- 2022
+current_year <- params$current_year
+prior_year <- params$prior_year
 address <- ''
 
 ptaxsim_db_conn <- dbConnect(SQLite(), db_path, flags = RSQLite::SQLITE_RO)
@@ -115,12 +115,12 @@ Rem_One <- function(current_year, pin_14, to_rem) {
 
 Rem_All <- function(current_year, pin_14, levy_change) {
   tif_agency_cntr_updated <- if(levy_change) {
-    readRDS("data/All_Agencies_cntr_levy.RDS")
+    readRDS("data/All_Agencies_cntr_levy_claude_2024.RDS")
   } else if (T) { 
-    readRDS("data/All_Agencies_cntr_sine_levy.RDS")
+    readRDS("data/All_Agencies_cntr_sine_levy_claude_2024.RDS")
   }
   
-  tif_dt_cntr <- readRDS("data/All_TIF_cntr.RDS")
+  tif_dt_cntr <- readRDS("data/All_TIF_cntr_claude_2024.RDS")
   tif_bill_cntr <- (tax_bill(
     year_vec = current_year,
     pin_vec = pin_14,
@@ -191,7 +191,7 @@ TIF_Remover <- function(current_year, pin_14, to_rem, levy_change) {
     lookup_tax_code(current_year, cook_pins$pin)
   )
   
-  tif_agency_amt_to_add <- readRDS("data/TIF_Deltas.rds") %>%
+  tif_agency_amt_to_add <- readRDS("data/TIF_Deltas_claude_2024.rds") %>%
     data.table() %>%
     filter(TIF %in% to_rem)
   
