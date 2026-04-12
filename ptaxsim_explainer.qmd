@@ -14,9 +14,9 @@ format:
     theme: zephyr
 params:
     current_year:
-        value: 2023
+        value: 2024
     prior_year:
-        value: 2022
+        value: 2023
     pin_14:
         label: "PIN"
         value: "14294070931001"
@@ -49,27 +49,27 @@ library(svglite)
 source("helper_funcs.R")
 
 # set the following variables and run
-db_path <- "data/ptaxsim-2023.0.0.db"
+db_path <- "data/ptaxsim-2024.0.0-alpha.1.db"
 
-pin_14 <- "02342010120000"
+pin_14 <- params$pin_14
 pin_14 <- str_pad(pin_14, width = 14, pad = "0", side = "left")
-current_year <- 2023
-prior_year <- 2022
-address <- "(Address not found)"
-# if (!is.null(params$address) && nchar(params$address) > 0) {
-#     address <- params$address
-# } else {
-#     address_df <- arrow::read_parquet("data/address_points.parquet", col_select = c("PIN", "ADDRDELIV")) %>%
-#         filter(PIN == pin_14 | PIN == str_glue("{str_sub(pin_14, 1, 10)}0000")) %>%
-#         select(ADDRDELIV)
-#     if (nrow(address_df) > 0) {
-#         address <- address_df %>%
-#             pull(ADDRDELIV) %>%
-#             first()
-#     } else {
-#         address <- "(Address not found)"
-#     }
-# }
+current_year <- params$current_year
+prior_year <- params$prior_year
+
+if (!is.null(params$address) && nchar(params$address) > 0) {
+    address <- params$address
+} else {
+    address_df <- arrow::read_parquet("data/address_points.parquet", col_select = c("PIN", "ADDRDELIV")) %>%
+        filter(PIN == pin_14 | PIN == str_glue("{str_sub(pin_14, 1, 10)}0000")) %>%
+        select(ADDRDELIV)
+    if (nrow(address_df) > 0) {
+        address <- address_df %>%
+            pull(ADDRDELIV) %>%
+            first()
+    } else {
+        address <- "(Address not found)"
+    }
+}
 
 ptaxsim_db_conn <- dbConnect(SQLite(), db_path, flags = RSQLite::SQLITE_RO)
 dbExecute(ptaxsim_db_conn, "PRAGMA cache_size = -131072") # 128 MB page cache
@@ -149,6 +149,13 @@ prior_year_tax_bill_summary <- tax_bill_prior %>%
 current_year_agency <- lookup_agency(year = current_year, tax_code = lookup_tax_code(year = current_year, pin = pin_14))
 
 prior_year_agency <- lookup_agency(year = prior_year, tax_code = lookup_tax_code(year = prior_year, pin = pin_14))
+
+## 2024 update for agencies
+if (current_year >= 2024 && prior_year <= 2023) {
+    agency_changed_names <- dbGetQuery(ptaxsim_db_conn, "SELECT * FROM agency_info where agency_change_24 = 1") %>%
+    select(agency_num, agency_name, agency_name_24, agency_num_24) %>%
+    filter(agency_num_24 %in% current_year_agency$agency_num) 
+}
 
 # calculate tax bill if you kept assessment and tax base constant
 
@@ -854,7 +861,7 @@ See the breakdown of the tax levy change for each district in [Appendix C](#appe
 
 ```{r}
 tax_bill_historic <- tax_bill(
-  year_vec = c(2006:2023),
+  year_vec = c(2006:2024),
   pin_vec = pin_14,
   simplify = F
 )
@@ -864,9 +871,9 @@ year_totals <- tax_bill_historic %>% distinct(year, agency_num, agency_total_ext
   summarize(total_ext = sum(agency_total_ext))
 
 val_min <- year_totals %>% filter(year == 2006) %>% pull(total_ext)
-val_max <- year_totals %>% filter(year == 2023) %>% pull(total_ext)
+val_max <- year_totals %>% filter(year == 2024) %>% pull(total_ext)
 
-detail_str <- str_glue("From 2006 to 2023, the total amount of property taxes collected across all agencies for your property increased ",
+detail_str <- str_glue("From 2006 to 2024, the total amount of property taxes collected across all agencies for your property increased ",
          "from {scales::dollar(val_min)} to {scales::dollar(val_max)} or {scales::percent((val_max - val_min) / val_min)}.")
 ```
 
@@ -1075,6 +1082,20 @@ See the breakdown of the change in EAV Residential Share and Commercial Share fo
 
 #### Change in Tax Bill from Levy Change by District
 `r combined_df2`
+
+
+`r if( nrow(agency_changed_names) > 0){
+    paste("The following districts were folded into larger districts and therefore show a 100% reduction in the tax bill: ")
+}`
+
+`r if( nrow(agency_changed_names) > 0){
+    agency_changed_names %>% select(agency_name, agency_name_24) %>%
+    gt() %>%
+    cols_label(
+        agency_name_24 = "New District Name",
+        agency_name = "Old District Name"
+    )
+}`
 
 :::
 

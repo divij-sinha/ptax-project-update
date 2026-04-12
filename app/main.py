@@ -21,7 +21,7 @@ from redis import Redis
 from rq import Queue
 
 MODE = "TIF"  # default mode, can be changed to "PTAX" for explainer
-VERSION = "2.1.2"
+VERSION = "2.2"
 
 redis_conn = Redis()
 queue = Queue(connection=redis_conn)
@@ -39,7 +39,7 @@ def _get_address_df() -> pl.DataFrame:
 
 
 # SQLite connection opened once per process in read-only mode with a warm page cache
-_DB_PATH = os.path.join(os.path.dirname(__file__), "../data/ptaxsim-2023.0.0.db")
+_DB_PATH = os.path.join(os.path.dirname(__file__), "../data/ptaxsim-2024.0.0-alpha.1.db")
 _db_conn: sqlite3.Connection | None = None
 
 
@@ -51,6 +51,8 @@ def get_db() -> sqlite3.Connection:
         _db_conn.execute("PRAGMA temp_store = MEMORY")
     return _db_conn
 
+import shutil
+shutil.rmtree(f"outputs/v{VERSION}/")
 os.makedirs(f"outputs/v{VERSION}/TIF/", exist_ok=True)
 os.makedirs(f"outputs/v{VERSION}/PTAX/", exist_ok=True)
 
@@ -228,7 +230,7 @@ async def render_doc(
 ):
     base_dir = os.path.dirname(__file__)  # Directory of the current script
     if mode == "TIF":
-        qmd_file = os.path.abspath(os.path.join(base_dir, "../ptaxsim_explainer_tif.Rmd"))
+        qmd_file = os.path.abspath(os.path.join(base_dir, "../ptaxsim_explainer_tif.qmd"))
     elif mode == "PTAX":
         qmd_file = os.path.abspath(os.path.join(base_dir, "../ptaxsim_explainer.qmd"))
     else:
@@ -289,11 +291,11 @@ async def handle_pin(
     """Handle PIN input and render the QMD file."""
 
     if search_category == "three_years":
-        prior_year = 2020
+        prior_year = 2021
     elif search_category == "five_years":
-        prior_year = 2018
+        prior_year = 2019
     elif search_category == "one_year":
-        prior_year = 2022
+        prior_year = 2023
     else:
         prior_year = 1
 
@@ -418,7 +420,7 @@ def run_quarto(qmd_file: str, pin: str, prior_year: int, address: str, mode: str
                 "--output-dir",
                 output_dir,
                 "--execute-param",
-                "current_year=2023",
+                "current_year=2024",
                 "--execute-param",
                 f"prior_year={prior_year}",
                 "--execute-param",

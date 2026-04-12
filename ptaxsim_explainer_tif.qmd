@@ -16,9 +16,9 @@ format:
     theme: cerulean
 params:
   current_year:
-    value: 2023
+    value: 2024
   prior_year:
-    value: 2022
+    value: 2023
   pin_14:
     label: PIN
     value: '14294070931001'
@@ -58,7 +58,7 @@ source("maps.R")
 source("helper_funcs.R")
 
 # set the following variables and run
-db_path <- "data/ptaxsim-2023.0.0.db"
+db_path <- "data/ptaxsim-2024.0.0-alpha.1.db"
 
 # example pins - defaults
 # pin_14 <- "20114070180000" # Hyde Park, Chicago
@@ -75,10 +75,10 @@ db_path <- "data/ptaxsim-2023.0.0.db"
 # ### for frozen eav and current eav???
 # tif_distribution <- tbl(ptaxsim_db_conn, "tif_distribution")
 
-pin_14 <- toString(params$pin_14)
+pin_14 <- "17043000280000"
 pin_14 <- str_pad(pin_14, width = 14, pad = "0", side = "left")
-current_year <- params$current_year
-prior_year <- params$prior_year
+current_year <- 2023
+prior_year <- 2022
 address <- ''
 
 ptaxsim_db_conn <- dbConnect(SQLite(), db_path, flags = RSQLite::SQLITE_RO)
@@ -630,7 +630,10 @@ original_tbl <- lookuptbl %>%
 
 
 ```{r eliminate your tifs - levies rise, results='asis', echo=FALSE, eval=is_in_tif}
-cat('<h3 style="color:#1F77B4;">Scenario 1</h3>')
+
+
+if (length(tif_number) > 0) {
+  cat('<h3 style="color:#1F77B4;">Scenario 1</h3>')
 tif_bill_sine_urtif <- Rem_One(current_year, pin_14, tif_number)
 
 diff <- sum(tif_bill_sine_urtif$final_tax) - sum(tax_bill_current$tax_amt_post_exe)
@@ -682,9 +685,12 @@ combined_tbl1 %>%
     autocolor_text = FALSE
   ) %>%
   fmt_currency(columns = c("Tax (w/o TIF)", "Original Tax Bill"))
+}
 ```
 
 ```{r eliminate your tifs - levies same, results='asis', echo=FALSE, eval=is_in_tif}
+
+if (length(tif_number) > 0) {
 cat('<h3 style="color:#1F77B4;">Scenario 2</h3>')
 tif_bill_sine_urtif_nlevy <- TIF_Remover(current_year, pin_14, to_rem = tif_number, levy_change = F)
 
@@ -737,6 +743,8 @@ combined_tbl2 %>%
     autocolor_text = FALSE
   ) %>%
   fmt_currency(columns = c("Tax (w/o TIF)", "Original Tax Bill"))
+
+}
 ```
 
 ```{r eliminate all tifs - levies rise, results='asis', echo=FALSE}
@@ -779,7 +787,11 @@ lookuptbl3 <- lookuptbl3 %>%
 df3 <- lookuptbl3 %>%
   select(District = agency_name, `Tax (w/o TIF)` = final_tax)
 
-combined_tbl3 <- full_join(df3, original_tbl, by = "District")
+if (nrow(df3) > 0) {
+  combined_tbl3 <- full_join(df3, original_tbl, by = "District")
+} else {
+  combined_tbl3 <- original_tbl %>% mutate(`Tax (w/o TIF)` = 0)
+}
 
 combined_tbl3 %>%
   mutate(across(
@@ -835,7 +847,11 @@ lookuptbl4 <- lookuptbl4 %>%
 df4 <- lookuptbl4 %>%
   select(District = agency_name, `Tax (w/o TIF)` = final_tax)
 
-combined_tbl4 <- full_join(df4, original_tbl, by = "District")
+if (nrow(df4) > 0) {
+  combined_tbl4 <- full_join(df4, original_tbl, by = "District")
+} else {
+  combined_tbl4 <- original_tbl %>% mutate(`Tax (w/o TIF)` = 0)
+}
 
 combined_tbl4 %>%
   mutate(across(
@@ -884,7 +900,7 @@ This explainer uses parcel-level tax data and simulation tools to simulate and v
 
 ##### Data Sources
 - **ptaxsim**: We are using [`ptaxsim`](https://ccao-data.github.io/ptaxsim/) package for calculating Cook County property tax bills. These numbers could differ from the Cook Country Treasurer website.
-- **SQLite Database (`ptaxsim-2023.0.0.db`)**: Structured records for parcels, taxing agencies, rates, and TIF distributions.
+- **SQLite Database (`ptaxsim-2024.0.0.db`)**: Structured records for parcels, taxing agencies, rates, and TIF distributions.
 - **Custom RDS Files**: Used to simulate alternate levy scenarios.
 
 ##### Property Lookup
