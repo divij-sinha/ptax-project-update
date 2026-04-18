@@ -102,7 +102,7 @@ Rem_One <- function(current_year, pin_14, to_rem) {
   ) %>%
     mutate(tif_share = ifelse(agency_num == to_rem, 0, tif_share))
   
-  tif_agency_cntr_updated <- readRDS("data/Agency_Sine_Unus_TIF.rds") %>%
+  tif_agency_cntr_updated <- readRDS("data/Agency_Sine_Unus_TIF_claude_2024.rds") %>%
     filter(TIF == to_rem) %>%
     select(-TIF) %>%
     setDT(key = c("year", "tax_code", "agency_num"))

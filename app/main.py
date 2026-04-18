@@ -21,7 +21,14 @@ from redis import Redis
 from rq import Queue
 
 MODE = "TIF"  # default mode, can be changed to "PTAX" for explainer
-VERSION = "2.2"
+VERSION = "2.3"
+
+
+def output_filename(mode: str, pin: str, prior_year: int) -> str:
+    """TIF reports don't vary by lookback period; PTAX ones do."""
+    if mode == "TIF":
+        return f"{pin}.html"
+    return f"{pin}_{prior_year}.html"
 
 redis_conn = Redis()
 queue = Queue(connection=redis_conn)
@@ -52,7 +59,7 @@ def get_db() -> sqlite3.Connection:
     return _db_conn
 
 import shutil
-shutil.rmtree(f"outputs/v{VERSION}/")
+# shutil.rmtree(f"outputs/v{VERSION}/")
 os.makedirs(f"outputs/v{VERSION}/TIF/", exist_ok=True)
 os.makedirs(f"outputs/v{VERSION}/PTAX/", exist_ok=True)
 
@@ -254,7 +261,7 @@ async def render_doc(
             existing_job = queue.fetch_job(existing_id.decode())
             if existing_job and not existing_job.is_finished and not existing_job.is_failed:
                 print(f"Reusing job {existing_job.id} for PIN {pin} ({mode}).")
-                return RedirectResponse(url=f"/processing?pin={pin}&mode={mode}", status_code=status.HTTP_303_SEE_OTHER)
+                return RedirectResponse(url=f"/processing?pin={pin}&mode={mode}&prior_year={prior_year}", status_code=status.HTTP_303_SEE_OTHER)
 
         job = queue.enqueue(
             "app.main.run_quarto",
@@ -268,7 +275,7 @@ async def render_doc(
         redis_conn.hset("pin_job_map", job_map_key, job.id)
         print(f"Job ID {job.id} for PIN {pin} ({mode}) enqueued.")
 
-        response = RedirectResponse(url=f"/processing?pin={pin}&mode={mode}", status_code=status.HTTP_303_SEE_OTHER)
+        response = RedirectResponse(url=f"/processing?pin={pin}&mode={mode}&prior_year={prior_year}", status_code=status.HTTP_303_SEE_OTHER)
         # print(response)
         return response
 
@@ -338,9 +345,10 @@ async def handle_pin(
         # Write the values, separating them with commas
         f.write(f"{search_term}, {search_category}\n")
 
-    if os.path.exists(f"outputs/v{VERSION}/{mode}/{pin}/{pin}.html"):
+    fname = output_filename(mode, pin, prior_year)
+    if os.path.exists(f"outputs/v{VERSION}/{mode}/{pin}/{fname}"):
         # If the file already exists, redirect to it
-        return RedirectResponse(url=f"/outputs/{mode}/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
+        return RedirectResponse(url=f"/outputs/{mode}/{pin}/{fname}", status_code=status.HTTP_302_FOUND)
 
     else:
         return RedirectResponse(
@@ -356,15 +364,16 @@ async def handle_pin(
 
 
 @app.get("/processing")
-async def processing_page(request: Request, pin: str, mode: str, n: int = 1, status: str = ""):
+async def processing_page(request: Request, pin: str, mode: str, prior_year: int = 2023, n: int = 1, status: str = ""):
     # Render a template that shows "processing" and auto-refreshes
-    return templates.TemplateResponse("processing.html", {"request": request, "pin": pin, "n": n, "mode": mode})
+    return templates.TemplateResponse("processing.html", {"request": request, "pin": pin, "n": n, "mode": mode, "prior_year": prior_year})
 
 
 @app.get("/check_complete")
-async def check_complete(request: Request, pin: str, mode: str, n: int = 1):
-    if os.path.exists(f"outputs/v{VERSION}/{mode}/{pin}/{pin}.html"):
-        return RedirectResponse(url=f"/outputs/{mode}/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
+async def check_complete(request: Request, pin: str, mode: str, prior_year: int = 2023, n: int = 1):
+    fname = output_filename(mode, pin, prior_year)
+    if os.path.exists(f"outputs/v{VERSION}/{mode}/{pin}/{fname}"):
+        return RedirectResponse(url=f"/outputs/{mode}/{pin}/{fname}", status_code=status.HTTP_302_FOUND)
     # Check if the job is complete
     raw = redis_conn.hget("pin_job_map", f"{mode}:{pin}")
     if not raw:
@@ -375,11 +384,9 @@ async def check_complete(request: Request, pin: str, mode: str, n: int = 1):
         )
     job_id = raw.decode("utf-8")
     job = queue.fetch_job(job_id)
-    # if job is None:
-    #     return RedirectResponse(url=f"/processing?pin={pin}&n={n+1}&status={job.get_status()}")
     if job.is_finished:
         # Job is finished, redirect to the output file
-        return RedirectResponse(url=f"/outputs/{mode}/{pin}/{pin}.html", status_code=status.HTTP_302_FOUND)
+        return RedirectResponse(url=f"/outputs/{mode}/{pin}/{fname}", status_code=status.HTTP_302_FOUND)
     # Check if output file exists or some other completion indicator
     if job.is_failed:
         with open("error_log.txt", "a") as f:
@@ -389,10 +396,10 @@ async def check_complete(request: Request, pin: str, mode: str, n: int = 1):
             {"request": request, "message": f"Error: Error processing PIN {pin}! Please try again, error reported to admin."},
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
-    return RedirectResponse(url=f"/processing?pin={pin}&n={n + 1}&mode={mode}&status={job.get_status()}")
+    return RedirectResponse(url=f"/processing?pin={pin}&n={n + 1}&mode={mode}&prior_year={prior_year}&status={job.get_status()}")
 
 
-def run_quarto(qmd_file: str, pin: str, prior_year: int, address: str, mode: str):
+def run_quarto(qmd_file: str, pin: str, prior_year: int, address: str, mode: str, output_root: str = None):
     # Knitr reads the source file by name during execution, so concurrent renders
     # of the same template would collide on ptaxsim_explainer.knit.md etc.
     # We copy the source to a unique name per job; all relative paths ("data/...")
@@ -403,7 +410,10 @@ def run_quarto(qmd_file: str, pin: str, prior_year: int, address: str, mode: str
     job_stem = f"_job_{mode}_{pin}"
     job_qmd = os.path.join(src_dir, f"{job_stem}{ext}")
     files_dir = os.path.join(src_dir, f"{job_stem}_files")
-    output_dir = os.path.abspath(f"outputs/v{VERSION}/{mode}/{pin}")
+    if output_root:
+        output_dir = os.path.join(output_root, f"v{VERSION}", mode, pin)
+    else:
+        output_dir = os.path.abspath(f"outputs/v{VERSION}/{mode}/{pin}")
     os.makedirs(output_dir, exist_ok=True)
     try:
         shutil.copy2(qmd_file, job_qmd)
@@ -416,7 +426,7 @@ def run_quarto(qmd_file: str, pin: str, prior_year: int, address: str, mode: str
                 "html",
                 "--no-clean",
                 "--output",
-                f"{pin}.html",
+                output_filename(mode, pin, prior_year),
                 "--output-dir",
                 output_dir,
                 "--execute-param",
