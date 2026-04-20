@@ -917,7 +917,7 @@ These are simulated by modifying the TIF and agency tables before calling `tax_b
 
 ##### Simulation Logic
 - **Original Tax Bill**: The actual tax billed to the property, including the share redirected to TIF districts.
-- **Tax (w/o TIF)**: A counterfactual estimate of what the tax bill would have been if no TIF districts had existed. This assumes taxing agencies would have had to levy higher rates across all parcels to meet the same revenue targets.
+- **Tax (w/o TIF)**: A counterfactual estimate of what the tax bill would have been if no TIF districts had existed.
 
 ##### Visualization
 - **Tables**: Compare agency-level bills before and after TIF removal.
@@ -925,7 +925,8 @@ These are simulated by modifying the TIF and agency tables before calling `tax_b
 
 ##### Limitations
   - This analysis models a **single property’s bill**, which may not generalize across properties or TIF districts.
-  - Assumes **constant levy targets** and **no behavioral changes** from taxing agencies in the counterfactual scenario.
+  - Assumes **constant levy targets** and **no behavioral changes** from taxing agencies in one counterfactual scenario.
+  - Assumes that taxing agencies would have had to levy higher rates across all parcels to meet the same revenue targets in the second scenario.
   - Indirect effects of TIF removal (e.g., economic slowdown, lower development) are not modeled
 
 
