@@ -2,8 +2,9 @@
 batch_generate.py — Pre-generate all residential (200s/300s) PTAX and TIF explainers.
 
 Tracks progress in a local SQLite DB (batch_tracking.db) and enqueues jobs via
-Redis/RQ so workers can run them in parallel. Outputs go to the NAS mount defined
-by OUTPUT_ROOT in .env.
+Redis/RQ so workers can run them in parallel.  Workers write outputs to the local
+outputs/ directory for speed; sync MOVES them to the NAS mount (OUTPUT_ROOT in .env)
+— copy, verify size, delete local — to keep local disk usage low.
 
 Usage
 -----
@@ -11,15 +12,17 @@ Usage
   python batch_generate.py enqueue               # Enqueue all pending jobs
   python batch_generate.py enqueue --class 203   # Enqueue only class 203
   python batch_generate.py enqueue --retry-failed # Also re-enqueue failed jobs
-  python batch_generate.py sync                  # Update tracking DB from RQ + output file presence
+  python batch_generate.py sync                  # Copy local→NAS, then update tracking DB
   python batch_generate.py status                # Print progress summary by class
 """
 
 import argparse
 import logging
 import os
+import shutil
 import sqlite3
 import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 
 import polars as pl
@@ -72,6 +75,9 @@ if OUTPUT_ROOT_ENV:
     NAS_OUTPUT_ROOT = os.path.join(OUTPUT_ROOT_ENV, "ptax-project-update", "outputs")
 else:
     NAS_OUTPUT_ROOT = None
+
+# Workers always write here; sync copies to NAS.
+LOCAL_OUTPUT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "outputs"))
 
 QMD_FILES = {
     "TIF": os.path.abspath("ptaxsim_explainer_tif.qmd"),
@@ -144,14 +150,17 @@ def output_html_filename(mode: str, pin: str) -> str:
 
 def output_html_path(mode: str, pin: str, root: str | None = None) -> str:
     fname = output_html_filename(mode, pin)
-    nas = root or NAS_OUTPUT_ROOT
-    if nas:
-        return os.path.join(nas, f"v{VERSION}", mode, pin, fname)
-    return os.path.join(f"outputs/v{VERSION}", mode, pin, fname)
+    r = root if root is not None else LOCAL_OUTPUT_ROOT
+    return os.path.join(r, f"v{VERSION}", mode, pin, fname)
 
 
 def output_exists(mode: str, pin: str) -> bool:
-    return os.path.exists(output_html_path(mode, pin))
+    """True if the output exists locally or on the NAS (from a previous batch)."""
+    if os.path.exists(output_html_path(mode, pin)):
+        return True
+    if NAS_OUTPUT_ROOT:
+        return os.path.exists(output_html_path(mode, pin, root=NAS_OUTPUT_ROOT))
+    return False
 
 
 # ---------------------------------------------------------------------------
@@ -297,10 +306,6 @@ def cmd_enqueue(args):
         conn.close()
         return
 
-    if not NAS_OUTPUT_ROOT:
-        print("ERROR: OUTPUT_ROOT is not set in .env. Cannot determine NAS output path.")
-        sys.exit(1)
-
     now = datetime.now(timezone.utc).isoformat()
     # Group by class for progress reporting
     current_class = None
@@ -313,7 +318,7 @@ def cmd_enqueue(args):
             current_class = cls
             print(f"  class {cls}…", end="", flush=True)
 
-        # Skip if output already exists on NAS
+        # Skip if output already exists locally or on NAS (from a prior batch)
         if output_exists(mode, pin):
             conn.execute("UPDATE jobs SET status=?, updated_at=? WHERE pin=? AND mode=?", (DONE, now, pin, mode))
             logger.debug("SKIPPED  pin=%s mode=%s  output already exists", pin, mode)
@@ -326,7 +331,7 @@ def cmd_enqueue(args):
             PRIOR_YEAR,
             addr,
             mode,
-            output_root=NAS_OUTPUT_ROOT,
+            output_root=None,  # write to local outputs/; sync copies to NAS
             result_ttl=86400,
             job_timeout=600,
         )
@@ -347,71 +352,171 @@ def cmd_enqueue(args):
     logger.info("Enqueue complete: %d jobs enqueued. Queue depth: %d", enqueued, len(queue))
 
 
+SYNC_WORKERS = int(os.getenv("SYNC_WORKERS", "16"))
+
+
+def _move_one(src: str, dst: str, pair: tuple[str, str] | None) -> tuple[str, tuple[str, str] | None]:
+    """Copy src → dst, verify size, delete src. Returns (status, pair_if_output).
+    Status is 'copied' | 'already' | 'error'.
+    """
+    try:
+        src_size = os.path.getsize(src)
+        try:
+            dst_size = os.path.getsize(dst)
+        except FileNotFoundError:
+            dst_size = -1
+        if dst_size == src_size:
+            os.remove(src)
+            return "already", pair
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        shutil.copy2(src, dst)
+        if os.path.getsize(dst) != src_size:
+            logger.warning("Size mismatch after copy, keeping local: %s", src)
+            return "error", None
+        os.remove(src)
+        return "copied", pair
+    except OSError as e:
+        logger.warning("Sync failed for %s → %s: %s", src, dst, e)
+        return "error", None
+
+
+def _move_local_to_nas(local_ver_root: str, nas_ver_root: str) -> tuple[int, int, int, set[tuple[str, str]]]:
+    """Move files from local to NAS in parallel: copy, verify size, delete local.
+    Returns (copied, already_on_nas, errors, completed_set) where completed is {(pin, mode)}.
+    """
+    # Phase 1: enumerate all HTML files to move.
+    tasks: list[tuple[str, str, tuple[str, str] | None]] = []
+    for dirpath, _, filenames in os.walk(local_ver_root):
+        rel_dir = os.path.relpath(dirpath, local_ver_root)
+        parts = rel_dir.split(os.sep) if rel_dir != "." else []
+        pair = (parts[1], parts[0]) if len(parts) == 2 and parts[0] in MODES else None
+        for fname in filenames:
+            if not fname.endswith(".html"):
+                continue
+            src = os.path.join(dirpath, fname)
+            dst = os.path.join(nas_ver_root, rel_dir, fname) if rel_dir != "." else os.path.join(nas_ver_root, fname)
+            tasks.append((src, dst, pair))
+
+    total = len(tasks)
+    logger.info("Syncing %d files with %d workers…", total, SYNC_WORKERS)
+
+    copied = already = errors = 0
+    completed: set[tuple[str, str]] = set()
+    done = 0
+
+    # Phase 2: parallel copy. SMB/NAS is latency-bound on small files, so threads help.
+    with ThreadPoolExecutor(max_workers=SYNC_WORKERS) as pool:
+        futures = [pool.submit(_move_one, src, dst, pair) for src, dst, pair in tasks]
+        for fut in as_completed(futures):
+            status, pair = fut.result()
+            if status == "copied":
+                copied += 1
+            elif status == "already":
+                already += 1
+            else:
+                errors += 1
+            if pair is not None:
+                completed.add(pair)
+            done += 1
+            if done % 5000 == 0:
+                logger.info("  progress: %d/%d (copied=%d already=%d err=%d)",
+                            done, total, copied, already, errors)
+
+    # Phase 3: prune empty dirs bottom-up.
+    for dirpath, _, _ in os.walk(local_ver_root, topdown=False):
+        if dirpath == local_ver_root:
+            continue
+        try:
+            if not os.listdir(dirpath):
+                os.rmdir(dirpath)
+        except OSError:
+            pass
+
+    return copied, already, errors, completed
+
+
 def cmd_sync(args):
     """
-    Sync tracking DB:
-      1. For 'queued' jobs: check RQ status + output file presence.
-      2. For 'pending' jobs: check if output already exists (e.g. from a prior run).
+    1. Move local outputs to NAS (copy, verify, delete local).
+    2. Bulk-update tracking DB from the moved set (plus optional NAS scan).
     """
     conn = get_tracking_conn()
     init_tracking_db(conn)
-    cur = conn.cursor()
     now = datetime.now(timezone.utc).isoformat()
 
-    cur2 = conn.cursor()
-    cur2.execute("SELECT COUNT(*) FROM jobs WHERE status = ?", (QUEUED,))
-    total_queued = cur2.fetchone()[0]
-    done_count = failed_count = still_running = 0
+    local_ver_root = os.path.join(LOCAL_OUTPUT_ROOT, f"v{VERSION}")
+    nas_ver_root = os.path.join(NAS_OUTPUT_ROOT, f"v{VERSION}") if NAS_OUTPUT_ROOT else None
 
-    logger.info("Syncing %d queued jobs…", total_queued)
-    cur2.execute("SELECT pin, mode, job_id FROM jobs WHERE status = ?", (QUEUED,))
-    for i, (pin, mode, job_id) in enumerate(cur2):
-        if output_exists(mode, pin):
-            conn.execute("UPDATE jobs SET status=?, updated_at=? WHERE pin=? AND mode=?", (DONE, now, pin, mode))
-            logger.debug("DONE     pin=%s mode=%s  output file found", pin, mode)
-            done_count += 1
-        elif job_id:
+    completed: set[tuple[str, str]] = set()
+
+    # Step 1: move local → NAS (clears local as we go)
+    if nas_ver_root and os.path.exists(local_ver_root):
+        logger.info("Moving local outputs to NAS (copy, verify, delete local)…")
+        copied, already, errors, completed = _move_local_to_nas(local_ver_root, nas_ver_root)
+        logger.info("Copied %d new, %d already on NAS, %d errors. Local cleared.",
+                    copied, already, errors)
+    elif not nas_ver_root:
+        logger.warning("NAS_OUTPUT_ROOT not set — scanning local only, nothing moved.")
+        # Fall back to scanning local (old behavior)
+        if os.path.exists(local_ver_root):
+            for dirpath, _, filenames in os.walk(local_ver_root):
+                for fname in filenames:
+                    if not fname.endswith(".html"):
+                        continue
+                    parts = os.path.relpath(dirpath, local_ver_root).split(os.sep)
+                    if len(parts) == 2 and parts[0] in MODES:
+                        completed.add((parts[1], parts[0]))
+
+    # Step 2 (optional): also scan NAS for full baseline
+    if args.include_nas and nas_ver_root and os.path.exists(nas_ver_root):
+        logger.info("Scanning NAS %s…", nas_ver_root)
+        for dirpath, _, filenames in os.walk(nas_ver_root):
+            for fname in filenames:
+                if not fname.endswith(".html"):
+                    continue
+                parts = os.path.relpath(dirpath, nas_ver_root).split(os.sep)
+                if len(parts) == 2 and parts[0] in MODES:
+                    completed.add((parts[1], parts[0]))
+
+    logger.info("Completion set: %d (pin, mode) pairs.", len(completed))
+
+    # Bulk-update tracking DB from the completion set
+    CHUNK = 5_000
+    done_count = 0
+    completed_list = list(completed)
+    for i in range(0, len(completed_list), CHUNK):
+        chunk = completed_list[i : i + CHUNK]
+        conn.executemany(
+            f"UPDATE jobs SET status=?, updated_at=? WHERE pin=? AND mode=? AND status != '{DONE}'",
+            [(DONE, now, pin, mode) for pin, mode in chunk],
+        )
+        done_count += conn.total_changes
+        if i % 50_000 == 0 and i > 0:
+            conn.commit()
+            print(f"  {i:,} / {len(completed_list):,}…", end="\r")
+    conn.commit()
+    print()
+
+    # Optional: check RQ status for jobs without output to detect failures
+    failed_count = 0
+    if args.check_failures:
+        cur = conn.cursor()
+        cur.execute("SELECT pin, mode, job_id FROM jobs WHERE status = ?", (QUEUED,))
+        for pin, mode, job_id in cur:
+            if not job_id:
+                continue
             job = queue.fetch_job(job_id)
             if job is None:
                 conn.execute("UPDATE jobs SET status=?, updated_at=? WHERE pin=? AND mode=?", (FAILED, now, pin, mode))
-                logger.warning("FAILED   pin=%s mode=%s job_id=%s  job expired from Redis", pin, mode, job_id)
+                logger.warning("FAILED pin=%s mode=%s job_id=%s  expired from Redis", pin, mode, job_id)
                 failed_count += 1
-            elif job.is_finished:
-                conn.execute("UPDATE jobs SET status=?, updated_at=? WHERE pin=? AND mode=?", (DONE, now, pin, mode))
-                logger.debug("DONE     pin=%s mode=%s job_id=%s  RQ finished", pin, mode, job_id)
-                done_count += 1
             elif job.is_failed:
                 conn.execute("UPDATE jobs SET status=?, updated_at=? WHERE pin=? AND mode=?", (FAILED, now, pin, mode))
-                logger.warning("FAILED   pin=%s mode=%s job_id=%s  RQ job failed", pin, mode, job_id)
+                logger.warning("FAILED pin=%s mode=%s job_id=%s  RQ job failed", pin, mode, job_id)
                 failed_count += 1
-            else:
-                still_running += 1
+        conn.commit()
 
-        if i % 1000 == 0 and i > 0:
-            conn.commit()
-            print(f"  {i:,} / {total_queued:,}…", end="\r")
-
-    pre_done = 0
-    if args.check_pending:
-        cur2.execute("SELECT COUNT(*) FROM jobs WHERE status = ?", (PENDING,))
-        total_pending = cur2.fetchone()[0]
-        print(f"\nChecking {total_pending:,} pending jobs for existing output…")
-        cur2.execute("SELECT pin, mode FROM jobs WHERE status = ?", (PENDING,))
-        for i, (pin, mode) in enumerate(cur2):
-            if output_exists(mode, pin):
-                conn.execute("UPDATE jobs SET status=?, updated_at=? WHERE pin=? AND mode=?", (DONE, now, pin, mode))
-                pre_done += 1
-            if i % 5000 == 0 and i > 0:
-                conn.commit()
-                print(f"  {i:,} / {total_pending:,}…", end="\r")
-
-    conn.commit()
-    logger.info(
-        "Sync complete — done: %d  failed: %d  still running: %d",
-        done_count + pre_done,
-        failed_count,
-        still_running,
-    )
+    logger.info("Sync complete — done: %d  failed: %d", done_count, failed_count)
     _throughput_stats(conn)
     conn.close()
 
@@ -503,8 +608,9 @@ def main():
     p_enqueue.add_argument("--dry-run", action="store_true", help="Show counts without enqueueing.")
 
     # sync
-    p_sync = sub.add_parser("sync", help="Update tracking DB from RQ statuses and output files.")
-    p_sync.add_argument("--check-pending", action="store_true", help="Also scan pending jobs for existing output on NAS (slow).")
+    p_sync = sub.add_parser("sync", help="Copy local outputs to NAS, then update tracking DB.")
+    p_sync.add_argument("--check-failures", action="store_true", help="Also poll RQ for failed/expired jobs (slow — one Redis call per queued job).")
+    p_sync.add_argument("--include-nas", action="store_true", help="Also scan NAS output tree (slow — use once for initial baseline sync).")
 
     # status
     p_status = sub.add_parser("status", help="Print progress summary.")

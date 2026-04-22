@@ -33,6 +33,11 @@ editor:
 ---
 
 ```{r setup, include=FALSE, cache=FALSE}
+.ptax_root <- Sys.getenv("PTAX_PROJECT_ROOT")
+if (nzchar(.ptax_root)) {
+    setwd(.ptax_root)
+    knitr::opts_knit$set(root.dir = .ptax_root)
+}
 options(tigris_use_cache = TRUE)
 knitr::opts_chunk$set(dev = "ragg_png")
 library(scales)
@@ -75,7 +80,7 @@ db_path <- "data/ptaxsim-2024.0.0-alpha.1.db"
 # ### for frozen eav and current eav???
 # tif_distribution <- tbl(ptaxsim_db_conn, "tif_distribution")
 
-pin_14 <- params$pin_14
+pin_14 <- format(params$pin_14, scientific = FALSE, trim = TRUE)
 pin_14 <- str_pad(pin_14, width = 14, pad = "0", side = "left")
 current_year <- params$current_year
 prior_year <- params$prior_year

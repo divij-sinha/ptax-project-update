@@ -9,19 +9,34 @@ from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+import mimetypes
+
 import polars as pl
 import usaddress
 from dotenv import load_dotenv
 from email_validator import EmailNotValidError, validate_email
-from fastapi import BackgroundTasks, FastAPI, Form, Request, status
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi import BackgroundTasks, FastAPI, Form, HTTPException, Request, status
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from google.cloud import storage
+from google.cloud.exceptions import NotFound
 from redis import Redis
 from rq import Queue
 
+load_dotenv()
+
 MODE = "TIF"  # default mode, can be changed to "PTAX" for explainer
 VERSION = "2.3"
+
+# Rendered HTML lives in GCS; the local outputs/ directory is a transient
+# staging area only (render_quarto writes there, uploads, then deletes).
+GCS_BUCKET = os.getenv("GCS_BUCKET")
+if not GCS_BUCKET:
+    raise RuntimeError("GCS_BUCKET not set; required for serving and writes.")
+GCS_PREFIX = os.getenv("GCS_PREFIX", "ptax-project/outputs").strip("/")
+_gcs_client = storage.Client()
+_bucket = _gcs_client.bucket(GCS_BUCKET)
 
 
 def output_filename(mode: str, pin: str, prior_year: int) -> str:
@@ -29,6 +44,14 @@ def output_filename(mode: str, pin: str, prior_year: int) -> str:
     if mode == "TIF":
         return f"{pin}.html"
     return f"{pin}_{prior_year}.html"
+
+
+def gcs_blob_name(mode: str, pin: str, fname: str) -> str:
+    return f"{GCS_PREFIX}/v{VERSION}/{mode}/{pin}/{fname}"
+
+
+def gcs_output_exists(mode: str, pin: str, fname: str) -> bool:
+    return _bucket.blob(gcs_blob_name(mode, pin, fname)).exists()
 
 redis_conn = Redis()
 queue = Queue(connection=redis_conn)
@@ -58,11 +81,6 @@ def get_db() -> sqlite3.Connection:
         _db_conn.execute("PRAGMA temp_store = MEMORY")
     return _db_conn
 
-import shutil
-# shutil.rmtree(f"outputs/v{VERSION}/")
-os.makedirs(f"outputs/v{VERSION}/TIF/", exist_ok=True)
-os.makedirs(f"outputs/v{VERSION}/PTAX/", exist_ok=True)
-
 app = FastAPI()
 
 # Set up Jinja2 templates
@@ -71,8 +89,25 @@ templates = Jinja2Templates(directory="app/templates")
 # Serve static files (CSS, JS, etc.)
 app.mount("/assets", StaticFiles(directory="app/assets"), name="assets")
 
-# Serve the generated HTML files
-app.mount("/outputs", StaticFiles(directory=f"outputs/v{VERSION}"), name="outputs")
+
+@app.get("/outputs/{full_path:path}")
+def serve_output(full_path: str):
+    """Stream rendered HTML (or any sibling asset) from GCS.
+
+    Paths map 1:1 to gs://$GCS_BUCKET/$GCS_PREFIX/v{VERSION}/{full_path}.
+    Existing redirects (e.g. /outputs/TIF/12345/12345.html) work unchanged.
+    """
+    blob = _bucket.blob(f"{GCS_PREFIX}/v{VERSION}/{full_path}")
+    try:
+        data = blob.download_as_bytes()
+    except NotFound:
+        raise HTTPException(status_code=404)
+    media_type = mimetypes.guess_type(full_path)[0] or "application/octet-stream"
+    return Response(
+        content=data,
+        media_type=media_type,
+        headers={"Cache-Control": "public, max-age=31536000, immutable"},
+    )
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -346,7 +381,7 @@ async def handle_pin(
         f.write(f"{search_term}, {search_category}\n")
 
     fname = output_filename(mode, pin, prior_year)
-    if os.path.exists(f"outputs/v{VERSION}/{mode}/{pin}/{fname}"):
+    if gcs_output_exists(mode, pin, fname):
         # If the file already exists, redirect to it
         return RedirectResponse(url=f"/outputs/{mode}/{pin}/{fname}", status_code=status.HTTP_302_FOUND)
 
@@ -372,7 +407,7 @@ async def processing_page(request: Request, pin: str, mode: str, prior_year: int
 @app.get("/check_complete")
 async def check_complete(request: Request, pin: str, mode: str, prior_year: int = 2023, n: int = 1):
     fname = output_filename(mode, pin, prior_year)
-    if os.path.exists(f"outputs/v{VERSION}/{mode}/{pin}/{fname}"):
+    if gcs_output_exists(mode, pin, fname):
         return RedirectResponse(url=f"/outputs/{mode}/{pin}/{fname}", status_code=status.HTTP_302_FOUND)
     # Check if the job is complete
     raw = redis_conn.hget("pin_job_map", f"{mode}:{pin}")
@@ -399,54 +434,60 @@ async def check_complete(request: Request, pin: str, mode: str, prior_year: int 
     return RedirectResponse(url=f"/processing?pin={pin}&n={n + 1}&mode={mode}&prior_year={prior_year}&status={job.get_status()}")
 
 
-def run_quarto(qmd_file: str, pin: str, prior_year: int, address: str, mode: str, output_root: str = None):
-    # Knitr reads the source file by name during execution, so concurrent renders
-    # of the same template would collide on ptaxsim_explainer.knit.md etc.
-    # We copy the source to a unique name per job; all relative paths ("data/...")
-    # still resolve correctly because the copy lives in the same directory.
-    # The copy and its _files/ build artifact are cleaned up in finally.
-    src_dir = os.path.abspath(os.path.dirname(qmd_file))
+def run_quarto(qmd_file: str, pin: str, prior_year: int, address: str, mode: str, output_root: str | None = None):
+    # Each render runs in its own subdir so Quarto's crossref INDEX is not shared
+    # (concurrent writes to .quarto/xref/INDEX corrupt it). Passing --output-dir
+    # would force Quarto into project mode which re-uses the shared INDEX, so we
+    # render to the subdir and upload the output to GCS after. QUARTO_CROSSREF_INDEX_PATH
+    # gives each render a unique xref index; PTAX_PROJECT_ROOT lets the QMD's
+    # setup chunk setwd()/opts_knit$set(root.dir=...) back to the project root
+    # so relative "data/..." paths resolve.
+    # output_root is legacy (previously pointed at NAS); all rendered HTML now
+    # lives in GCS, so the param is accepted but ignored.
+    del output_root
+    project_root = os.path.abspath(os.path.dirname(qmd_file))
     ext = os.path.splitext(qmd_file)[1]
     job_stem = f"_job_{mode}_{pin}"
-    job_qmd = os.path.join(src_dir, f"{job_stem}{ext}")
-    files_dir = os.path.join(src_dir, f"{job_stem}_files")
-    if output_root:
-        output_dir = os.path.join(output_root, f"v{VERSION}", mode, pin)
-    else:
-        output_dir = os.path.abspath(f"outputs/v{VERSION}/{mode}/{pin}")
-    os.makedirs(output_dir, exist_ok=True)
+    job_dir = os.path.join(project_root, "_jobs", f"{mode}_{pin}")
+    job_qmd = os.path.join(job_dir, f"{job_stem}{ext}")
+    fname = output_filename(mode, pin, prior_year)
+    job_html = os.path.join(job_dir, fname)
+
+    shutil.rmtree(job_dir, ignore_errors=True)
+    os.makedirs(job_dir, exist_ok=True)
     try:
         shutil.copy2(qmd_file, job_qmd)
+        # renv's activate.R uses a relative path; write a thin .Rprofile here
+        # that sources the project's activate.R via absolute path.
+        with open(os.path.join(job_dir, ".Rprofile"), "w") as f:
+            f.write(f'source({os.path.join(project_root, "renv/activate.R")!r})\n')
+        env = os.environ.copy()
+        env["QUARTO_CROSSREF_INDEX_PATH"] = os.path.join(job_dir, "xref.json")
+        env["PTAX_PROJECT_ROOT"] = project_root
+        env["RENV_PROJECT"] = project_root
         result = subprocess.run(
             [
-                "quarto",
-                "render",
-                job_qmd,
-                "--to",
-                "html",
+                "quarto", "render", os.path.basename(job_qmd),
+                "--to", "html",
                 "--no-clean",
-                "--output",
-                output_filename(mode, pin, prior_year),
-                "--output-dir",
-                output_dir,
-                "--execute-param",
-                "current_year=2024",
-                "--execute-param",
-                f"prior_year={prior_year}",
-                "--execute-param",
-                f"pin_14={pin}",
-                "--execute-param",
-                f"address={address}",
+                "--output", fname,
+                "--execute-param", "current_year=2024",
+                "--execute-param", f"prior_year={prior_year}",
+                "--execute-param", f"pin_14={pin}",
+                "--execute-param", f"address={address}",
             ],
             check=True,
             capture_output=True,
             text=True,
+            env=env,
+            cwd=job_dir,
+        )
+        _bucket.blob(gcs_blob_name(mode, pin, fname)).upload_from_filename(
+            job_html, content_type="text/html"
         )
         return {"stdout": result.stdout, "stderr": result.stderr, "returncode": result.returncode}
     except subprocess.CalledProcessError as e:
         print(f"Error: {e.stderr}")
         raise e
     finally:
-        if os.path.exists(job_qmd):
-            os.remove(job_qmd)
-        shutil.rmtree(files_dir, ignore_errors=True)
+        shutil.rmtree(job_dir, ignore_errors=True)

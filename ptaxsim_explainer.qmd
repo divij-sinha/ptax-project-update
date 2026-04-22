@@ -28,6 +28,11 @@ params:
 ---
 
 ```{r setup, include=FALSE, cache=FALSE}
+.ptax_root <- Sys.getenv("PTAX_PROJECT_ROOT")
+if (nzchar(.ptax_root)) {
+    setwd(.ptax_root)
+    knitr::opts_knit$set(root.dir = .ptax_root)
+}
 options(tigris_use_cache = TRUE)
 options(bitmapType = "cairo")
 library(scales)
@@ -51,7 +56,7 @@ source("helper_funcs.R")
 # set the following variables and run
 db_path <- "data/ptaxsim-2024.0.0-alpha.1.db"
 
-pin_14 <- params$pin_14
+pin_14 <- format(params$pin_14, scientific = FALSE, trim = TRUE)
 pin_14 <- str_pad(pin_14, width = 14, pad = "0", side = "left")
 current_year <- params$current_year
 prior_year <- params$prior_year
@@ -694,11 +699,13 @@ Your total tax bill is the result of the taxes you pay to each of these jurisdic
 # find max of value of assign text based on that
 max_val = max(abs(change_from_levy), abs(total_exe_incident), abs(total_eav_res_share_incident), abs(total_res_com_share_incident))
 
-if (max_val == abs(change_from_levy)) {
+if (is.na(max_val) || max_val == 0) {
+    biggest_change = "various factors"
+} else if (!is.na(change_from_levy) && max_val == abs(change_from_levy)) {
     biggest_change =  "the taxing districts' levies changing"
-} else if (max_val == abs(total_exe_incident)) {
+} else if (!is.na(total_exe_incident) && max_val == abs(total_exe_incident)) {
     biggest_change = "your property's exemptions changing"
-} else if (max_val == abs(total_eav_res_share_incident)) {
+} else if (!is.na(total_eav_res_share_incident) && max_val == abs(total_eav_res_share_incident)) {
     biggest_change = "your property's share of all residential properties changing"
 } else {
     biggest_change = "the burden of taxes between commercial and residential properties changed"
