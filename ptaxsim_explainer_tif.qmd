@@ -21,7 +21,7 @@ params:
     value: 2023
   pin_14:
     label: PIN
-    value: '29161290880000'
+    value: '16104010240000'
     input: text
   address:
     label: Address
@@ -680,7 +680,8 @@ original_tbl <- lookuptbl %>%
 ```{r eliminate your tifs - levies rise, results='asis', echo=FALSE, eval=is_in_tif}
 if (length(tif_number) > 0) {
   cat('<h3 style="color:#1F77B4;">Scenario 1</h3>')
-  tif_bill_sine_urtif <- Rem_One(current_year, pin_14, tif_number)
+  tif_bill_sine_urtif <- TIF_Remover(current_year, pin_14, to_rem = tif_number, levy_change = T)
+  
   
   diff <- sum(tif_bill_sine_urtif$final_tax) - sum(tax_bill_current$tax_amt_post_exe)
   direction <- ifelse(diff > 0, "an increase", "a decrease")
