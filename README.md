@@ -1,9 +1,6 @@
 # ptax-project-update
 
-__THIS REPO IS NOW INACTIVE, FOLLOW THE LINK BELOW FOR UP TO DATE REPO__  
-[https://github.com/dfsnow/ptax-project-update](https://github.com/dfsnow/ptax-project-update)
-
-v1.1
+v1.2
 
 ## Explainer
 

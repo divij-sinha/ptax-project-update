@@ -21,7 +21,7 @@ params:
     value: 2023
   pin_14:
     label: PIN
-    value: '14294070931001'
+    value: '17221100351039'
     input: text
   address:
     label: Address
@@ -63,7 +63,7 @@ source("maps.R")
 source("helper_funcs.R")
 
 # set the following variables and run
-db_path <- "data/ptaxsim-2024.0.0-alpha.1.db"
+db_path <- "data/ptaxsim-2024.0.0-alpha.2.db"
 
 # example pins - defaults
 # pin_14 <- "20114070180000" # Hyde Park, Chicago
@@ -88,6 +88,18 @@ address <- ''
 
 ptaxsim_db_conn <- dbConnect(SQLite(), db_path, flags = RSQLite::SQLITE_RO)
 tax_bases_res_com_share <- readRDS("data/tax_bases_res_com_share.rds")
+
+lookup_tif_wrapper <- function(current_year, pin_14, tax_code_vec){
+  #in 2024 ptaxsim updates the lookup_tif to be lookup_pin_tif
+  #for 2023 and prior year lookups, the legacy lookup_tif should be used
+  #this is hacky but then everytime we call lookup_tif we need to supply both pin_14 and tax_code_vec
+  if(current_year >= 2024){
+    return(lookup_pin_tif(current_year, pin_14))
+  } else {
+    return(lookup_tif(current_year, tax_code_vec))
+  }
+}
+
 ```
 
 ```{r func-define}
@@ -101,22 +113,30 @@ Rem_One <- function(current_year, pin_14, to_rem) {
     ",
     .con = ptaxsim_db_conn))
   
-  tif_dt_cntr <- lookup_tif(
-    current_year,
-    lookup_tax_code(current_year, cook_pins$pin)
-  ) %>%
+  tif_dt_cntr <- lookup_tif_wrapper(current_year, cook_pins$pin, lookup_tax_code(current_year, cook_pins$pin)) %>%
     mutate(tif_share = ifelse(agency_num == to_rem, 0, tif_share))
   
   tif_agency_cntr_updated <- readRDS("data/Agency_Sine_Unus_TIF_claude_2024.rds") %>%
     filter(TIF == to_rem) %>%
     select(-TIF) %>%
     setDT(key = c("year", "tax_code", "agency_num"))
-  tif_bill_cntr <- (tax_bill(
+  
+  if(current_year >= 2024){
+    tif_bill_cntr <- tax_bill(
+    year_vec = current_year,
+    pin_vec = pin_14,
+    agency_dt = tif_agency_cntr_updated,
+    pin_tif_dt = tif_dt_cntr
+  )
+  } else {
+   tif_bill_cntr <- tax_bill(
     year_vec = current_year,
     pin_vec = pin_14,
     agency_dt = tif_agency_cntr_updated,
     tif_dt = tif_dt_cntr
-  ))}
+  )
+  }
+}
 
 Rem_All <- function(current_year, pin_14, levy_change) {
   tif_agency_cntr_updated <- if(levy_change) {
@@ -126,12 +146,22 @@ Rem_All <- function(current_year, pin_14, levy_change) {
   }
   
   tif_dt_cntr <- readRDS("data/All_TIF_cntr_claude_2024.RDS")
-  tif_bill_cntr <- (tax_bill(
+  if(current_year >= 2024){
+    tif_bill_cntr <- tax_bill(
+    year_vec = current_year,
+    pin_vec = pin_14,
+    agency_dt = tif_agency_cntr_updated,
+    pin_tif_dt = tif_dt_cntr
+    )
+  } else {
+   tif_bill_cntr <- tax_bill(
     year_vec = current_year,
     pin_vec = pin_14,
     agency_dt = tif_agency_cntr_updated,
     tif_dt = tif_dt_cntr
-  ))}
+  )
+  }
+}
 
 TIF_Remover <- function(current_year, pin_14, to_rem, levy_change) {
   tif_dists <- DBI::dbGetQuery(
@@ -181,10 +211,7 @@ TIF_Remover <- function(current_year, pin_14, to_rem, levy_change) {
     .con = ptaxsim_db_conn
     ))
   
-  tif_dt_cntr <- lookup_tif(
-    current_year,
-    lookup_tax_code(current_year, cook_pins$pin)
-  ) %>%
+  tif_dt_cntr <- lookup_tif_wrapper(current_year, cook_pins$pin, lookup_tax_code(current_year, cook_pins$pin)) %>%
     mutate(tif_share = ifelse(agency_num == to_rem, 0, tif_share))
   
   tif_bills <- tax_bill(
@@ -222,13 +249,22 @@ TIF_Remover <- function(current_year, pin_14, to_rem, levy_change) {
       select(-amt_to_tif) %>%
       setDT(key = c("year", "tax_code", "agency_num"))
   }
-
-  tif_bill_cntr <- (tax_bill(
+  if(current_year >= 2024){
+   tif_bill_cntr <- tax_bill(
+    year_vec = current_year,
+    pin_vec = pin_14,
+    agency_dt = tif_agency_cntr_updated,
+    pin_tif_dt = tif_dt_cntr
+  )
+  } else {
+    tif_bill_cntr <- tax_bill(
     year_vec = current_year,
     pin_vec = pin_14,
     agency_dt = tif_agency_cntr_updated,
     tif_dt = tif_dt_cntr
-  ))}
+  )
+  }
+}
 ```
 
 ::: {.column-margin}
@@ -240,7 +276,7 @@ tax_bill_current <- tax_bill(
     simplify = F
 ) %>% process_tax_bill()
 
-tif_data <- lookup_tif(current_year, tax_bill_current$tax_code)
+tif_data <- lookup_tif_wrapper(current_year, pin_14, tax_bill_current$tax_code)
 tif_name <- tif_data$agency_name
 # tif_name <- str_to_title(tif_name) |> 
 #   str_replace("^Tif", "TIF")
@@ -532,7 +568,7 @@ lookuptbl %>%
 pie_data <- lookuptbl %>%
   select(District = agency_name, Amount_Owed = to_non_tif) %>%
   bind_rows(
-    tibble(District = "TIF", Amount_Owed = sum(lookuptbl$to_tif, na.rm = TRUE))
+    tibble(District = tif_name, Amount_Owed = sum(lookuptbl$to_tif, na.rm = TRUE))
   ) %>%
   filter(Amount_Owed > 0)
 
@@ -639,57 +675,57 @@ original_tbl <- lookuptbl %>%
 
 if (length(tif_number) > 0) {
   cat('<h3 style="color:#1F77B4;">Scenario 1</h3>')
-tif_bill_sine_urtif <- Rem_One(current_year, pin_14, tif_number)
-
-diff <- sum(tif_bill_sine_urtif$final_tax) - sum(tax_bill_current$tax_amt_post_exe)
-direction <- ifelse(diff > 0, "an increase", "a decrease")
-
-cat(glue(
-  "What would happen if the TIF **you are in was eliminated** and taxing agencies **raised their levies** to capture the revenue?  
-  Your new bill would be {as.character(currency(sum(tif_bill_sine_urtif$final_tax)))} instead of {as.character(currency(sum(tax_bill_current$tax_amt_post_exe)))} —  
-  **{direction} of {as.character(currency(abs(diff)))}**."
-))
-
-lookuptbl2 <- tif_bill_sine_urtif
-lookuptbl2 <- lookuptbl2 %>%
-  mutate(
-    agency_name = ifelse(
-      grepl("^TIF\\b", agency_name, ignore.case = TRUE),
-      sub("^TIF", "TIF", stringr::str_to_title(agency_name), ignore.case = TRUE),
-      stringr::str_to_title(agency_name)
+  tif_bill_sine_urtif <- Rem_One(current_year, pin_14, tif_number)
+  
+  diff <- sum(tif_bill_sine_urtif$final_tax) - sum(tax_bill_current$tax_amt_post_exe)
+  direction <- ifelse(diff > 0, "an increase", "a decrease")
+  
+  cat(glue(
+    "What would happen if the TIF **you are in was eliminated** and taxing agencies **raised their levies** to capture the revenue?  
+    Your new bill would be {as.character(currency(sum(tif_bill_sine_urtif$final_tax)))} instead of {as.character(currency(sum(tax_bill_current$tax_amt_post_exe)))} —  
+    **{direction} of {as.character(currency(abs(diff)))}**."
+  ))
+  
+  lookuptbl2 <- tif_bill_sine_urtif
+  lookuptbl2 <- lookuptbl2 %>%
+    mutate(
+      agency_name = ifelse(
+        grepl("^TIF\\b", agency_name, ignore.case = TRUE),
+        sub("^TIF", "TIF", stringr::str_to_title(agency_name), ignore.case = TRUE),
+        stringr::str_to_title(agency_name)
+      )
     )
-  )
-
-# lookuptbl2 %>%
-#   select(
-#     District = agency_name,
-#     `Amount Owed` = final_tax,
-#   ) %>%
-#   gt() %>%
-#   data_color(
-#     columns = c("District"),
-#     colors = css_colors,
-#     autocolor_text = FALSE
-#   ) %>%
-#   fmt_currency(columns = c("Amount Owed"))
-
-df1 <- lookuptbl2 %>%
-  select(District = agency_name, `Tax (w/o TIF)` = final_tax)
-
-combined_tbl1 <- full_join(df1, original_tbl, by = "District")
-
-combined_tbl1 %>%
-  mutate(across(
-    c(`Original Tax Bill`, `Tax (w/o TIF)`),
-    ~replace_na(., 0)
-  )) %>%
-  gt() %>%
-  data_color(
-    columns = c("District"),
-    colors = css_colors,
-    autocolor_text = FALSE
-  ) %>%
-  fmt_currency(columns = c("Tax (w/o TIF)", "Original Tax Bill"))
+  
+  # lookuptbl2 %>%
+  #   select(
+  #     District = agency_name,
+  #     `Amount Owed` = final_tax,
+  #   ) %>%
+  #   gt() %>%
+  #   data_color(
+  #     columns = c("District"),
+  #     colors = css_colors,
+  #     autocolor_text = FALSE
+  #   ) %>%
+  #   fmt_currency(columns = c("Amount Owed"))
+  
+  df1 <- lookuptbl2 %>%
+    select(District = agency_name, `Tax (w/o TIF)` = final_tax)
+  
+  combined_tbl1 <- full_join(df1, original_tbl, by = "District")
+  
+  combined_tbl1 %>%
+    mutate(across(
+      c(`Original Tax Bill`, `Tax (w/o TIF)`),
+      ~replace_na(., 0)
+    )) %>%
+    gt() %>%
+    data_color(
+      columns = c("District"),
+      colors = css_colors,
+      autocolor_text = FALSE
+    ) %>%
+    fmt_currency(columns = c("Tax (w/o TIF)", "Original Tax Bill"))
 }
 ```
 

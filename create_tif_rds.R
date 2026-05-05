@@ -22,7 +22,7 @@ library(ptaxsim)
 # ── Config ────────────────────────────────────────────────────────────────────
 
 current_year <- 2024
-db_path      <- "data/ptaxsim-2024.0.0-alpha.1.db"
+db_path      <- "data/ptaxsim-2024.0.0-alpha.2.db"
 out_dir      <- "data"
 
 # ── Connect ───────────────────────────────────────────────────────────────────
@@ -134,11 +134,34 @@ compute_levy_deltas <- function(tif_dists) {
 
 # ── 1. All_TIF_cntr.RDS ───────────────────────────────────────────────────────
 # tif_dt with every tif_share set to 0 (no TIF district collects increment)
+#now this is by pin in 2024
 
 message("Building All_TIF_cntr_claude.RDS...")
-all_tif_cntr <- lookup_tif(current_year, cook_tax_codes) %>%
-  mutate(tif_share = 0) %>%
-  setDT(key = c("year", "tax_code", "agency_num"))
+
+lookup_tif_wrapper <- function(current_year, pin_14, tax_code_vec){
+  #in 2024 ptaxsim updates the lookup_tif to be lookup_pin_tif
+  #for 2023 and prior year lookups, the legacy lookup_tif should be used
+  #this is hacky but then everytime we call lookup_tif we need to supply both pin_14 and tax_code_vec
+  
+  if(current_year >= 2024){
+    return(lookup_pin_tif(current_year, pin_14))
+  } else {
+    return(lookup_tif(current_year, tax_code_vec))
+  }
+}
+
+all_tif_cntr <- lookup_tif_wrapper(current_year, cook_pins, cook_tax_codes) %>%
+  mutate(tif_share = 0) 
+
+if(current_year >= 2024){
+  all_tif_cntr <- all_tif_cntr %>%
+    setDT(key = c("year", "pin", "agency_num"))
+} else {
+  all_tif_cntr <- all_tif_cntr %>%
+    setDT(key = c("year", "tax_code", "agency_num"))
+}
+
+
 
 saveRDS(all_tif_cntr, file.path(out_dir, "All_TIF_cntr_claude_2024.RDS"))
 message("  Saved All_TIF_cntr_claude.RDS")
@@ -245,3 +268,4 @@ message("  Saved TIF_Deltas_claude_2024.rds")
 
 DBI::dbDisconnect(ptaxsim_db_conn)
 message("Done.")
+

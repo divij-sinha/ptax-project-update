@@ -20,3 +20,4 @@ ptaxsim*html
 **/*.quarto_ipynb
 _job_*/
 _job_*.*
+.Rproj.user
