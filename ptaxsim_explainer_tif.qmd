@@ -21,7 +21,7 @@ params:
     value: 2023
   pin_14:
     label: PIN
-    value: '17221100351039'
+    value: '29161290880000'
     input: text
   address:
     label: Address
@@ -666,13 +666,18 @@ original_tbl <- lookuptbl %>%
       'District' = tif_name,
       `Original Tax Bill` = sum(lookuptbl$to_tif, na.rm = TRUE)
     )
-  )
+  ) %>%
+    mutate(
+      District = ifelse(
+        grepl("^TIF\\b", District, ignore.case = TRUE),
+        sub("^TIF", "TIF", stringr::str_to_title(District), ignore.case = TRUE),
+        stringr::str_to_title(District)
+      )
+    )
 ```
 
 
 ```{r eliminate your tifs - levies rise, results='asis', echo=FALSE, eval=is_in_tif}
-
-
 if (length(tif_number) > 0) {
   cat('<h3 style="color:#1F77B4;">Scenario 1</h3>')
   tif_bill_sine_urtif <- Rem_One(current_year, pin_14, tif_number)
@@ -862,7 +867,14 @@ cat(glue(
   Your new property tax bill would be {as.character(currency(sum(tif_bill_sine_alltif_nlevy$final_tax)))}, representing **{direction} of {as.character(currency(abs(diff)))}** compared to your current bill of {as.character(currency(sum(tax_bill_current$tax_amt_post_exe)))}."
 ))
 
-lookuptbl4 <- tif_bill_sine_alltif_nlevy
+lookuptbl4 <- tif_bill_sine_alltif_nlevy %>%
+  mutate(
+    agency_name = ifelse(
+      grepl("^TIF\\b", agency_name, ignore.case = TRUE),
+      sub("^TIF", "TIF", stringr::str_to_title(agency_name), ignore.case = TRUE),
+      stringr::str_to_title(agency_name)
+    )
+  )
 lookuptbl4 <- lookuptbl4 %>%
   mutate(
     agency_name = ifelse(
