@@ -22,7 +22,7 @@ library(ptaxsim)
 # ── Config ────────────────────────────────────────────────────────────────────
 
 current_year <- 2024
-db_path      <- "data/ptaxsim-2024.0.0-alpha.2.db"
+db_path      <- "data/ptaxsim-2024.0.0.db"
 out_dir      <- "data"
 
 # ── Connect ───────────────────────────────────────────────────────────────────

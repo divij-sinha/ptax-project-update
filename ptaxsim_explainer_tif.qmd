@@ -63,7 +63,7 @@ source("maps.R")
 source("helper_funcs.R")
 
 # set the following variables and run
-db_path <- "data/ptaxsim-2024.0.0-alpha.2.db"
+db_path <- "data/ptaxsim-2024.0.0.db"
 
 # example pins - defaults
 # pin_14 <- "20114070180000" # Hyde Park, Chicago

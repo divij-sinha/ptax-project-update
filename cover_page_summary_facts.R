@@ -2,7 +2,7 @@
 
 
 current_year <- 2024
-db_path <- "data/ptaxsim-2024.0.0-alpha.2.db"
+db_path <- "data/ptaxsim-2024.0.0.db"
 ptaxsim_db_conn <- dbConnect(SQLite(), db_path, flags = RSQLite::SQLITE_RO)
 
 cook_pins <- DBI::dbGetQuery(
