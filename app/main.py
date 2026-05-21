@@ -1,4 +1,5 @@
 import glob
+import mimetypes
 import os
 import re
 import shutil
@@ -9,14 +10,24 @@ from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-import mimetypes
-
 import polars as pl
 import usaddress
 from dotenv import load_dotenv
 from email_validator import EmailNotValidError, validate_email
-from fastapi import BackgroundTasks, FastAPI, Form, HTTPException, Request, status
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
+from fastapi import (
+    BackgroundTasks,
+    FastAPI,
+    Form,
+    HTTPException,
+    Request,
+    status,
+)
+from fastapi.responses import (
+    HTMLResponse,
+    JSONResponse,
+    RedirectResponse,
+    Response,
+)
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from google.cloud import storage
@@ -27,7 +38,7 @@ from rq import Queue
 load_dotenv()
 
 MODE = "TIF"  # default mode, can be changed to "PTAX" for explainer
-VERSION = "2.3"
+VERSION = "2.4"
 
 # Rendered HTML lives in GCS; the local outputs/ directory is a transient
 # staging area only (render_quarto writes there, uploads, then deletes).
@@ -69,7 +80,7 @@ def _get_address_df() -> pl.DataFrame:
 
 
 # SQLite connection opened once per process in read-only mode with a warm page cache
-_DB_PATH = os.path.join(os.path.dirname(__file__), "../data/ptaxsim-2024.0.0-alpha.1.db")
+_DB_PATH = os.path.join(os.path.dirname(__file__), "../data/ptaxsim-2024.0.0.db")
 _db_conn: sqlite3.Connection | None = None
 
 

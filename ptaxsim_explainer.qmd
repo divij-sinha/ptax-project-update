@@ -54,7 +54,7 @@ library(svglite)
 source("helper_funcs.R")
 
 # set the following variables and run
-db_path <- "data/ptaxsim-2024.0.0-alpha.1.db"
+db_path <- "data/ptaxsim-2024.0.0.db"
 
 pin_14 <- format(params$pin_14, scientific = FALSE, trim = TRUE)
 pin_14 <- str_pad(pin_14, width = 14, pad = "0", side = "left")
@@ -716,7 +716,7 @@ if (is.na(max_val) || max_val == 0) {
 
 Your tax bill is determined primarily by two key factors, which are represented in the figure below. First is the assessors' estimate of your property value, which is based on an analysis of other similar homes that have sold recently. Second is the amount of property taxes charged by the taxing jurisdictions that your property is within, known as the levy. Most properties to belong to multiple taxing jurisdictions, such as a county, city, and school district, and pay a separate tax to each one. 
 
-![Tax Bill Calculation](figures/tax_bill_fig.png){fig-align="center"}
+![Tax Bill Calculation](/assets/tax_bill_fig.png){fig-align="center"}
 
 Property tax bills are calculated based on the [**Tax Levy**]{style="color: #E9AA01;"}  and the value of your property. First, the government determines the [**Tax Levy**]{style="color: #E9AA01;"}, or the total amount of taxes imposed by the government. This levy is then divided among all property owners in the area. Your share of this levy depends on [**how much your property is worth compared to the total value of all properties**]{style="color: #011E56"}.
 
