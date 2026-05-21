@@ -157,9 +157,17 @@ prior_year_agency <- lookup_agency(year = prior_year, tax_code = lookup_tax_code
 
 ## 2024 update for agencies
 if (current_year >= 2024 && prior_year <= 2023) {
-    agency_changed_names <- dbGetQuery(ptaxsim_db_conn, "SELECT * FROM agency_info where agency_change_24 = 1") %>%
+    agency_changed_names <- dbGetQuery(ptaxsim_db_conn, "
+        SELECT c.agency_num,
+               ai_old.agency_name      AS agency_name,
+               c.agency_num_final      AS agency_num_24,
+               ai_new.agency_name      AS agency_name_24
+        FROM agency_crosswalk c
+        LEFT JOIN agency_info ai_old ON ai_old.agency_num = c.agency_num
+        LEFT JOIN agency_info ai_new ON ai_new.agency_num = c.agency_num_final
+        WHERE c.year_of_change = 2024") %>%
     select(agency_num, agency_name, agency_name_24, agency_num_24) %>%
-    filter(agency_num_24 %in% current_year_agency$agency_num) 
+    filter(agency_num_24 %in% current_year_agency$agency_num)
 }
 
 # calculate tax bill if you kept assessment and tax base constant
