@@ -9,6 +9,7 @@ import subprocess
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from pathlib import Path
 
 import polars as pl
 import usaddress
@@ -71,16 +72,19 @@ print(f"Redis connection established: {redis_conn}")
 # Address CSV loaded once at startup — only the columns needed for lookup/search
 _ADDRESS_DF: pl.DataFrame | None = None
 
+DATA_DIR = (
+    Path(os.path.dirname(__file__)).parent / "data"
+).resolve() 
 
 def _get_address_df() -> pl.DataFrame:
     global _ADDRESS_DF
     if _ADDRESS_DF is None:
-        _ADDRESS_DF = pl.read_parquet("data/address_points.parquet")
+        _ADDRESS_DF = pl.read_parquet(DATA_DIR / "address_points.parquet")
     return _ADDRESS_DF
 
 
 # SQLite connection opened once per process in read-only mode with a warm page cache
-_DB_PATH = os.path.join(os.path.dirname(__file__), "../data/ptaxsim-2024.0.0.db")
+_DB_PATH = DATA_DIR / "ptaxsim-2024.0.0.db"
 _db_conn: sqlite3.Connection | None = None
 
 
