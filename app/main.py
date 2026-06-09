@@ -345,7 +345,7 @@ async def handle_pin(
     request: Request,
     search_category: str = Form(...),
     search_term: str = Form(...),
-    search_term_hidden: str = Form(...),
+    search_term_hidden: str = Form(""),
     mode: str = Form(...),
 ):
     """Handle PIN input and render the QMD file."""
