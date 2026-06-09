@@ -124,18 +124,18 @@ def serve_output(full_path: str):
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     """Render the homepage."""
-    return templates.TemplateResponse("index.html", {"request": request, "title": "Property Tax Explainer"})
+    return templates.TemplateResponse(request=request, name="index.html", context={"title": "Property Tax Explainer"})
 
 
 @app.get("/mode/{mode}", response_class=HTMLResponse)
 async def read_root_mode(request: Request, mode: str):
     """Render the homepage."""
     if mode.upper() == "PTAX":
-        return templates.TemplateResponse("index_ptax.html", {"request": request, "title": "Property Tax Explainer"})
+        return templates.TemplateResponse(request=request, name="index_ptax.html", context={"title": "Property Tax Explainer"})
     elif mode.upper() == "TIF":
-        return templates.TemplateResponse("index_tif.html", {"request": request, "title": "TIF Explainer"})
+        return templates.TemplateResponse(request=request, name="index_tif.html", context={"title": "TIF Explainer"})
     else:
-        return templates.TemplateResponse("index.html", {"request": request, "title": "Property Tax & TIF Explainer"})
+        return templates.TemplateResponse(request=request, name="index.html", context={"title": "Property Tax & TIF Explainer"})
 
 
 @app.post("/email", response_class=HTMLResponse)
@@ -256,13 +256,15 @@ async def search_db(request: Request, given_pin: str, prior_year: int, address: 
         pins = set([r[1] for r in res])
         if len(pins) > 0:
             return templates.TemplateResponse(
-                "choose_pin.html",
-                {"request": request, "pins": pins, "given_pin": given_pin, "prior_year": prior_year, "mode": mode},
+                request=request,
+                name="choose_pin.html",
+                context={"pins": pins, "given_pin": given_pin, "prior_year": prior_year, "mode": mode},
             )
         else:
             return templates.TemplateResponse(
-                "message.html",
-                {"request": request, "message": f"Error: PIN or Address Not Found in Database - {given_pin}"},
+                request=request,
+                name="message.html",
+                context={"message": f"Error: PIN or Address Not Found in Database - {given_pin}"},
                 status_code=404,
             )
 
@@ -327,8 +329,9 @@ async def render_doc(
 
     except subprocess.CalledProcessError as e:
         return templates.TemplateResponse(
-            "message.html",
-            {"request": request, "message": "Error rendering the QMD file - " + e.stderr},
+            request=request,
+            name="message.html",
+            context={"message": "Error rendering the QMD file - " + e.stderr},
             status_code=500,
         )
 
@@ -372,16 +375,18 @@ async def handle_pin(
         else:
             wrong_pin = search_term
             return templates.TemplateResponse(
-                "message.html",
-                {"request": request, "message": f"Error: Invalid PIN or Address - {wrong_pin}"},
+                request=request,
+                name="message.html",
+                context={"message": f"Error: Invalid PIN or Address - {wrong_pin}"},
                 status_code=400,
             )
 
     else:
         wrong_pin = search_term
         return templates.TemplateResponse(
-            "message.html",
-            {"request": request, "message": f"Error: Invalid PIN or Address - {wrong_pin}"},
+            request=request,
+            name="message.html",
+            context={"message": f"Error: Invalid PIN or Address - {wrong_pin}"},
             status_code=400,
         )
 
@@ -412,7 +417,7 @@ async def handle_pin(
 @app.get("/processing")
 async def processing_page(request: Request, pin: str, mode: str, prior_year: int = 2023, n: int = 1, status: str = ""):
     # Render a template that shows "processing" and auto-refreshes
-    return templates.TemplateResponse("processing.html", {"request": request, "pin": pin, "n": n, "mode": mode, "prior_year": prior_year})
+    return templates.TemplateResponse(request=request, name="processing.html", context={"pin": pin, "n": n, "mode": mode, "prior_year": prior_year})
 
 
 @app.get("/check_complete")
@@ -424,8 +429,9 @@ async def check_complete(request: Request, pin: str, mode: str, prior_year: int 
     raw = redis_conn.hget("pin_job_map", f"{mode}:{pin}")
     if not raw:
         return templates.TemplateResponse(
-            "message.html",
-            {"request": request, "message": f"Error: Error processing PIN {pin}! Please try again, error reported to admin."},
+            request=request,
+            name="message.html",
+            context={"message": f"Error: Error processing PIN {pin}! Please try again, error reported to admin."},
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
     job_id = raw.decode("utf-8")
@@ -438,8 +444,9 @@ async def check_complete(request: Request, pin: str, mode: str, prior_year: int 
         with open("error_log.txt", "a") as f:
             f.write(f"Error processing PIN {pin} after 10 attempts.\n")
         return templates.TemplateResponse(
-            "message.html",
-            {"request": request, "message": f"Error: Error processing PIN {pin}! Please try again, error reported to admin."},
+            request=request,
+            name="message.html",
+            context={"message": f"Error: Error processing PIN {pin}! Please try again, error reported to admin."},
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
     return RedirectResponse(url=f"/processing?pin={pin}&n={n + 1}&mode={mode}&prior_year={prior_year}&status={job.get_status()}")
