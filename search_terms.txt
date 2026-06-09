@@ -1,3 +1,0 @@
-145125, last_assessment_year
-1123 CHERRYWOOD DRIVE, last_assessment_year
-1123 cherrywood, last_assessment_year
