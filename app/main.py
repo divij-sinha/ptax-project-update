@@ -39,7 +39,7 @@ from rq import Queue
 load_dotenv(".env")
 
 MODE = "TIF"  # default mode, can be changed to "PTAX" for explainer
-VERSION = "2.4"
+VERSION = "2.5"
 
 # Rendered HTML lives in GCS; the local outputs/ directory is a transient
 # staging area only (render_quarto writes there, uploads, then deletes).
@@ -63,6 +63,7 @@ def gcs_blob_name(mode: str, pin: str, fname: str) -> str:
 def gcs_output_exists(mode: str, pin: str, fname: str) -> bool:
     return _bucket.blob(gcs_blob_name(mode, pin, fname)).exists()
 
+
 redis_conn = Redis()
 queue = Queue(connection=redis_conn)
 print(f"Redis connection established: {redis_conn}")
@@ -70,15 +71,15 @@ print(f"Redis connection established: {redis_conn}")
 # Address CSV loaded once at startup — only the columns needed for lookup/search
 _ADDRESS_DF: pl.DataFrame | None = None
 
-DATA_DIR = (
-    Path(os.path.dirname(__file__)).parent / "data"
-).resolve()
+DATA_DIR = (Path(os.path.dirname(__file__)).parent / "data").resolve()
+
 
 def _get_address_df() -> pl.DataFrame:
     global _ADDRESS_DF
     if _ADDRESS_DF is None:
         _ADDRESS_DF = pl.read_parquet(DATA_DIR / "address_points.parquet")
     return _ADDRESS_DF
+
 
 # SQLite connection opened once per process in read-only mode with a warm page cache
 _DB_PATH = DATA_DIR / "ptaxsim-2024.0.0.db"
@@ -88,10 +89,13 @@ _db_conn: sqlite3.Connection | None = None
 def get_db() -> sqlite3.Connection:
     global _db_conn
     if _db_conn is None:
-        _db_conn = sqlite3.connect(f"file:{_DB_PATH}?mode=ro", uri=True, check_same_thread=False)
+        _db_conn = sqlite3.connect(
+            f"file:{_DB_PATH}?mode=ro", uri=True, check_same_thread=False
+        )
         _db_conn.execute("PRAGMA cache_size = -65536")  # 64 MB page cache
         _db_conn.execute("PRAGMA temp_store = MEMORY")
     return _db_conn
+
 
 app = FastAPI()
 
@@ -114,7 +118,9 @@ def serve_output(full_path: str):
         data = blob.download_as_bytes()
     except NotFound:
         raise HTTPException(status_code=404)
-    media_type = mimetypes.guess_type(full_path)[0] or "application/octet-stream"
+    media_type = (
+        mimetypes.guess_type(full_path)[0] or "application/octet-stream"
+    )
     return Response(
         content=data,
         media_type=media_type,
@@ -125,18 +131,34 @@ def serve_output(full_path: str):
 @app.get("/", response_class=HTMLResponse)
 async def read_root(request: Request):
     """Render the homepage."""
-    return templates.TemplateResponse(request=request, name="index.html", context={"title": "Property Tax Explainer"})
+    return templates.TemplateResponse(
+        request=request,
+        name="index.html",
+        context={"title": "Property Tax Explainer"},
+    )
 
 
 @app.get("/mode/{mode}", response_class=HTMLResponse)
 async def read_root_mode(request: Request, mode: str):
     """Render the homepage."""
     if mode.upper() == "PTAX":
-        return templates.TemplateResponse(request=request, name="index_ptax.html", context={"title": "Property Tax Explainer"})
+        return templates.TemplateResponse(
+            request=request,
+            name="index_ptax.html",
+            context={"title": "Property Tax Explainer"},
+        )
     elif mode.upper() == "TIF":
-        return templates.TemplateResponse(request=request, name="index_tif.html", context={"title": "TIF Explainer"})
+        return templates.TemplateResponse(
+            request=request,
+            name="index_tif.html",
+            context={"title": "TIF Explainer"},
+        )
     else:
-        return templates.TemplateResponse(request=request, name="index.html", context={"title": "Property Tax & TIF Explainer"})
+        return templates.TemplateResponse(
+            request=request,
+            name="index.html",
+            context={"title": "Property Tax & TIF Explainer"},
+        )
 
 
 @app.post("/email", response_class=HTMLResponse)
@@ -174,11 +196,17 @@ async def handle_email(request: Request):
             message.attach(body_part)
 
             with open(path_to_file, "rb") as file:
-                message.attach(MIMEApplication(file.read(), Name="tax_explainer_report.html"))
+                message.attach(
+                    MIMEApplication(
+                        file.read(), Name="tax_explainer_report.html"
+                    )
+                )
 
             with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
                 server.login(sender_email, sender_password)
-                server.sendmail(sender_email, recipient_email, message.as_string())
+                server.sendmail(
+                    sender_email, recipient_email, message.as_string()
+                )
 
             success_message = "Email sent successfully!"
 
@@ -196,14 +224,20 @@ def get_address_pin(pin: str):
     try:
         pin2 = pin[:-4] + "0000"  # condo addresses are for pin10
         df = _get_address_df()
-        filtered = df.filter(pl.col("PIN").is_in([pin, pin2])).select("PIN", "ADDRDELIV").to_dict(as_series=False)
+        filtered = (
+            df.filter(pl.col("PIN").is_in([pin, pin2]))
+            .select("PIN", "ADDRDELIV")
+            .to_dict(as_series=False)
+        )
         return filtered["ADDRDELIV"][0]
     except Exception as e:
         print(f"Error retrieving address for PIN {pin}: {e}")
         return "--NOT FOUND--"
 
 
-async def search_address(search_term: str = Form(...), exact_match: bool = False):
+async def search_address(
+    search_term: str = Form(...), exact_match: bool = False
+):
     parsed_address = {k: v.lower() for v, k in usaddress.parse(search_term)}
 
     filtered_df = _get_address_df().lazy()
@@ -219,31 +253,55 @@ async def search_address(search_term: str = Form(...), exact_match: bool = False
     for usaddress_field, pl_column in address_fields_mapping:
         if usaddress_field in parsed_address:
             if usaddress_field == "AddressNumber":
-                f_exact = pl.col(pl_column).str.to_lowercase().str.strip_chars() == parsed_address.get(usaddress_field)
+                f_exact = pl.col(
+                    pl_column
+                ).str.to_lowercase().str.strip_chars() == parsed_address.get(
+                    usaddress_field
+                )
                 f_inexact = f_exact
             else:
-                f_inexact = pl.col(pl_column).str.to_lowercase().str.contains(parsed_address.get(usaddress_field))
-                f_exact = pl.col(pl_column).str.to_lowercase().str.strip_chars() == parsed_address.get(usaddress_field)
+                f_inexact = (
+                    pl.col(pl_column)
+                    .str.to_lowercase()
+                    .str.contains(parsed_address.get(usaddress_field))
+                )
+                f_exact = pl.col(
+                    pl_column
+                ).str.to_lowercase().str.strip_chars() == parsed_address.get(
+                    usaddress_field
+                )
 
             f = False
-            filtered_df = filtered_df.filter(f_exact if exact_match else f_inexact)
+            filtered_df = filtered_df.filter(
+                f_exact if exact_match else f_inexact
+            )
 
     if f:
         return []
 
-    suggestions = filtered_df.select("ADDRDELIV", "PIN").rename({"ADDRDELIV": "key", "PIN": "value"}).head(5).collect().to_dicts()
+    suggestions = (
+        filtered_df.select("ADDRDELIV", "PIN")
+        .rename({"ADDRDELIV": "key", "PIN": "value"})
+        .head(5)
+        .collect()
+        .to_dicts()
+    )
 
     return suggestions
 
 
 @app.post("/address_suggestions")
-async def address_suggestions(request: Request, search_term: str = Form(...), exact_match: bool = False):
+async def address_suggestions(
+    request: Request, search_term: str = Form(...), exact_match: bool = False
+):
     suggestions = await search_address(search_term, exact_match)
     return JSONResponse(content=suggestions)
 
 
 @app.get("/searchdb", response_class=RedirectResponse)
-async def search_db(request: Request, given_pin: str, prior_year: int, address: str, mode: str):
+async def search_db(
+    request: Request, given_pin: str, prior_year: int, address: str, mode: str
+):
     """Search database."""
 
     con = get_db()
@@ -259,19 +317,27 @@ async def search_db(request: Request, given_pin: str, prior_year: int, address: 
             return templates.TemplateResponse(
                 request=request,
                 name="choose_pin.html",
-                context={"pins": pins, "given_pin": given_pin, "prior_year": prior_year, "mode": mode},
+                context={
+                    "pins": pins,
+                    "given_pin": given_pin,
+                    "prior_year": prior_year,
+                    "mode": mode,
+                },
             )
         else:
             return templates.TemplateResponse(
                 request=request,
                 name="message.html",
-                context={"message": f"Error: PIN or Address Not Found in Database - {given_pin}"},
+                context={
+                    "message": f"Error: PIN or Address Not Found in Database - {given_pin}"
+                },
                 status_code=404,
             )
 
     else:
         return RedirectResponse(
-            f"/renderdoc?pin={given_pin}&prior_year={prior_year}&address={address}&mode={mode}", status_code=status.HTTP_302_FOUND
+            f"/renderdoc?pin={given_pin}&prior_year={prior_year}&address={address}&mode={mode}",
+            status_code=status.HTTP_302_FOUND,
         )
 
 
@@ -286,9 +352,13 @@ async def render_doc(
 ):
     base_dir = os.path.dirname(__file__)  # Directory of the current script
     if mode == "TIF":
-        qmd_file = os.path.abspath(os.path.join(base_dir, "../ptaxsim_explainer_tif.qmd"))
+        qmd_file = os.path.abspath(
+            os.path.join(base_dir, "../ptaxsim_explainer_tif.qmd")
+        )
     elif mode == "PTAX":
-        qmd_file = os.path.abspath(os.path.join(base_dir, "../ptaxsim_explainer.qmd"))
+        qmd_file = os.path.abspath(
+            os.path.join(base_dir, "../ptaxsim_explainer.qmd")
+        )
     else:
         raise ValueError(f"Invalid mode: {mode}. Expected 'TIF' or 'PTAX'.")
     try:
@@ -308,9 +378,16 @@ async def render_doc(
         existing_id = redis_conn.hget("pin_job_map", job_map_key)
         if existing_id:
             existing_job = queue.fetch_job(existing_id.decode())
-            if existing_job and not existing_job.is_finished and not existing_job.is_failed:
+            if (
+                existing_job
+                and not existing_job.is_finished
+                and not existing_job.is_failed
+            ):
                 print(f"Reusing job {existing_job.id} for PIN {pin} ({mode}).")
-                return RedirectResponse(url=f"/processing?pin={pin}&mode={mode}&prior_year={prior_year}", status_code=status.HTTP_303_SEE_OTHER)
+                return RedirectResponse(
+                    url=f"/processing?pin={pin}&mode={mode}&prior_year={prior_year}",
+                    status_code=status.HTTP_303_SEE_OTHER,
+                )
 
         job = queue.enqueue(
             "app.main.run_quarto",
@@ -324,7 +401,10 @@ async def render_doc(
         redis_conn.hset("pin_job_map", job_map_key, job.id)
         print(f"Job ID {job.id} for PIN {pin} ({mode}) enqueued.")
 
-        response = RedirectResponse(url=f"/processing?pin={pin}&mode={mode}&prior_year={prior_year}", status_code=status.HTTP_303_SEE_OTHER)
+        response = RedirectResponse(
+            url=f"/processing?pin={pin}&mode={mode}&prior_year={prior_year}",
+            status_code=status.HTTP_303_SEE_OTHER,
+        )
         # print(response)
         return response
 
@@ -364,7 +444,10 @@ async def handle_pin(
         pin = search_term_parsed
         address = get_address_pin(pin)
 
-    elif search_term_hidden_parsed.isdigit() and len(search_term_hidden_parsed) == 14:
+    elif (
+        search_term_hidden_parsed.isdigit()
+        and len(search_term_hidden_parsed) == 14
+    ):
         pin = search_term_hidden_parsed
         address = search_term
 
@@ -378,7 +461,9 @@ async def handle_pin(
             return templates.TemplateResponse(
                 request=request,
                 name="message.html",
-                context={"message": f"Error: Invalid PIN or Address - {wrong_pin}"},
+                context={
+                    "message": f"Error: Invalid PIN or Address - {wrong_pin}"
+                },
                 status_code=400,
             )
 
@@ -400,11 +485,15 @@ async def handle_pin(
     fname = output_filename(mode, pin, prior_year)
     if gcs_output_exists(mode, pin, fname):
         # If the file already exists, redirect to it
-        return RedirectResponse(url=f"/outputs/{mode}/{pin}/{fname}", status_code=status.HTTP_302_FOUND)
+        return RedirectResponse(
+            url=f"/outputs/{mode}/{pin}/{fname}",
+            status_code=status.HTTP_302_FOUND,
+        )
 
     else:
         return RedirectResponse(
-            f"/searchdb?given_pin={pin}&prior_year={prior_year}&address={address}&mode={mode}", status_code=status.HTTP_302_FOUND
+            f"/searchdb?given_pin={pin}&prior_year={prior_year}&address={address}&mode={mode}",
+            status_code=status.HTTP_302_FOUND,
         )
         # return HTMLResponse(
         #     content=f"""
@@ -416,30 +505,51 @@ async def handle_pin(
 
 
 @app.get("/processing")
-async def processing_page(request: Request, pin: str, mode: str, prior_year: int = 2023, n: int = 1, status: str = ""):
+async def processing_page(
+    request: Request,
+    pin: str,
+    mode: str,
+    prior_year: int = 2023,
+    n: int = 1,
+    status: str = "",
+):
     # Render a template that shows "processing" and auto-refreshes
-    return templates.TemplateResponse(request=request, name="processing.html", context={"pin": pin, "n": n, "mode": mode, "prior_year": prior_year})
+    return templates.TemplateResponse(
+        request=request,
+        name="processing.html",
+        context={"pin": pin, "n": n, "mode": mode, "prior_year": prior_year},
+    )
 
 
 @app.get("/check_complete")
-async def check_complete(request: Request, pin: str, mode: str, prior_year: int = 2023, n: int = 1):
+async def check_complete(
+    request: Request, pin: str, mode: str, prior_year: int = 2023, n: int = 1
+):
     fname = output_filename(mode, pin, prior_year)
     if gcs_output_exists(mode, pin, fname):
-        return RedirectResponse(url=f"/outputs/{mode}/{pin}/{fname}", status_code=status.HTTP_302_FOUND)
+        return RedirectResponse(
+            url=f"/outputs/{mode}/{pin}/{fname}",
+            status_code=status.HTTP_302_FOUND,
+        )
     # Check if the job is complete
     raw = redis_conn.hget("pin_job_map", f"{mode}:{pin}")
     if not raw:
         return templates.TemplateResponse(
             request=request,
             name="message.html",
-            context={"message": f"Error: Error processing PIN {pin}! Please try again, error reported to admin."},
+            context={
+                "message": f"Error: Error processing PIN {pin}! Please try again, error reported to admin."
+            },
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
     job_id = raw.decode("utf-8")
     job = queue.fetch_job(job_id)
     if job.is_finished:
         # Job is finished, redirect to the output file
-        return RedirectResponse(url=f"/outputs/{mode}/{pin}/{fname}", status_code=status.HTTP_302_FOUND)
+        return RedirectResponse(
+            url=f"/outputs/{mode}/{pin}/{fname}",
+            status_code=status.HTTP_302_FOUND,
+        )
     # Check if output file exists or some other completion indicator
     if job.is_failed:
         with open("error_log.txt", "a") as f:
@@ -447,13 +557,24 @@ async def check_complete(request: Request, pin: str, mode: str, prior_year: int 
         return templates.TemplateResponse(
             request=request,
             name="message.html",
-            context={"message": f"Error: Error processing PIN {pin}! Please try again, error reported to admin."},
+            context={
+                "message": f"Error: Error processing PIN {pin}! Please try again, error reported to admin."
+            },
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
-    return RedirectResponse(url=f"/processing?pin={pin}&n={n + 1}&mode={mode}&prior_year={prior_year}&status={job.get_status()}")
+    return RedirectResponse(
+        url=f"/processing?pin={pin}&n={n + 1}&mode={mode}&prior_year={prior_year}&status={job.get_status()}"
+    )
 
 
-def run_quarto(qmd_file: str, pin: str, prior_year: int, address: str, mode: str, output_root: str | None = None):
+def run_quarto(
+    qmd_file: str,
+    pin: str,
+    prior_year: int,
+    address: str,
+    mode: str,
+    output_root: str | None = None,
+):
     # Each render runs in its own subdir so Quarto's crossref INDEX is not shared
     # (concurrent writes to .quarto/xref/INDEX corrupt it). Passing --output-dir
     # would force Quarto into project mode which re-uses the shared INDEX, so we
@@ -479,21 +600,31 @@ def run_quarto(qmd_file: str, pin: str, prior_year: int, address: str, mode: str
         # renv's activate.R uses a relative path; write a thin .Rprofile here
         # that sources the project's activate.R via absolute path.
         with open(os.path.join(job_dir, ".Rprofile"), "w") as f:
-            f.write(f'source({os.path.join(project_root, "renv/activate.R")!r})\n')
+            f.write(
+                f"source({os.path.join(project_root, 'renv/activate.R')!r})\n"
+            )
         env = os.environ.copy()
         env["QUARTO_CROSSREF_INDEX_PATH"] = os.path.join(job_dir, "xref.json")
         env["PTAX_PROJECT_ROOT"] = project_root
         env["RENV_PROJECT"] = project_root
         result = subprocess.run(
             [
-                "quarto", "render", os.path.basename(job_qmd),
-                "--to", "html",
+                "quarto",
+                "render",
+                os.path.basename(job_qmd),
+                "--to",
+                "html",
                 "--no-clean",
-                "--output", fname,
-                "--execute-param", "current_year=2024",
-                "--execute-param", f"prior_year={prior_year}",
-                "--execute-param", f"pin_14={pin}",
-                "--execute-param", f"address={address}",
+                "--output",
+                fname,
+                "--execute-param",
+                "current_year=2024",
+                "--execute-param",
+                f"prior_year={prior_year}",
+                "--execute-param",
+                f"pin_14={pin}",
+                "--execute-param",
+                f"address={address}",
             ],
             check=True,
             capture_output=True,
@@ -504,7 +635,11 @@ def run_quarto(qmd_file: str, pin: str, prior_year: int, address: str, mode: str
         _bucket.blob(gcs_blob_name(mode, pin, fname)).upload_from_filename(
             job_html, content_type="text/html"
         )
-        return {"stdout": result.stdout, "stderr": result.stderr, "returncode": result.returncode}
+        return {
+            "stdout": result.stdout,
+            "stderr": result.stderr,
+            "returncode": result.returncode,
+        }
     except subprocess.CalledProcessError as e:
         print(f"Error: {e.stderr}")
         raise e
