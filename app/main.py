@@ -43,9 +43,7 @@ VERSION = "2.4"
 
 # Rendered HTML lives in GCS; the local outputs/ directory is a transient
 # staging area only (render_quarto writes there, uploads, then deletes).
-GCS_BUCKET = os.getenv("GCS_BUCKET")
-if not GCS_BUCKET:
-    raise RuntimeError("GCS_BUCKET not set; required for serving and writes.")
+GCS_BUCKET = os.getenv("GCS_BUCKET", "miurban-dj-private")
 GCS_PREFIX = os.getenv("GCS_PREFIX", "ptax-project/outputs").strip("/")
 _gcs_client = storage.Client()
 _bucket = _gcs_client.bucket(GCS_BUCKET)

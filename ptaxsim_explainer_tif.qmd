@@ -84,7 +84,22 @@ pin_14 <- format(params$pin_14, scientific = FALSE, trim = TRUE)
 pin_14 <- str_pad(pin_14, width = 14, pad = "0", side = "left")
 current_year <- params$current_year
 prior_year <- params$prior_year
-address <- ''
+address <- params$address
+
+if (!is.null(params$address) && nchar(params$address) > 0) {
+    address <- params$address
+} else {
+    address_df <- arrow::read_parquet("data/address_points.parquet", col_select = c("PIN", "ADDRDELIV")) %>%
+        filter(PIN == pin_14 | PIN == str_glue("{str_sub(pin_14, 1, 10)}0000")) %>%
+        select(ADDRDELIV)
+    if (nrow(address_df) > 0) {
+        address <- address_df %>%
+            pull(ADDRDELIV) %>%
+            first()
+    } else {
+        address <- "(Address not found)"
+    }
+}
 
 ptaxsim_db_conn <- dbConnect(SQLite(), db_path, flags = RSQLite::SQLITE_RO)
 tax_bases_res_com_share <- readRDS("data/tax_bases_res_com_share.rds")
@@ -344,19 +359,97 @@ pin_details_current %>%
 
 ## TIF Statistics
 
-```{r}
-total_tif_revenue_amount = as.character(currency(1788557475, digits = 0))
-total_tif_revenue_perc = paste0(sprintf("%.2f", 9.725779), "%")
+<!-- 
 
-mean_all_amount <- as.character(currency(260.7161, digits = 0))
-mean_all_perc <- paste0(sprintf("%.3f", 0.0453312), "%")
+CALC CODE
+
+total_tif_revenue <- dbGetQuery("select * from tif", conn = ptaxsim_db_conn) %>%
+    tibble() %>%
+    filter(year == cur_year) %>%
+    summarise(sum_prev = sum(prev_year_revenue), sum_curr = sum(curr_year_revenue))
+
+all_pins <- dbGetQuery("select * from pin where year = ?", conn = ptaxsim_db_conn, cur_year) %>%
+    tibble()
+    
+
+all_bills <- ptaxsim::tax_bill(pin_vec = all_pins$pin, year_vec = cur_year)
+
+total_final_tax <- all_bills %>% summarise(total_final_tax <- sum(final_tax))
+
+print(paste("TIF: ", total_tif_revenue$sum_curr))
+print(paste("Final Tax: ", total_final_tax))
+print(paste("TIF as % of Final Tax: ", total_tif_revenue$sum_curr / total_final_tax * 100))
+
+all_res_bills <- all_bills %>% filter(class >= 200, class <= 299)
+
+total_final_res_tax <- all_res_bills %>% summarise(total_final_res_tax <- sum(final_tax))
+print(paste("Final Residential Tax: ", total_final_res_tax))
+
+total_res_pins <- all_res_bills %>% summarise(total_res_pins = n_distinct(pin))
+print(paste("Total Residential Pins: ", total_res_pins))
+print(paste("Mean Residential Tax per Pin: ", total_final_res_tax / total_res_pins))
+
+total_res_tif_rev <- all_res_bills %>%
+    filter(str_detect(agency_name, "TIF - ")) %>%
+    summarise(total_final_res_tif_tax = sum(final_tax)) 
+
+print(paste("TIF Residential Tax: ", total_res_tif_rev))
+print(paste("TIF Residential Tax as % of Final Residential Tax: ", total_res_tif_rev / total_final_res_tax * 100))
+
+print(paste("Mean Residential TIF Tax per Pin: ", total_res_tif_rev / total_res_pins))
+
+res_bills_with_tif <- all_res_bills %>%
+    group_by(pin) %>%
+    filter(any(str_detect(agency_name, "TIF - "))) %>%
+    ungroup()
+
+total_res_pins_with_tif <- res_bills_with_tif %>% summarise(total_res_pins_with_tif = n_distinct(pin))
+
+res_bills_with_tif %>%
+    filter(str_detect(agency_name, "TIF - ")) %>%
+    summarise(total_final_res_tif_tax = sum(final_tax))
+
+print(paste("Total Residential Pins with TIF: ", total_res_pins_with_tif))
+print(paste("Mean Residential TIF Tax per Pin with TIF: ", total_res_tif_rev / total_res_pins_with_tif))
+
+total_res_bill_in_tif <- res_bills_with_tif %>%
+    summarise(total_final_res_bill_in_tif = sum(final_tax))
+
+print(paste("Total Residential Bill for Pins with TIF: ", total_res_bill_in_tif))
+print(paste("TIF % of Total Residential Bill for Pins with TIF: ", total_res_tif_rev / total_res_bill_in_tif * 100))
+
+median_res_tif <-res_bills_with_tif %>%
+    filter(str_detect(agency_name, "TIF - ")) %>%
+    group_by(pin) %>%
+    summarise(tif_tax = sum(final_tax)) %>%
+    ungroup() %>%
+    summarise(mean_tif_tax_per_pin_with_tif = mean(tif_tax), median_tif_tax_per_pin_with_tif = median(tif_tax))
+
+res_bills_with_tif %>%
+    mutate(tif_agency = ifelse(str_detect(agency_name, "TIF - "), 1, 0)) %>%
+    group_by(pin, tif_agency) %>%
+    summarise(total_tax = sum(final_tax)) %>%
+    ungroup() %>%
+    pivot_wider(names_from = tif_agency, values_from = total_tax, names_prefix = "tif_") %>%
+    mutate(total_tax = tif_0 + tif_1, tif_perc = tif_1 / total_tax * 100) %>%
+    filter(total_tax != 0) %>%
+    summarise(mean_total_tax = mean(total_tax), mean_tif_tax = mean(tif_1), median_tif_perc = median(tif_perc), mean_tif_perc = mean(tif_perc))
+
+ -->
+
+```{r}
+total_tif_revenue_amount <- as.character(currency(2075991522.41, digits = 0))
+total_tif_revenue_perc <- paste0(sprintf("%.2f", 10.8087446179018), "%")
+
+mean_all_amount <- as.character(currency(262.300614365489, digits = 0))
+mean_all_perc <- paste0(sprintf("%.3f", 3.74842753644615), "%")
 median_all_amount <- as.character(currency(0, digits = 0))
 median_all_perc <- "0%"
 
-mean_in_tif_amount <- as.character(currency(2202.441, digits = 0))
-mean_in_tif_perc <- paste0(sprintf("%.3f", 38.29425), "%")
-median_in_tif_amount <- as.character(currency(857.985, digits = 0))
-median_in_tif_perc <- paste0(sprintf("%.3f", 30.07065), "%")
+mean_in_tif_amount <- as.character(currency(2261.25825881026, digits = 0))
+mean_in_tif_perc <- paste0(sprintf("%.3f", 37.2866898345627), "%")
+median_in_tif_amount <- as.character(currency(803.2865, digits = 0))
+median_in_tif_perc <- paste0(sprintf("%.3f", 20.8), "%")
 ```
 In `r current_year` TIF districts brought in **`r total_tif_revenue_amount`**  — nearly `r total_tif_revenue_perc` of all property tax revenue collected in Cook County.
 

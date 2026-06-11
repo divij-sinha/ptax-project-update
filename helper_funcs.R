@@ -285,8 +285,6 @@ display_two_bills <- function(df1, df2, import_col) {
         mutate(change_in_com_share = (com_share_df2 - com_share_df1) / com_share_df1) %>%
         mutate(change_in_tax = final_tax_df2 - final_tax_df1) %>%
         mutate(change_in_tax_bar = change_in_tax) %>%
-        mutate(eav_res_share_df1 = eav_res_share_df1 * 1e4) %>%
-        mutate(eav_res_share_df2 = eav_res_share_df2 * 1e4) %>%
         select(!c(final_tax_df1, final_tax_df2)) %>%
         group_by(agency_major_type) %>%
         gt() %>%
@@ -301,7 +299,11 @@ display_two_bills <- function(df1, df2, import_col) {
         ) %>%
         fmt_currency(change_in_tax) %>%
         fmt_currency(c(agency_total_ext_df1, agency_total_ext_df2), suffixing = TRUE) %>%
-        fmt_percent(c(change_in_agency_total_ext, change_in_eav_res_share, eav_res_share_df1, eav_res_share_df2, change_in_com_share, com_share_df1, com_share_df2)) %>%
+        fmt_percent(c(change_in_agency_total_ext, change_in_eav_res_share, change_in_com_share, com_share_df1, com_share_df2)) %>%
+        fmt(
+            columns = c(eav_res_share_df1, eav_res_share_df2),
+            fns = function(x) vapply(x, fmt_share_words, character(1))
+        ) %>%
         gtExtras::gt_plt_bar(column = change_in_tax_bar, color = "orange", width = 12) %>%
         tab_style(
             style = list(
@@ -444,8 +446,6 @@ display_two_bills_MISMATCHED <- function(df1, df2, import_col) {
         mutate(change_in_com_share = (com_share_df2 - com_share_df1) / com_share_df1) %>%
         mutate(change_in_tax = final_tax_df2 - final_tax_df1) %>%
         mutate(change_in_tax_bar = change_in_tax) %>%
-        mutate(eav_res_share_df1 = eav_res_share_df1 * 1e4) %>%
-        mutate(eav_res_share_df2 = eav_res_share_df2 * 1e4) %>%
         select(!c(final_tax_df1, final_tax_df2)) %>%
         group_by(agency_major_type) %>%
         gt() %>%
@@ -460,7 +460,11 @@ display_two_bills_MISMATCHED <- function(df1, df2, import_col) {
         ) %>%
         fmt_currency(change_in_tax) %>%
         fmt_currency(c(agency_total_ext_df1, agency_total_ext_df2), suffixing = TRUE) %>%
-        fmt_percent(c(change_in_agency_total_ext, change_in_eav_res_share, eav_res_share_df1, eav_res_share_df2, change_in_com_share, com_share_df1, com_share_df2)) %>%
+        fmt_percent(c(change_in_agency_total_ext, change_in_eav_res_share, change_in_com_share, com_share_df1, com_share_df2)) %>%
+        fmt(
+            columns = c(eav_res_share_df1, eav_res_share_df2),
+            fns = function(x) vapply(x, fmt_share_words, character(1))
+        ) %>%
         gtExtras::gt_plt_bar(column = change_in_tax_bar, color = "orange", width = 12) %>%
         tab_style(
             style = list(
@@ -562,4 +566,58 @@ display_two_bills_simplified_MISMATCHED <- function(df1, df2, import_col) {
             change_in_tax_bar = "",
         ) %>%
         cols_hide(columns = !(contains(import_col) | c("agency_major_type", "change_in_tax", "change_in_tax_bar")))
+}
+
+
+# Express a proportion (e.g. 0.000003) as readable words:
+#   0.000003 -> "3 ten-thousandths of a percent"
+#   0.008    -> "8 tenths of a percent"
+#   0.01     -> "1%"
+fmt_share_words <- function(p, sig = 1) {
+    if (is.na(p)) {
+        return(NA_character_)
+    }
+    if (p == 0) {
+        return("0%")
+    }
+
+    pct <- p * 100 # proportion -> value in "percent units"
+    sgn <- if (pct < 0) "-" else ""
+    pct <- abs(pct)
+
+    # >= 1%: show as an ordinary percentage
+    if (pct >= 1) {
+        return(paste0(sgn, format(round(pct, 1)), "%"))
+    }
+
+    # find how many decimal places down the leading digit sits
+    d <- 0L
+    scaled <- pct
+    while (scaled < 1) {
+        scaled <- scaled * 10
+        d <- d + 1L
+    }
+    N <- round(scaled, sig - 1)
+    if (N >= 10) {
+        N <- N / 10
+        d <- d - 1L
+    } # rounding rolled over to next unit
+
+    units <- c(
+        "tenths of a percent", "hundredths of a percent",
+        "thousandths of a percent", "ten-thousandths of a percent",
+        "hundred-thousandths of a percent", "millionths of a percent",
+        "ten-millionths of a percent"
+    )
+
+    if (d < 1) {
+        return(paste0(sgn, format(round(pct, 1)), "%"))
+    }
+    if (d > length(units)) {
+        return(paste0(sgn, "~0%"))
+    }
+
+    unit <- units[d]
+    if (N == 1) unit <- sub("ths of a percent$", "th of a percent", unit) # singular
+    paste0(sgn, N, " ", unit)
 }
