@@ -1,0 +1,416 @@
+/*-- scss:defaults --*/
+// ==========================================
+// 1. Typeface Import
+// ==========================================
+@import url("https://use.typekit.net/kic6nqt.css");
+
+// ==========================================
+// 2. Variables
+// ==========================================
+// Colors
+$color-navy:       #003A63; // Logo, links (reference navy)
+$color-yellow:     #F6AE2D; // Accents
+$color-deep:       #002344; // Subtitles, headings
+$color-soft-grey:  #F6F6F4; // Accents, Tables, panels
+$color-ink:        #1A1A1A; // Title, Paragraph
+$color-gray:       #767676; // Kickers, rail titles
+$color-muted:      #5f6368; // Rail links
+$color-line:       #d9d9d9; // Hairline borders
+$color-red:        #B3261E; // Delta text — bill went up
+$color-green:      #1E6B3A; // Delta text — bill went down
+
+// Fonts
+$font-display: 'halyard-display', sans-serif; // Title, subtitle
+$font-text:    'halyard-text', sans-serif;    // Paragraph
+
+// Layout
+// Height of the fixed site header. The body's top padding, the margin TOC's
+// sticky offset, and the logo height all derive from this — change it in one
+// place. The logos run flush to the bar's full height, so this is effectively
+// the logo size too.
+$header-height: 80px;
+
+// Bootstrap / Quarto theme overrides (picked up natively by the theme)
+$body-font-size:        17px;
+$line-height-base:      1.58;
+$body-color:            $color-ink;
+$link-color:            $color-navy;
+$link-decoration-color: $color-yellow;
+$headings-font-family:  $font-display;
+$table-bg:              $color-soft-grey;
+$border-color:          $color-line;
+
+// Headings — drive zephyr's own compiled h* rules
+$headings-color:        $color-deep;
+$headings-font-weight:  700;
+
+// ==========================================
+// 3. Element Styles
+// ==========================================
+/*-- scss:rules --*/
+
+// ---- Body / Paragraphs -------------------
+body {
+  font-family: $font-text;
+  color: $color-ink;
+}
+
+p, .paragraph {
+  font-family: $font-text;
+  color: $color-ink;
+  max-width: 820px;
+}
+
+// ---- Headings ----------------------------
+h1, h2, h3, h4, .title {
+  font-family: $font-display;
+  color: $color-deep;
+  letter-spacing: -0.025em;
+  line-height: 1.12;
+}
+
+// Big section headers with a hairline rule above — the reference signature.
+// In this Quarto doc, top-level `#` sections render as <h1>, so the reference's
+// big-<h2> treatment lives on h1 (the hero's <h1> is scoped separately below).
+h1:not(.title) {
+  color: $color-deep;
+  font-weight: 800;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid $color-line;
+}
+
+// First section header shouldn't carry the top rule
+h1:not(.title):first-of-type {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+h2 {
+  color: $color-deep;
+  font-size: clamp(1.45rem, 3vw, 2.1rem);
+  margin-top: 2.25rem;
+}
+
+h3 {
+  color: $color-deep;
+  font-size: 1.2rem;
+  margin-top: 2rem;
+}
+
+h4 {
+  color: $color-deep;
+  font-size: 1.05rem;
+  margin-top: 2rem;
+}
+
+// Subtitles / small subheads — uppercase, letter-spaced
+h5, h6, .subtitle {
+  font-family: $font-display;
+  color: $color-deep;
+  margin-top: 2rem;
+  font-size: 1.05rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+// ---- Links -------------------------------
+a {
+  color: $color-navy;
+  font-weight: 700;
+  text-decoration-color: $color-yellow;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+// ---- Kicker label ------------------------
+.kicker {
+  color: $color-gray;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  font-size: 0.76rem;
+  font-weight: 900;
+  margin: 0 0 0.85rem;
+}
+
+// ==========================================
+// 4. Hero
+// ==========================================
+.result-hero {
+  background: #fff;
+  color: $color-ink;
+  border-bottom: 1px solid $color-line;
+  margin-bottom: 2rem;
+  padding-bottom: clamp(1.5rem, 4vw, 3rem);
+}
+
+.result-hero h1 {
+  max-width: 760px;
+  margin: 0;
+  color: $color-ink;
+  font-size: clamp(2rem, 4.8vw, 4.15rem);
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+}
+
+.big-number {
+  display: inline-block;
+  color: $color-yellow;
+  font-family: $font-display;
+  font-size: clamp(2.8rem, 8vw, 6.25rem);
+  line-height: 0.9;
+  letter-spacing: -0.055em;
+  white-space: nowrap;
+}
+
+.hero-rule {
+  width: min(380px, 100%);
+  height: 4px;
+  background: $color-yellow;
+  margin: 1.6rem 0 1.25rem;
+}
+
+.open-copy {
+  color: $color-ink;
+  font-size: clamp(1rem, 1.7vw, 1.14rem);
+  margin: 0 0 1rem;
+  max-width: 760px;
+}
+
+// ==========================================
+// 5. Tables (gt output)
+// ==========================================
+// Style the gt tables to match the reference, WITHOUT overriding the
+// per-agency District cell fills applied via data_color().
+.gt_table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid $color-line;
+  margin: 1rem 0 2rem;
+  font-size: 0.95rem;
+  background: #fff;
+}
+
+.gt_table .gt_col_heading {
+  background: $color-soft-grey;
+  color: $color-deep;
+  text-align: left;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 900;
+}
+
+.gt_table .gt_row {
+  border-top: 1px solid $color-line;
+  padding: 0.75rem 0.85rem;
+  vertical-align: top;
+}
+
+// Right-align currency columns
+.gt_table .gt_row.gt_right {
+  text-align: right;
+  white-space: nowrap;
+}
+
+// Plain tables (e.g. the markdown Methodology table)
+table:not(.gt_table) {
+  background-color: $color-soft-grey;
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid $color-line;
+
+  th {
+    background: $color-soft-grey;
+    color: $color-deep;
+    text-align: left;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 900;
+    padding: 0.75rem 0.85rem;
+  }
+
+  td {
+    padding: 0.75rem 0.85rem;
+    border-top: 1px solid $color-line;
+    vertical-align: top;
+  }
+}
+
+// ==========================================
+// 6. Callouts (soft-grey bordered panels)
+// ==========================================
+.callout {
+  background: $color-soft-grey;
+  border: 1px solid $color-line;
+}
+
+.callout .callout-title {
+  color: $color-deep;
+}
+
+// ==========================================
+// 7. Right-side TOC → editorial rail
+// ==========================================
+#quarto-margin-sidebar,
+#TOC {
+  font-size: 0.82rem;
+
+  .toc-actions,
+  > ul,
+  nav > ul {
+    border-left: 1px solid $color-line;
+  }
+
+  a {
+    color: $color-muted;
+    font-weight: 700;
+    line-height: 1.25;
+    text-decoration: none;
+    display: block;
+    padding: 0.42rem 0 0.42rem 0.9rem;
+    border-left: 3px solid transparent;
+    margin-left: -1px;
+  }
+
+  a:hover,
+  a.active {
+    color: $color-deep;
+    border-left-color: $color-yellow;
+  }
+}
+
+.sidebar-title,
+.toc-title {
+  color: $color-gray;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.68rem;
+  font-weight: 900;
+  margin-bottom: 0.75rem;
+}
+
+// ==========================================
+// 8. Quarto title banner (kept for fallback)
+// ==========================================
+.quarto-title-banner {
+  color: $color-yellow;
+  background: $color-soft-grey;
+}
+
+// ==========================================
+// 9. Suppress Quarto title block
+// ==========================================
+// `title-block-style: none` only strips the block's styling — it still emits
+// the <h1 class="title"> / <p class="subtitle"> header. The .result-hero block
+// is the real headline, so hide the emitted header outright.
+#title-block-header {
+  display: none;
+}
+
+// ==========================================
+// 10. Keep the TOC always expanded
+// ==========================================
+// Quarto's sidebar JS collapses the margin TOC by hiding each child
+// (opacity/overflow/pointer-events inline) and swapping in a #quarto-toc-toggle
+// menu. It only recomputes on scroll, so the TOC loads collapsed and expands on
+// the first scroll, never re-collapsing. Override the inline styles — !important
+// is required to beat them — and drop the toggle it builds.
+#quarto-margin-sidebar > * {
+  opacity: 1 !important;
+  overflow: visible !important;
+  pointer-events: auto !important;
+}
+
+#quarto-toc-toggle {
+  display: none !important;
+}
+
+// Quarto gives the margin TOC `position: sticky` with its own `top`. That
+// offset resolves against the viewport, not the padded body, so on scroll the
+// TOC pins underneath the fixed header. Push its sticky stop below the bar,
+// plus a little breathing room.
+#quarto-margin-sidebar {
+  top: calc(#{$header-height} + 1.5rem) !important;
+}
+
+// ==========================================
+// 11. Inline code spans in prose
+// ==========================================
+// Bootstrap ships $code-color as a magenta/purple accent. These are the
+// `backticked` spans in the body text, not code blocks — code blocks get their
+// colors from Quarto's --quarto-hl-* palette and are untouched by this.
+:not(pre) > code {
+  color: $color-ink;
+}
+
+// ==========================================
+// 12. Sticky site header
+// ==========================================
+// Fixed rather than sticky: Quarto's grid puts body content and the margin TOC
+// in separate scroll contexts, so `position: sticky` would only pin within the
+// column it lives in. Fixed pins to the viewport; body gets padding-top to
+// make room for it.
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1030; // above Bootstrap's sticky-top (1020)
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1.75rem;
+  height: $header-height;
+  padding: 0 clamp(1rem, 4vw, 2.5rem);
+  background: #fff;
+  border-bottom: 1px solid $color-line;
+}
+
+body {
+  padding-top: $header-height;
+}
+
+// Logo slots run the full height of the bar — no vertical padding, so the
+// marks sit flush top and bottom. The dashed outline only shows while a slot
+// is empty, so it disappears on its own once an <img> is dropped in.
+.site-header .logo-slot {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.site-header .logo-slot:empty {
+  min-width: 120px;
+  border: 1px dashed $color-line;
+  border-radius: 2px;
+}
+
+// Fill the bar's height; width follows the aspect ratio.
+.site-header .logo-slot img {
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+}
+
+// Illinois Answers is nearly square against Mansueto's wide banner, so at a
+// shared height its speech bubble reads much heavier. Inset it slightly to
+// even out the optical weight.
+.site-header .logo-right img {
+  height: 74%;
+}
+
+@media print {
+  .site-header {
+    display: none;
+  }
+
+  body {
+    padding-top: 0;
+  }
+}

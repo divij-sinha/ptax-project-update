@@ -21,3 +21,7 @@ ptaxsim*html
 _job_*/
 _job_*.*
 .Rproj.user
+
+
+old-data/
+outputs/
