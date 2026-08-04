@@ -78,6 +78,7 @@ db_path <- "data/ptaxsim-2024.0.0.db"
 # pin_14 <- "14294070931001" # Wrightwood, Chicago - TIF
 # pin_14 <- "16123090200000" # Kinzie - TIF
 # pin_14 <- "17284020350000" # RLE Transit TIF
+# pin_14 <- "14053110330000" # RPM TIF
 # 13153030200000
 # DBI::dbListTables(ptaxsim_db_conn)
 # dbListFields(ptaxsim_db_conn, "tif")
@@ -87,39 +88,36 @@ db_path <- "data/ptaxsim-2024.0.0.db"
 # ### for frozen eav and current eav???
 # tif_distribution <- tbl(ptaxsim_db_conn, "tif_distribution")
 
-# pin_14 <- format(params$pin_14, scientific = FALSE, trim = TRUE)
-# pin_14 <- str_pad(pin_14, width = 14, pad = "0", side = "left")
-# current_year <- params$current_year
-# prior_year <- params$prior_year
-# address <- params$address
+pin_14 <- format(params$pin_14, scientific = FALSE, trim = TRUE)
+pin_14 <- str_pad(pin_14, width = 14, pad = "0", side = "left")
+current_year <- params$current_year
+prior_year <- params$prior_year
+address <- params$address
 
-# if (!is.null(params$address) && nchar(params$address) > 0) {
-#     address <- params$address
-# } else {
-#     address_df <- arrow::read_parquet("data/address_points.parquet", col_select = c("PIN", "ADDRDELIV")) %>%
-#         filter(PIN == pin_14 | PIN == str_glue("{str_sub(pin_14, 1, 10)}0000")) %>%
-#         select(ADDRDELIV)
-#     if (nrow(address_df) > 0) {
-#         address <- address_df %>%
-#             pull(ADDRDELIV) %>%
-#             first()
-#     } else {
-#         address <- "(Address not found)"
-#     }
-# }
+if (!is.null(params$address) && nchar(params$address) > 0) {
+    address <- params$address
+} else {
+    address_df <- arrow::read_parquet("data/address_points.parquet", col_select = c("PIN", "ADDRDELIV")) %>%
+        filter(PIN == pin_14 | PIN == str_glue("{str_sub(pin_14, 1, 10)}0000")) %>%
+        select(ADDRDELIV)
+    if (nrow(address_df) > 0) {
+        address <- address_df %>%
+            pull(ADDRDELIV) %>%
+            first()
+    } else {
+        address <- "(Address not found)"
+    }
+}
 
-pin_14 <- "20114070180000"
-current_year <- 2024
-prior_year <- 2023
-address <- "TEST street, testville"
+# pin_14 <- "16123090200000"
+# current_year <- 2024
+# prior_year <- 2023
+# address <- "TEST street, testville"
 
 ptaxsim_db_conn <- dbConnect(SQLite(), db_path, flags = RSQLite::SQLITE_RO)
 tax_bases_res_com_share <- readRDS("data/tax_bases_res_com_share.rds")
 
 lookup_tif_wrapper <- function(current_year, pin_14, tax_code_vec) {
-    # in 2024 ptaxsim updates the lookup_tif to be lookup_pin_tif
-    # for 2023 and prior year lookups, the legacy lookup_tif should be used
-    # this is hacky but then everytime we call lookup_tif we need to supply both pin_14 and tax_code_vec
     if (current_year >= 2024) {
         return(lookup_pin_tif(current_year, pin_14))
     } else {
@@ -285,13 +283,13 @@ hero_direction <- hero_row$direction
 
 # What is a TIF?
 
- A Tax Increment Financing (TIF) district is a special zone, with specific geographic boundaries, where some property tax revenue is set aside to fund local development projects instead of going to local governments like cities and school districts. They are meant to spur economic development in “blighted” areas that would otherwise struggle to attract investment, with the goal of growing the local economy and expanding the tax base.
+A Tax Increment Financing (TIF) district is a special zone, with specific geographic boundaries, where some property tax revenue is set aside to fund local development projects instead of going to local governments like cities and school districts. They are meant to spur economic development in “blighted” areas that would otherwise struggle to attract investment, with the goal of growing the local economy and expanding the tax base.
 
 However, Chicago leaders have increasingly used TIF to fund public works projects like street resurfacing and to help fill operating budget shortfalls through declared surpluses. That means instead of using tax dollars to grow the tax base, TIF is raising money to spend on everyday government projects and services. 
 
 # How Do TIFs Affect Property Taxes?
 
- If you live in a TIF district, part of your tax payment is redirected to the district. That doesn’t mean an extra charge on your taxes — it means that local governments aren’t able to collect as much from your bill, so they have to collect more from everyone, including you, to raise what they need. 
+If you live in a TIF district, part of your tax payment is redirected to the district. That doesn’t mean an extra charge on your taxes — it means that local governments aren’t able to collect as much from your bill, so they have to collect more from everyone, including you, to raise what they need. 
 
 ```{r property-table calculations}
 pin_details_current <- lookup_pin(current_year, pin_14)
@@ -331,10 +329,10 @@ if (tif_year > 0) {
 
 ```{r property-table}
 #| output: false
-pin_details_current %>%
+property_table <- pin_details_current %>%
   mutate(
     'Market Value' = currency(market_value, digits = 0),
-    "TIF" = as.character(tif_year),
+    "TIF" = if (tif_year > 0) as.character(tif_year) else "--",
     "Current EAV" = as.character(currency(eav, digits = 0)),
     "Assessment Year" = as.character(assessment_year),
     total_exemptions = rowSums(across(starts_with("exe_")) > 0),
@@ -379,6 +377,12 @@ pin_details_current %>%
       columns = everything(),
       rows = everything()
     )) %>%
+  # Highlight the TIF row, matching the TIF row in the district tables below.
+  # Table is pivoted long, so the row is selected by its label, not a column.
+  tab_style(
+    style = cell_fill(color = color_yellow, alpha = 0.25),
+    locations = cells_body(rows = variable == "TIF")
+  ) %>%
   tab_options(
     column_labels.hidden = TRUE,
     column_labels.background.color = color_soft_grey,
@@ -487,7 +491,14 @@ In Tax Year `r current_year`, the last year for which Cook County data is availa
 
 The **average residential taxpayer in Cook County**, whether or not they lived in a TIF district, paid `r mean_all_amount` toward TIFs.   However, the average Chicago homeowner paid nearly `r mean_in_tif_amount` (TODO) of their tax bill toward TIF. 
 
-# Your Tax Bill: A Simple Breakdown
+# Your Tax Bill, broken down
+
+Your property at `r address` `r if (is_in_tif) glue("**is in** the {tif_name}") else "**is not in** a TIF district"`.  The table below shows your property’s assessed value, exemptions, total tax bill, and other general characteristics.
+
+```{r property-table-show}
+#| output: true
+property_table 
+```
 
 Your total property tax bill of `r as.character(currency(sum(tax_bill_current$tax_amt_post_exe), digits = 0))` is the result of levies imposed by various local government bodies including the city, county, school districts and other special service districts. Each agency sets its own levy, and your property tax bill is divided proportionally based on these levies. 
 
@@ -523,6 +534,10 @@ lookuptbl %>%
             `Amount Owed` = sum(lookuptbl$to_tif, na.rm = TRUE)
         )
     ) %>%
+    # tif_name is NA for a property with no TIF; drop that row rather than show
+    # it as an NA-labelled $0.00 line. Filtered before the Total is appended so
+    # the Total row itself survives.
+    filter(!is.na(District)) %>%
     # Total as a data row rather than grand_summary_rows(), which would put the
     # label in a stub column and indent every other row to make space for it.
     bind_rows(
@@ -627,16 +642,15 @@ Typically, local governments will then **raise their levies** to capture the add
 # Scenarios for properties
 
 In this section, we explore **`r if (is_in_tif) "four" else "two"` scenarios** to estimate what your tax bill — and the allocation of public funds — might look like if TIF districts were eliminated. These scenarios help us understand how TIFs shift funding and who might benefit or lose if they were removed.
-
-```{asis, echo=is_in_tif}
-- Scenario 1: Your TIF is eliminated and levies stay constant → your bill decreases slightly.
-- Scenario 2: Your TIF is eliminated, and taxing bodies raise their levies to compensate → your bill may not decrease, but local governments receive some more revenue.
-```
-
 <!-- `r if (is_in_tif) "3" else "1"` -->
 
-- Scenario 3: All TIFs are eliminated and levies stay constant → a broader tax base may lower your burden.
-- Scenario 4: All TIFs are eliminated and taxing bodies raise their levies to compensate → your bill may not decrease, but local governments receive significantly more revenue.
+- Scenario 1: All TIFs are eliminated and levies stay constant → a broader tax base may lower your burden.
+- Scenario 2: All TIFs are eliminated and taxing bodies raise their levies to compensate → your bill may not decrease, but local governments receive significantly more revenue.
+```{asis, echo=is_in_tif}
+- Scenario 3: Your TIF is eliminated and levies stay constant → your bill decreases slightly.
+- Scenario 4: Your TIF is eliminated, and taxing bodies raise their levies to compensate → your bill may not decrease, but local governments receive some more revenue.
+```
+
 
 ```{r}
 original_tbl <- lookuptbl %>%
@@ -656,8 +670,282 @@ original_tbl <- lookuptbl %>%
     )
 ```
 
-```{asis, echo=is_in_tif}
 ## Scenario 1
+
+```{r eliminate all tifs - levies rise, results='asis', echo=FALSE}
+tif_bill_sine_alltif_ylevy <- Rem_All(current_year, pin_14, T)
+ 
+diff <- sum(tif_bill_sine_alltif_ylevy$final_tax) - sum(tax_bill_current$tax_amt_post_exe)
+direction <- ifelse(diff > 0, "an increase", "a decrease")
+
+cat(glue(
+  "If **all TIFs were eliminated** and taxing agencies **raised their levies** to recover the diverted revenue.
+  
+  Your new property tax bill would be {as.character(currency(sum(tif_bill_sine_alltif_ylevy$final_tax)))}, representing **{direction} of {as.character(currency(abs(diff)))}** compared to your current bill of {as.character(currency(sum(tax_bill_current$tax_amt_post_exe)))}."
+))
+ 
+lookuptbl3 <- tif_bill_sine_alltif_ylevy 
+lookuptbl3 <- lookuptbl3 %>%
+  mutate(
+    agency_name = ifelse(
+      grepl("^TIF\\b", agency_name, ignore.case = TRUE),
+      sub("^TIF", "TIF", stringr::str_to_title(agency_name), ignore.case = TRUE),
+      stringr::str_to_title(agency_name)
+    )
+  )
+ 
+
+# lookuptbl3 %>%
+#   select(
+#     District = agency_name,
+#     `Amount Owed` = final_tax,
+#   ) %>%
+#   gt() %>%
+#   data_color(
+#     columns = c("District"),
+#     colors = css_colors,
+#     autocolor_text = FALSE
+#   ) %>%
+#   fmt_currency(columns = c("Amount Owed"))
+ 
+# Rem_All returns raw uppercase major types; str_to_title matches the levels
+# below (process_tax_bill does this for tax_bill_current, not here).
+df3 <- lookuptbl3 %>%
+  mutate(agency_major_type = stringr::str_to_title(agency_major_type)) %>%
+  select(District = agency_name, agency_major_type, `Tax (w/o TIF)` = final_tax)
+
+if (nrow(df3) > 0) {
+  combined_tbl3 <- full_join(df3, original_tbl, by = "District")
+} else {
+  # No agencies left to join against; agency_major_type still has to exist for
+  # the factor/arrange below.
+  combined_tbl3 <- original_tbl %>%
+    mutate(`Tax (w/o TIF)` = 0, agency_major_type = NA_character_)
+}
+
+combined_tbl3 %>%
+  # original_tbl always appends a TIF row, using tif_name — which is NA when
+  # the property has no TIF. Drop it before display so it can't show as an
+  # NA-labelled row or reach the Total below.
+  filter(!is.na(District)) %>%
+  mutate(across(
+    c(`Original Tax Bill`, `Tax (w/o TIF)`),
+    ~replace_na(., 0)
+  )) %>%
+  mutate(agency_major_type = factor(
+    agency_major_type,
+    levels = c("Cook County", "Municipality/Township", "School", "Miscellaneous")
+  )) %>%
+  # Rem_All strips every TIF, so this can match several rows — all of them sort
+  # to the bottom. FALSE < TRUE keeps the districts above.
+  mutate(is_tif = grepl("^TIF\\b", District, ignore.case = TRUE)) %>%
+  arrange(is_tif, agency_major_type) %>%
+  select(-is_tif, -agency_major_type) %>%
+  mutate(Delta = `Tax (w/o TIF)` - `Original Tax Bill`) %>%
+  bind_rows(
+    tibble(
+      "District" = "Total",
+      `Tax (w/o TIF)` = sum(combined_tbl3$`Tax (w/o TIF)`, na.rm = TRUE),
+      `Original Tax Bill` = sum(combined_tbl3$`Original Tax Bill`, na.rm = TRUE),
+      Delta = sum(combined_tbl3$`Tax (w/o TIF)`, na.rm = TRUE) -
+        sum(combined_tbl3$`Original Tax Bill`, na.rm = TRUE)
+    )
+  ) %>%
+  gt() %>%
+  fmt_currency(columns = c("Tax (w/o TIF)", "Original Tax Bill")) %>%
+  fmt_currency(columns = "Delta", force_sign = TRUE) %>%
+  tab_options(
+    table.width = pct(100),
+    column_labels.background.color = color_soft_grey,
+    row.striping.include_table_body = FALSE,
+    table.font.names = c(font_display, "sans-serif"),
+    data_row.padding = px(8),
+    data_row.padding.horizontal = px(10),
+    column_labels.padding = px(8),
+    column_labels.padding.horizontal = px(10)
+  ) %>%
+  tab_style(
+    style = cell_text(
+      weight = 900,
+      transform = "uppercase",
+      size = px(12)
+    ),
+    locations = cells_column_labels()
+  ) %>%
+  tab_style(
+    style = cell_text(weight = 600),
+    locations = cells_body(columns = District)
+  ) %>%
+  # Delta text only — red where the bill rose, green where it fell. Exact
+  # zeros keep the default ink, since neither reading applies.
+  tab_style(
+    style = cell_text(color = color_red),
+    locations = cells_body(columns = Delta, rows = Delta > 0)
+  ) %>%
+  tab_style(
+    style = cell_text(color = color_green),
+    locations = cells_body(columns = Delta, rows = Delta < 0)
+  ) %>%
+  # Highlight your TIF only — Rem_All may leave other TIF rows, which stay plain.
+  tab_style(
+    style = cell_fill(color = color_yellow, alpha = 0.25),
+    locations = cells_body(
+      rows = District == sub("^TIF", "TIF", stringr::str_to_title(tif_name), ignore.case = TRUE)
+    )
+  ) %>%
+  # Set the Total row off from the districts above it.
+  tab_style(
+    style = list(
+      cell_text(weight = 700),
+      cell_borders(sides = "top", color = color_ink, weight = px(2))
+    ),
+    locations = cells_body(rows = District == "Total")
+  )
+
+```
+
+## Scenario 2
+
+```{r eliminate all tifs - levies same, results='asis', echo=FALSE}
+tif_bill_sine_alltif_nlevy <- Rem_All(current_year, pin_14, F)
+
+diff <- sum(tif_bill_sine_alltif_nlevy$final_tax) - sum(tax_bill_current$tax_amt_post_exe)
+direction <- ifelse(diff > 0, "an increase", "a decrease")
+
+cat(glue(
+  "If **all TIFs were eliminated** and taxing agencies **did not raise their levies** to capture the revenue.
+  
+  Your new property tax bill would be {as.character(currency(sum(tif_bill_sine_alltif_nlevy$final_tax)))}, representing **{direction} of {as.character(currency(abs(diff)))}** compared to your current bill of {as.character(currency(sum(tax_bill_current$tax_amt_post_exe)))}."
+))
+
+lookuptbl4 <- tif_bill_sine_alltif_nlevy %>%
+  mutate(
+    agency_name = ifelse(
+      grepl("^TIF\\b", agency_name, ignore.case = TRUE),
+      sub("^TIF", "TIF", stringr::str_to_title(agency_name), ignore.case = TRUE),
+      stringr::str_to_title(agency_name)
+    )
+  )
+lookuptbl4 <- lookuptbl4 %>%
+  mutate(
+    agency_name = ifelse(
+      grepl("^TIF\\b", agency_name, ignore.case = TRUE),
+      agency_name,  # leave TIF ones unchanged
+      stringr::str_to_title(agency_name)
+    )
+  )
+
+# lookuptbl4 %>%
+#   select(
+#     District = agency_name,
+#     `Amount Owed` = final_tax,
+#   ) %>%
+#   gt() %>%
+#   data_color(
+#     columns = c("District"),
+#     colors = css_colors,
+#     autocolor_text = FALSE
+#   ) %>%
+#   fmt_currency(columns = c("Amount Owed"))
+
+# Rem_All returns raw uppercase major types; str_to_title matches the levels
+# below (process_tax_bill does this for tax_bill_current, not here).
+df4 <- lookuptbl4 %>%
+  mutate(agency_major_type = stringr::str_to_title(agency_major_type)) %>%
+  select(District = agency_name, agency_major_type, `Tax (w/o TIF)` = final_tax)
+
+if (nrow(df4) > 0) {
+  combined_tbl4 <- full_join(df4, original_tbl, by = "District")
+} else {
+  # No agencies left to join against; agency_major_type still has to exist for
+  # the factor/arrange below.
+  combined_tbl4 <- original_tbl %>%
+    mutate(`Tax (w/o TIF)` = 0, agency_major_type = NA_character_)
+}
+
+combined_tbl4 %>%
+  # original_tbl always appends a TIF row, using tif_name — which is NA when
+  # the property has no TIF. Drop it before display so it can't show as an
+  # NA-labelled row or reach the Total below.
+  filter(!is.na(District)) %>%
+  mutate(across(
+    c(`Original Tax Bill`, `Tax (w/o TIF)`),
+    ~replace_na(., 0)
+  )) %>%
+  mutate(agency_major_type = factor(
+    agency_major_type,
+    levels = c("Cook County", "Municipality/Township", "School", "Miscellaneous")
+  )) %>%
+  # Rem_All strips every TIF, so this can match several rows — all of them sort
+  # to the bottom. FALSE < TRUE keeps the districts above.
+  mutate(is_tif = grepl("^TIF\\b", District, ignore.case = TRUE)) %>%
+  arrange(is_tif, agency_major_type) %>%
+  select(-is_tif, -agency_major_type) %>%
+  mutate(Delta = `Tax (w/o TIF)` - `Original Tax Bill`) %>%
+  bind_rows(
+    tibble(
+      "District" = "Total",
+      `Tax (w/o TIF)` = sum(combined_tbl4$`Tax (w/o TIF)`, na.rm = TRUE),
+      `Original Tax Bill` = sum(combined_tbl4$`Original Tax Bill`, na.rm = TRUE),
+      Delta = sum(combined_tbl4$`Tax (w/o TIF)`, na.rm = TRUE) -
+        sum(combined_tbl4$`Original Tax Bill`, na.rm = TRUE)
+    )
+  ) %>%
+  gt() %>%
+  fmt_currency(columns = c("Tax (w/o TIF)", "Original Tax Bill")) %>%
+  fmt_currency(columns = "Delta", force_sign = TRUE) %>%
+  tab_options(
+    table.width = pct(100),
+    column_labels.background.color = color_soft_grey,
+    row.striping.include_table_body = FALSE,
+    table.font.names = c(font_display, "sans-serif"),
+    data_row.padding = px(8),
+    data_row.padding.horizontal = px(10),
+    column_labels.padding = px(8),
+    column_labels.padding.horizontal = px(10)
+  ) %>%
+  tab_style(
+    style = cell_text(
+      weight = 900,
+      transform = "uppercase",
+      size = px(12)
+    ),
+    locations = cells_column_labels()
+  ) %>%
+  tab_style(
+    style = cell_text(weight = 600),
+    locations = cells_body(columns = District)
+  ) %>%
+  # Delta text only — red where the bill rose, green where it fell. Exact
+  # zeros keep the default ink, since neither reading applies.
+  tab_style(
+    style = cell_text(color = color_red),
+    locations = cells_body(columns = Delta, rows = Delta > 0)
+  ) %>%
+  tab_style(
+    style = cell_text(color = color_green),
+    locations = cells_body(columns = Delta, rows = Delta < 0)
+  ) %>%
+  # Highlight your TIF only — Rem_All may leave other TIF rows, which stay plain.
+  tab_style(
+    style = cell_fill(color = color_yellow, alpha = 0.25),
+    locations = cells_body(
+      rows = District == sub("^TIF", "TIF", stringr::str_to_title(tif_name), ignore.case = TRUE)
+    )
+  ) %>%
+  # Set the Total row off from the districts above it.
+  tab_style(
+    style = list(
+      cell_text(weight = 700),
+      cell_borders(sides = "top", color = color_ink, weight = px(2))
+    ),
+    locations = cells_body(rows = District == "Total")
+  )
+
+```
+
+```{asis, echo=is_in_tif}
+## Scenario 3
 ```
 
 ```{r eliminate your tifs - levies rise, results='asis', echo=FALSE, eval=is_in_tif}
@@ -705,6 +993,10 @@ if (length(tif_number) > 0) {
   combined_tbl1 <- full_join(df1, original_tbl, by = "District")
 
   combined_tbl1 %>%
+    # original_tbl always appends a TIF row, using tif_name — which is NA when
+    # the property has no TIF. Drop it before display so it can't show as an
+    # NA-labelled row or reach the Total below.
+    filter(!is.na(District)) %>%
     mutate(across(
       c(`Original Tax Bill`, `Tax (w/o TIF)`),
       ~replace_na(., 0)
@@ -782,7 +1074,7 @@ if (length(tif_number) > 0) {
 ```
 
 ```{asis, echo=is_in_tif}
-## Scenario 2
+## Scenario 4
 ```
 
 ```{r eliminate your tifs - levies same, results='asis', echo=FALSE, eval=is_in_tif}
@@ -830,6 +1122,10 @@ df2 <- lookuptbl4 %>%
 combined_tbl2 <- full_join(df2, original_tbl, by = "District")
 
 combined_tbl2 %>%
+  # original_tbl always appends a TIF row, using tif_name — which is NA when
+  # the property has no TIF. Drop it before display so it can't show as an
+  # NA-labelled row or reach the Total below.
+  filter(!is.na(District)) %>%
   mutate(across(
     c(`Original Tax Bill`, `Tax (w/o TIF)`),
     ~replace_na(., 0)
@@ -905,272 +1201,6 @@ combined_tbl2 %>%
   )
 
 }
-```
-
-## Scenario 3
-
-```{r eliminate all tifs - levies rise, results='asis', echo=FALSE}
-tif_bill_sine_alltif_ylevy <- Rem_All(current_year, pin_14, T)
- 
-diff <- sum(tif_bill_sine_alltif_ylevy$final_tax) - sum(tax_bill_current$tax_amt_post_exe)
-direction <- ifelse(diff > 0, "an increase", "a decrease")
-
-cat(glue(
-  "If **all TIFs were eliminated** and taxing agencies **raised their levies** to recover the diverted revenue.
-  
-  Your new property tax bill would be {as.character(currency(sum(tif_bill_sine_alltif_ylevy$final_tax)))}, representing **{direction} of {as.character(currency(abs(diff)))}** compared to your current bill of {as.character(currency(sum(tax_bill_current$tax_amt_post_exe)))}."
-))
- 
-lookuptbl3 <- tif_bill_sine_alltif_ylevy 
-lookuptbl3 <- lookuptbl3 %>%
-  mutate(
-    agency_name = ifelse(
-      grepl("^TIF\\b", agency_name, ignore.case = TRUE),
-      sub("^TIF", "TIF", stringr::str_to_title(agency_name), ignore.case = TRUE),
-      stringr::str_to_title(agency_name)
-    )
-  )
- 
-
-# lookuptbl3 %>%
-#   select(
-#     District = agency_name,
-#     `Amount Owed` = final_tax,
-#   ) %>%
-#   gt() %>%
-#   data_color(
-#     columns = c("District"),
-#     colors = css_colors,
-#     autocolor_text = FALSE
-#   ) %>%
-#   fmt_currency(columns = c("Amount Owed"))
- 
-# Rem_All returns raw uppercase major types; str_to_title matches the levels
-# below (process_tax_bill does this for tax_bill_current, not here).
-df3 <- lookuptbl3 %>%
-  mutate(agency_major_type = stringr::str_to_title(agency_major_type)) %>%
-  select(District = agency_name, agency_major_type, `Tax (w/o TIF)` = final_tax)
-
-if (nrow(df3) > 0) {
-  combined_tbl3 <- full_join(df3, original_tbl, by = "District")
-} else {
-  # No agencies left to join against; agency_major_type still has to exist for
-  # the factor/arrange below.
-  combined_tbl3 <- original_tbl %>%
-    mutate(`Tax (w/o TIF)` = 0, agency_major_type = NA_character_)
-}
-
-combined_tbl3 %>%
-  mutate(across(
-    c(`Original Tax Bill`, `Tax (w/o TIF)`),
-    ~replace_na(., 0)
-  )) %>%
-  mutate(agency_major_type = factor(
-    agency_major_type,
-    levels = c("Cook County", "Municipality/Township", "School", "Miscellaneous")
-  )) %>%
-  # Rem_All strips every TIF, so this can match several rows — all of them sort
-  # to the bottom. FALSE < TRUE keeps the districts above.
-  mutate(is_tif = grepl("^TIF\\b", District, ignore.case = TRUE)) %>%
-  arrange(is_tif, agency_major_type) %>%
-  select(-is_tif, -agency_major_type) %>%
-  mutate(Delta = `Tax (w/o TIF)` - `Original Tax Bill`) %>%
-  bind_rows(
-    tibble(
-      "District" = "Total",
-      `Tax (w/o TIF)` = sum(combined_tbl3$`Tax (w/o TIF)`, na.rm = TRUE),
-      `Original Tax Bill` = sum(combined_tbl3$`Original Tax Bill`, na.rm = TRUE),
-      Delta = sum(combined_tbl3$`Tax (w/o TIF)`, na.rm = TRUE) -
-        sum(combined_tbl3$`Original Tax Bill`, na.rm = TRUE)
-    )
-  ) %>%
-  gt() %>%
-  fmt_currency(columns = c("Tax (w/o TIF)", "Original Tax Bill")) %>%
-  fmt_currency(columns = "Delta", force_sign = TRUE) %>%
-  tab_options(
-    table.width = pct(100),
-    column_labels.background.color = color_soft_grey,
-    row.striping.include_table_body = FALSE,
-    table.font.names = c(font_display, "sans-serif"),
-    data_row.padding = px(8),
-    data_row.padding.horizontal = px(10),
-    column_labels.padding = px(8),
-    column_labels.padding.horizontal = px(10)
-  ) %>%
-  tab_style(
-    style = cell_text(
-      weight = 900,
-      transform = "uppercase",
-      size = px(12)
-    ),
-    locations = cells_column_labels()
-  ) %>%
-  tab_style(
-    style = cell_text(weight = 600),
-    locations = cells_body(columns = District)
-  ) %>%
-  # Delta text only — red where the bill rose, green where it fell. Exact
-  # zeros keep the default ink, since neither reading applies.
-  tab_style(
-    style = cell_text(color = color_red),
-    locations = cells_body(columns = Delta, rows = Delta > 0)
-  ) %>%
-  tab_style(
-    style = cell_text(color = color_green),
-    locations = cells_body(columns = Delta, rows = Delta < 0)
-  ) %>%
-  # Highlight your TIF only — Rem_All may leave other TIF rows, which stay plain.
-  tab_style(
-    style = cell_fill(color = color_yellow, alpha = 0.25),
-    locations = cells_body(
-      rows = District == sub("^TIF", "TIF", stringr::str_to_title(tif_name), ignore.case = TRUE)
-    )
-  ) %>%
-  # Set the Total row off from the districts above it.
-  tab_style(
-    style = list(
-      cell_text(weight = 700),
-      cell_borders(sides = "top", color = color_ink, weight = px(2))
-    ),
-    locations = cells_body(rows = District == "Total")
-  )
-
-```
-
-## Scenario 4
-
-```{r eliminate all tifs - levies same, results='asis', echo=FALSE}
-tif_bill_sine_alltif_nlevy <- Rem_All(current_year, pin_14, F)
-
-diff <- sum(tif_bill_sine_alltif_nlevy$final_tax) - sum(tax_bill_current$tax_amt_post_exe)
-direction <- ifelse(diff > 0, "an increase", "a decrease")
-
-cat(glue(
-  "If **all TIFs were eliminated** and taxing agencies **did not raise their levies** to capture the revenue.
-  
-  Your new property tax bill would be {as.character(currency(sum(tif_bill_sine_alltif_nlevy$final_tax)))}, representing **{direction} of {as.character(currency(abs(diff)))}** compared to your current bill of {as.character(currency(sum(tax_bill_current$tax_amt_post_exe)))}."
-))
-
-lookuptbl4 <- tif_bill_sine_alltif_nlevy %>%
-  mutate(
-    agency_name = ifelse(
-      grepl("^TIF\\b", agency_name, ignore.case = TRUE),
-      sub("^TIF", "TIF", stringr::str_to_title(agency_name), ignore.case = TRUE),
-      stringr::str_to_title(agency_name)
-    )
-  )
-lookuptbl4 <- lookuptbl4 %>%
-  mutate(
-    agency_name = ifelse(
-      grepl("^TIF\\b", agency_name, ignore.case = TRUE),
-      agency_name,  # leave TIF ones unchanged
-      stringr::str_to_title(agency_name)
-    )
-  )
-
-# lookuptbl4 %>%
-#   select(
-#     District = agency_name,
-#     `Amount Owed` = final_tax,
-#   ) %>%
-#   gt() %>%
-#   data_color(
-#     columns = c("District"),
-#     colors = css_colors,
-#     autocolor_text = FALSE
-#   ) %>%
-#   fmt_currency(columns = c("Amount Owed"))
-
-# Rem_All returns raw uppercase major types; str_to_title matches the levels
-# below (process_tax_bill does this for tax_bill_current, not here).
-df4 <- lookuptbl4 %>%
-  mutate(agency_major_type = stringr::str_to_title(agency_major_type)) %>%
-  select(District = agency_name, agency_major_type, `Tax (w/o TIF)` = final_tax)
-
-if (nrow(df4) > 0) {
-  combined_tbl4 <- full_join(df4, original_tbl, by = "District")
-} else {
-  # No agencies left to join against; agency_major_type still has to exist for
-  # the factor/arrange below.
-  combined_tbl4 <- original_tbl %>%
-    mutate(`Tax (w/o TIF)` = 0, agency_major_type = NA_character_)
-}
-
-combined_tbl4 %>%
-  mutate(across(
-    c(`Original Tax Bill`, `Tax (w/o TIF)`),
-    ~replace_na(., 0)
-  )) %>%
-  mutate(agency_major_type = factor(
-    agency_major_type,
-    levels = c("Cook County", "Municipality/Township", "School", "Miscellaneous")
-  )) %>%
-  # Rem_All strips every TIF, so this can match several rows — all of them sort
-  # to the bottom. FALSE < TRUE keeps the districts above.
-  mutate(is_tif = grepl("^TIF\\b", District, ignore.case = TRUE)) %>%
-  arrange(is_tif, agency_major_type) %>%
-  select(-is_tif, -agency_major_type) %>%
-  mutate(Delta = `Tax (w/o TIF)` - `Original Tax Bill`) %>%
-  bind_rows(
-    tibble(
-      "District" = "Total",
-      `Tax (w/o TIF)` = sum(combined_tbl4$`Tax (w/o TIF)`, na.rm = TRUE),
-      `Original Tax Bill` = sum(combined_tbl4$`Original Tax Bill`, na.rm = TRUE),
-      Delta = sum(combined_tbl4$`Tax (w/o TIF)`, na.rm = TRUE) -
-        sum(combined_tbl4$`Original Tax Bill`, na.rm = TRUE)
-    )
-  ) %>%
-  gt() %>%
-  fmt_currency(columns = c("Tax (w/o TIF)", "Original Tax Bill")) %>%
-  fmt_currency(columns = "Delta", force_sign = TRUE) %>%
-  tab_options(
-    table.width = pct(100),
-    column_labels.background.color = color_soft_grey,
-    row.striping.include_table_body = FALSE,
-    table.font.names = c(font_display, "sans-serif"),
-    data_row.padding = px(8),
-    data_row.padding.horizontal = px(10),
-    column_labels.padding = px(8),
-    column_labels.padding.horizontal = px(10)
-  ) %>%
-  tab_style(
-    style = cell_text(
-      weight = 900,
-      transform = "uppercase",
-      size = px(12)
-    ),
-    locations = cells_column_labels()
-  ) %>%
-  tab_style(
-    style = cell_text(weight = 600),
-    locations = cells_body(columns = District)
-  ) %>%
-  # Delta text only — red where the bill rose, green where it fell. Exact
-  # zeros keep the default ink, since neither reading applies.
-  tab_style(
-    style = cell_text(color = color_red),
-    locations = cells_body(columns = Delta, rows = Delta > 0)
-  ) %>%
-  tab_style(
-    style = cell_text(color = color_green),
-    locations = cells_body(columns = Delta, rows = Delta < 0)
-  ) %>%
-  # Highlight your TIF only — Rem_All may leave other TIF rows, which stay plain.
-  tab_style(
-    style = cell_fill(color = color_yellow, alpha = 0.25),
-    locations = cells_body(
-      rows = District == sub("^TIF", "TIF", stringr::str_to_title(tif_name), ignore.case = TRUE)
-    )
-  ) %>%
-  # Set the Total row off from the districts above it.
-  tab_style(
-    style = list(
-      cell_text(weight = 700),
-      cell_borders(sides = "top", color = color_ink, weight = px(2))
-    ),
-    locations = cells_body(rows = District == "Total")
-  )
-
 ```
 
 # Appendix
