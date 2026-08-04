@@ -39,7 +39,7 @@ from rq import Queue
 load_dotenv(".env")
 
 MODE = "TIF"  # default mode, can be changed to "PTAX" for explainer
-VERSION = "2.5"
+VERSION = "2.6"
 
 # Rendered HTML lives in GCS; the local outputs/ directory is a transient
 # staging area only (render_quarto writes there, uploads, then deletes).
@@ -650,6 +650,15 @@ def run_quarto(
     os.makedirs(job_dir, exist_ok=True)
     try:
         shutil.copy2(qmd_file, job_qmd)
+        for rel in (
+            "custom.scss",
+            "typekit.html",
+            "app/assets/mansueto_logo.png",
+            "app/assets/illinois_answers_logo.png",
+        ):
+            dest = os.path.join(job_dir, rel)
+            os.makedirs(os.path.dirname(dest), exist_ok=True)
+            shutil.copy2(os.path.join(project_root, rel), dest)
         # renv's activate.R uses a relative path; write a thin .Rprofile here
         # that sources the project's activate.R via absolute path.
         with open(os.path.join(job_dir, ".Rprofile"), "w") as f:
