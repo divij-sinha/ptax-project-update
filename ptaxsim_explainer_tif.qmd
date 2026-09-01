@@ -186,7 +186,7 @@ if (nrow(tif_data) == 0) {
 # are duplicated here; change one, change both.
 color_navy      <- "#003A63" # Logo, links (reference navy)
 color_yellow    <- "#F6AE2D" # Accents
-color_deep      <- "#002344" # Subtitles, headings
+color_deep      <- "#003282" # Subtitles, headings
 color_soft_grey <- "#F6F6F4" # Accents, tables, panels
 color_ink       <- "#1A1A1A" # Title, paragraph
 color_gray      <- "#767676" # Kickers, rail titles
@@ -267,11 +267,13 @@ hero_amount <- hero_row$amount
 hero_direction <- hero_row$direction
 ```
 
+<a href="/mode/tif" class="home-button">Home</a>
+
 :::{.result-hero}
 
-<p class="kicker">TIF Explainer</p>
+<p class="kicker">How TIFs affect your property tax bill</p>
 
-<h1>If no TIFs existed, your tax bill could be <span class="big-number">`r hero_amount`</span> `r hero_direction`</h1>
+<h1>If No TIFs Existed, Your Tax Bill Could Be <span class="big-number">`r hero_amount`</span> `r hero_direction`</h1>
 
 <div class="hero-rule"></div>
 
@@ -287,7 +289,7 @@ A Tax Increment Financing (TIF) district is a special zone, with specific geogra
 
 However, Chicago leaders have increasingly used TIF to fund public works projects like street resurfacing and to help fill operating budget shortfalls through declared surpluses. That means instead of using tax dollars to grow the tax base, TIF is raising money to spend on everyday government projects and services. 
 
-# How Do TIFs Affect Property Taxes?
+## How do TIFs affect property taxes?
 
 If you live in a TIF district, part of your tax payment is redirected to the district. That doesn’t mean an extra charge on your taxes — it means that local governments aren’t able to collect as much from your bill, so they have to collect more from everyone, including you, to raise what they need. 
 
@@ -361,9 +363,9 @@ property_table <- pin_details_current %>%
   mutate(explanations = c(
     "Code that identifies your property",
     "Assessor’s estimate of your property’s value",
-    "Last property value assessment",
+    "Last Township Assessment Year",
     "Type of property",
-    "EAV of your property",
+    "Equalized Assessed Value (EAV) of your property",
     "Number of exemptions claimed",
     "Value of exemptions; deducted from property value for tax purposes",
     tif_year_exp,
@@ -392,7 +394,7 @@ property_table <- pin_details_current %>%
 ```
 
 
-# How much money do TIFs raise?
+## How much money do TIFs raise?
 
 <!-- 
 
@@ -489,9 +491,9 @@ median_in_tif_perc <- paste0(sprintf("%.3f", 20.8), "%")
 
 In Tax Year `r current_year`, the last year for which Cook County data is available, TIF districts brought in **`r total_tif_revenue_amount`**  — nearly `r total_tif_revenue_perc` of all property tax revenue collected in the county. In Chicago, where TIF districts collect the most money, the percentage is even higher. 
 
-The **average residential taxpayer in Cook County**, whether or not they lived in a TIF district, paid `r mean_all_amount` toward TIFs.   However, the average Chicago homeowner paid nearly `r mean_in_tif_amount` (TODO) of their tax bill toward TIF. 
+The **average residential taxpayer in Cook County**, whether or not they lived in a TIF district, paid `r mean_all_amount` toward TIFs. However, the median Chicago homeowner's tax bill increased by nearly $368 due to TIFs. 
 
-# Your Tax Bill, broken down
+# Your tax bill, broken down
 
 Your property at `r address` `r if (is_in_tif) glue("**is in** the {tif_name}") else "**is not in** a TIF district"`.  The table below shows your property’s assessed value, exemptions, total tax bill, and other general characteristics.
 
@@ -631,7 +633,7 @@ ggplot(pie_data, aes(x = "", y = Amount_Owed, fill = District)) +
   )
 ```
 
-# What if TIF Were Eliminated?
+# What if TIFs were eliminated?
 
 There are two ways a TIF district can be eliminated: it can **expire naturally** at the end of its planned term, or it can be **removed early** by the city.
 
@@ -639,7 +641,7 @@ When a TIF expires, tax revenues from that district return to the general tax ba
 
 Typically, local governments will then **raise their levies** to capture the added revenues that had been raised by the TIF instead of returning that money back to taxpayers. This is one way school districts and small agencies can skirt the state law that caps property tax increases. 
 
-# Scenarios for properties
+## Scenarios for properties
 
 In this section, we explore **`r if (is_in_tif) "four" else "two"` scenarios** to estimate what your tax bill — and the allocation of public funds — might look like if TIF districts were eliminated. These scenarios help us understand how TIFs shift funding and who might benefit or lose if they were removed.
 <!-- `r if (is_in_tif) "3" else "1"` -->
@@ -670,7 +672,7 @@ original_tbl <- lookuptbl %>%
     )
 ```
 
-## Scenario 1
+### Scenario 1
 
 ```{r eliminate all tifs - levies rise, results='asis', echo=FALSE}
 tif_bill_sine_alltif_ylevy <- Rem_All(current_year, pin_14, T)
@@ -804,7 +806,7 @@ combined_tbl3 %>%
 
 ```
 
-## Scenario 2
+### Scenario 2
 
 ```{r eliminate all tifs - levies same, results='asis', echo=FALSE}
 tif_bill_sine_alltif_nlevy <- Rem_All(current_year, pin_14, F)
@@ -945,7 +947,7 @@ combined_tbl4 %>%
 ```
 
 ```{asis, echo=is_in_tif}
-## Scenario 3
+### Scenario 3
 ```
 
 ```{r eliminate your tifs - levies rise, results='asis', echo=FALSE, eval=is_in_tif}
@@ -1074,7 +1076,7 @@ if (length(tif_number) > 0) {
 ```
 
 ```{asis, echo=is_in_tif}
-## Scenario 4
+### Scenario 4
 ```
 
 ```{r eliminate your tifs - levies same, results='asis', echo=FALSE, eval=is_in_tif}
@@ -1207,7 +1209,7 @@ combined_tbl2 %>%
 
 This explainer uses parcel-level tax data and simulation tools to project and visualize Cook County property tax bills, with a particular focus on the impact of Tax Increment Financing (TIF) districts. 
 
-### Additional Resources
+### Additional resources
 
 - [Cook County Property Tax Simulator](https://ptaxexplainer.miurban-dashboards.org)  
   Explains how property tax bills are calculated.
@@ -1218,7 +1220,7 @@ This explainer uses parcel-level tax data and simulation tools to project and vi
 - [WTTW: Share of Property Taxes Claimed by TIFs Soars](https://news.wttw.com/2025/05/08/share-chicago-property-taxes-claimed-tif-funds-soared-47-5-years-data)  
   Data journalism analyzing the growing share of property taxes redirected to TIFs in Chicago.
 
-###  Frequently Asked Questions"
+### Frequently asked questions
 
 **Q: Do property owners inside TIF districts pay more in taxes?**
 **A:** No. They pay the same rate as everyone else. The difference is in how the tax money is distributed.
@@ -1233,30 +1235,30 @@ This explainer uses parcel-level tax data and simulation tools to project and vi
 **A:** Yes. Municipalities can retire a TIF district early if its goals have been met or funding is no longer needed.
 
 
-### Data Sources
+### Data sources
 - **ptaxsim**: We are using [`ptaxsim`](https://ccao-data.github.io/ptaxsim/) package for calculating Cook County property tax bills. These numbers could differ from the Cook Country Treasurer website.
 - **SQLite Database (`ptaxsim-2024.0.0.db`)**: Structured records for parcels, taxing agencies, rates, and TIF distributions.
 - **Custom RDS Files**: Used to simulate alternate levy scenarios.
 
 ### Methodology
 
-##### Property Lookup
+##### Property lookup
 Each property is identified by a 14-digit PIN (Property Index Number). This is used to:
   - Retrieve tax records
   - Determine TIF status
   - Simulate alternative tax bills
 
-##### Tax Calculation
+##### Tax calculation
 The `tax_bill()` function calculates each tax bill based on:
   - EAV (equalized assessed value)
   - Taxing agency levies
   - Exemptions and property class rules
   - TIF redirection
 
-##### TIF Effects
+##### TIF effects
 A property in a TIF district has part of its taxes diverted to the TIF fund. The share is determined by `tif_share`. This reduces what goes to regular taxing services.
 
-##### Scenario Simulations
+##### Scenario simulations
 We model four “what-if” scenarios:
 
 | Scenario | Description | Levy Behavior | Scope |
@@ -1268,7 +1270,7 @@ We model four “what-if” scenarios:
 
 These are simulated by modifying the TIF and agency tables before calling `tax_bill()`.
 
-##### Simulation Logic
+##### Simulation logic
 - **Original Tax Bill**: The actual tax billed to the property, including the share redirected to TIF districts.
 - **Tax (w/o TIF)**: A counterfactual estimate of what the tax bill would have been if no TIF districts had existed. This assumes taxing agencies would have had to levy higher rates across all parcels to meet the same revenue targets.
 
@@ -1283,7 +1285,7 @@ These are simulated by modifying the TIF and agency tables before calling `tax_b
 
 
 <button onclick="window.print()" class="btn btn-primary" style="float:right; margin:5px 0;">
-  Print PDF 🖨
+  Print PDF
 </button>
 <style>
 @media print {

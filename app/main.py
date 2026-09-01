@@ -39,7 +39,7 @@ from rq import Queue
 load_dotenv(".env")
 
 MODE = "TIF"  # default mode, can be changed to "PTAX" for explainer
-VERSION = "2.6"
+VERSION = "2.7"
 
 # Rendered HTML lives in GCS; the local outputs/ directory is a transient
 # staging area only (render_quarto writes there, uploads, then deletes).
@@ -655,6 +655,7 @@ def run_quarto(
             "typekit.html",
             "app/assets/mansueto_logo.png",
             "app/assets/illinois_answers_logo.png",
+            "app/assets/iaplogo.png",
         ):
             dest = os.path.join(job_dir, rel)
             os.makedirs(os.path.dirname(dest), exist_ok=True)

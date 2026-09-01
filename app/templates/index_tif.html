@@ -1,3 +1,19 @@
-{% extends "_base_index.html" %} {% block mode %}
+{% extends "_base_index.html" %}
+{% block mode_rel_year %}
+<input
+  type="hidden"
+  name="search_category"
+  id="search_category"
+  value="last_assessment_year"
+/>
+{% endblock %}
+{% block mode %}
 <input type="hidden" name="mode" id="mode" value="TIF" />
+{% endblock %}
+{% block footer %}
+<img
+  src="/assets/illinois_answers_logo.png"
+  alt="Illinois Answers Project Logo"
+  class="logo-img"
+/>
 {% endblock %}

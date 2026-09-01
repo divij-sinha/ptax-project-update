@@ -58,8 +58,15 @@ g {
   margin-bottom: 30px;
 }
 
+#footer-text {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
 .logo-img {
   height: 50px;
+  width: auto;
 }
 
 .header-img {

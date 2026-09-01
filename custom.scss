@@ -10,7 +10,7 @@
 // Colors
 $color-navy:       #003A63; // Logo, links (reference navy)
 $color-yellow:     #F6AE2D; // Accents
-$color-deep:       #002344; // Subtitles, headings
+$color-deep:       #003282; // Subtitles, headings
 $color-soft-grey:  #F6F6F4; // Accents, Tables, panels
 $color-ink:        #1A1A1A; // Title, Paragraph
 $color-gray:       #767676; // Kickers, rail titles
@@ -78,7 +78,7 @@ h1:not(.title) {
   font-size: clamp(2rem, 4vw, 3rem);
   line-height: 1.12;
   letter-spacing: -0.025em;
-  margin-top: 3rem;
+  margin-top: 4.5rem;
   padding-top: 2rem;
   border-top: 1px solid $color-line;
 }
@@ -93,26 +93,26 @@ h1:not(.title):first-of-type {
 h2 {
   color: $color-deep;
   font-size: clamp(1.45rem, 3vw, 2.1rem);
-  margin-top: 2.25rem;
+  margin-top: 3.25rem;
 }
 
 h3 {
   color: $color-deep;
   font-size: 1.2rem;
-  margin-top: 2rem;
+  margin-top: 3rem;
 }
 
 h4 {
   color: $color-deep;
   font-size: 1.05rem;
-  margin-top: 2rem;
+  margin-top: 2.5rem;
 }
 
 // Subtitles / small subheads — uppercase, letter-spaced
 h5, h6, .subtitle {
   font-family: $font-display;
   color: $color-deep;
-  margin-top: 2rem;
+  margin-top: 2.5rem;
   font-size: 1.05rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -135,6 +135,35 @@ a {
   font-size: 0.76rem;
   font-weight: 900;
   margin: 0 0 0.85rem;
+  text-align: center;
+}
+
+// ---- Home button -------------------------
+// Fixed top-right link back to the TIF search page. The results HTML is the
+// standalone Quarto output (no app nav bar / style.css), so this is styled
+// here rather than reusing .nav-button.
+.home-button {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+  padding: 0.35rem 1.1rem;
+  border: 2px solid $color-navy;
+  border-radius: 30px;
+  background: #fff;
+  color: $color-navy;
+  font-weight: 700;
+  text-decoration: none;
+
+  &:hover {
+    background: $color-navy;
+    color: #fff;
+    text-decoration: none;
+  }
+}
+
+@media print {
+  .home-button { display: none !important; }
 }
 
 // ==========================================
