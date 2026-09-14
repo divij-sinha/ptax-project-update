@@ -8,6 +8,8 @@ format:
   html:
     embed-resources: true
     self-contained: true
+    include-in-header:
+      - favicon.html
     grid:
       sidebar-width: 0px
       margin-width: 400px

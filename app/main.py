@@ -39,7 +39,7 @@ from rq import Queue
 load_dotenv(".env")
 
 MODE = "TIF"  # default mode, can be changed to "PTAX" for explainer
-VERSION = "2.7"
+VERSION = "2.8"
 
 # Rendered HTML lives in GCS; the local outputs/ directory is a transient
 # staging area only (render_quarto writes there, uploads, then deletes).
@@ -189,7 +189,7 @@ async def read_root_mode(request: Request, mode: str):
         return templates.TemplateResponse(
             request=request,
             name="index_tif.html",
-            context={"title": "TIF Explainer"},
+            context={"title": "How TIFs affect your property tax bill"},
         )
     else:
         return templates.TemplateResponse(
@@ -653,6 +653,7 @@ def run_quarto(
         for rel in (
             "custom.scss",
             "typekit.html",
+            "favicon.html",
             "app/assets/mansueto_logo.png",
             "app/assets/illinois_answers_logo.png",
             "app/assets/iaplogo.png",
