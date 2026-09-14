@@ -14,6 +14,7 @@ format:
     self-contained: true
     include-in-header:
       - typekit.html
+      - favicon.html
     grid:
       sidebar-width: 0px
       margin-width: 400px
@@ -273,7 +274,7 @@ hero_direction <- hero_row$direction
 
 <p class="kicker">How TIFs affect your property tax bill</p>
 
-<h1>If No TIFs Existed, Your Tax Bill Could Be <span class="big-number">`r hero_amount`</span> `r hero_direction`</h1>
+<h1>If No TIFs Existed, Your Tax Bill Could Be <span class="big-number">`r hero_amount`</span> `r str_to_title(hero_direction)`</h1>
 
 <div class="hero-rule"></div>
 
