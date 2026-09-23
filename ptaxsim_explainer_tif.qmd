@@ -647,11 +647,11 @@ Typically, local governments will then **raise their levies** to capture the add
 In this section, we explore **`r if (is_in_tif) "four" else "two"` scenarios** to estimate what your tax bill — and the allocation of public funds — might look like if TIF districts were eliminated. These scenarios help us understand how TIFs shift funding and who might benefit or lose if they were removed.
 <!-- `r if (is_in_tif) "3" else "1"` -->
 
-- Scenario 1: All TIFs are eliminated and levies stay constant → a broader tax base may lower your burden.
-- Scenario 2: All TIFs are eliminated and taxing bodies raise their levies to compensate → your bill may not decrease, but local governments receive significantly more revenue.
+- Scenario 1: All TIFs are eliminated and taxing bodies raise their levies to compensate → your bill may not decrease, but local governments receive significantly more revenue.
+- Scenario 2: All TIFs are eliminated and levies stay constant → a broader tax base may lower your burden.
 ```{asis, echo=is_in_tif}
-- Scenario 3: Your TIF is eliminated and levies stay constant → your bill decreases slightly.
-- Scenario 4: Your TIF is eliminated, and taxing bodies raise their levies to compensate → your bill may not decrease, but local governments receive some more revenue.
+- Scenario 3: Your TIF is eliminated and taxing bodies raise their levies to compensate → your bill may not decrease, but local governments receive some more revenue.
+- Scenario 4: Your TIF is eliminated and levies stay constant → your bill decreases slightly.
 ```
 
 
@@ -1264,10 +1264,10 @@ We model four “what-if” scenarios:
 
 | Scenario | Description | Levy Behavior | Scope |
 |----------|-------------|----------------|--------|
-| 1 | Remove your TIF | Levies rise | Just your TIF |
-| 2 | Remove your TIF | Levies constant | Just your TIF |
-| 3 | Remove all TIFs | Levies rise | Countywide |
-| 4 | Remove all TIFs | Levies constant | Countywide |
+| 1 | Remove all TIFs | Levies rise | Countywide |
+| 2 | Remove all TIFs | Levies constant | Countywide |
+| 3 | Remove your TIF | Levies rise | Just your TIF |
+| 4 | Remove your TIF | Levies constant | Just your TIF |
 
 These are simulated by modifying the TIF and agency tables before calling `tax_bill()`.
 

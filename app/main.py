@@ -39,7 +39,7 @@ from rq import Queue
 load_dotenv(".env")
 
 MODE = "TIF"  # default mode, can be changed to "PTAX" for explainer
-VERSION = "2.8"
+VERSION = "2.9"
 
 # Rendered HTML lives in GCS; the local outputs/ directory is a transient
 # staging area only (render_quarto writes there, uploads, then deletes).
