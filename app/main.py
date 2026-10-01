@@ -199,6 +199,16 @@ async def read_root_mode(request: Request, mode: str):
         )
 
 
+@app.get("/people", response_class=HTMLResponse)
+async def read_people(request: Request):
+    """Render the team page."""
+    return templates.TemplateResponse(
+        request=request,
+        name="people.html",
+        context={"title": "Meet the Team"},
+    )
+
+
 @app.post("/email", response_class=HTMLResponse)
 # https://medium.com/@abdullahzulfiqar653/sending-emails-with-attachments-using-python-32b908909d73
 async def handle_email(request: Request):
