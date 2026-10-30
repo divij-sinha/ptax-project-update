@@ -1079,7 +1079,7 @@ wheels = [
 
 [[package]]
 name = "ptax-project-update"
-version = "2.7.0"
+version = "2.9.0"
 source = { virtual = "." }
 dependencies = [
     { name = "fastapi", extra = ["standard"] },
