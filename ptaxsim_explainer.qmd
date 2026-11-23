@@ -16,9 +16,9 @@ format:
     theme: zephyr
 params:
     current_year:
-        value: 2024
+        value: 2025
     prior_year:
-        value: 2023
+        value: 2024
     pin_14:
         label: "PIN"
         value: "14294070931001"
@@ -56,7 +56,7 @@ library(svglite)
 source("helper_funcs.R")
 
 # set the following variables and run
-db_path <- "data/ptaxsim-2024.0.0.db"
+db_path <- "data/ptaxsim.db"
 
 pin_14 <- format(params$pin_14, scientific = FALSE, trim = TRUE)
 pin_14 <- str_pad(pin_14, width = 14, pad = "0", side = "left")
@@ -878,7 +878,7 @@ See the breakdown of the tax levy change for each district in [Appendix C](#appe
 
 ```{r}
 tax_bill_historic <- tax_bill(
-  year_vec = c(2006:2024),
+  year_vec = c(2006:2025),
   pin_vec = pin_14,
   simplify = F
 )
@@ -888,9 +888,9 @@ year_totals <- tax_bill_historic %>% distinct(year, agency_num, agency_total_ext
   summarize(total_ext = sum(agency_total_ext))
 
 val_min <- year_totals %>% filter(year == 2006) %>% pull(total_ext)
-val_max <- year_totals %>% filter(year == 2024) %>% pull(total_ext)
+val_max <- year_totals %>% filter(year == 2025) %>% pull(total_ext)
 
-detail_str <- str_glue("From 2006 to 2024, the total amount of property taxes collected across all agencies for your property increased ",
+detail_str <- str_glue("From 2006 to 2025, the total amount of property taxes collected across all agencies for your property increased ",
          "from {scales::dollar(val_min)} to {scales::dollar(val_max)} or {scales::percent((val_max - val_min) / val_min)}.")
 ```
 

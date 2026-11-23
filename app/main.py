@@ -120,7 +120,7 @@ def _get_hero_df(year: int) -> pl.DataFrame:
 
 
 # SQLite connection opened once per process in read-only mode with a warm page cache
-_DB_PATH = DATA_DIR / "ptaxsim-2024.0.0.db"
+_DB_PATH = DATA_DIR / "ptaxsim.db"
 _db_conn: sqlite3.Connection | None = None
 
 
