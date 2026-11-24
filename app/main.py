@@ -476,11 +476,11 @@ async def handle_pin(
     """Handle PIN input and render the QMD file."""
 
     if search_category == "three_years":
-        prior_year = 2021
+        prior_year = 2022
     elif search_category == "five_years":
-        prior_year = 2019
+        prior_year = 2020
     elif search_category == "one_year":
-        prior_year = 2023
+        prior_year = 2024
     else:
         prior_year = 1
 
@@ -692,7 +692,7 @@ def run_quarto(
                 "--output",
                 fname,
                 "--execute-param",
-                "current_year=2024",
+                "current_year=2025",
                 "--execute-param",
                 f"prior_year={prior_year}",
                 "--execute-param",
