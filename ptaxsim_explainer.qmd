@@ -820,7 +820,7 @@ This share can be broken up into three parts that impact your bill:
 Your tax bill may have changed due to a change in your exemptions. Property tax exemptions are savings that contribute to lowering a homeowner’s property tax bill. Some exemptions need to be claimed each year, while other exemptions continue after being claimed once.
 
 
-`r if(total_exe_incident > 0) {
+`r if(abs(total_exe_incident) > 0) {
   paste0("A change in exemptions between ", prior_year, " and ", current_year, " caused your tax bill to __", change_str(total_exe_incident, 'word'), "__ by ", render_name(label_dol_amt(abs(total_exe_incident)), change_str(total_exe_incident, 'past')), ".")
 } else {
     paste0("Your exemptions did not change between ", prior_year, " and ", current_year, " so your tax bill did not change.")
