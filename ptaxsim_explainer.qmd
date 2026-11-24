@@ -66,7 +66,7 @@ prior_year <- params$prior_year
 if (!is.null(params$address) && nchar(params$address) > 0) {
     address <- params$address
 } else {
-    address_df <- arrow::read_parquet("data/address_points.parquet", col_select = c("PIN", "ADDRDELIV")) %>%
+    address_df <- arrow::read_parquet("data/addresses_qmd_data.parquet", col_select = c("PIN", "ADDRDELIV")) %>%
         filter(PIN == pin_14 | PIN == str_glue("{str_sub(pin_14, 1, 10)}0000")) %>%
         select(ADDRDELIV)
     if (nrow(address_df) > 0) {

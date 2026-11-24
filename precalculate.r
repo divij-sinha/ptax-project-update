@@ -70,3 +70,31 @@ create_tax_bases <- function() {
 
 
 create_tax_bases()
+
+# get address data
+
+library(tidyverse)
+library(httr)
+library(jsonlite)
+library(arrow)
+
+
+base_url <- "https://datacatalog.cookcountyil.gov/resource/3723-97qp.json"
+addresses <- GET(
+  base_url,
+  query = list(
+    `$where` = "year = 2026",
+    `$select` = 'pin, prop_address_full, prop_address_city_name',
+    `$limit` = 2000000L)
+)
+addresses <- fromJSON(rawToChar(addresses$content)) %>% tibble() %>% type_convert()
+
+addresses <- addresses %>% 
+  mutate(addr = str_glue(
+    "{prop_address_full}, {prop_address_city_name}"
+  )) %>% 
+  filter(!is.na(prop_address_full)) %>%
+  select(pin, addr)
+
+addresses %>% rename(PIN = pin, ADDRDELIV = addr) %>% write_parquet('data/addresses_qmd_data.parquet')
+
