@@ -566,7 +566,7 @@ total_exe <- pin_details_current %>%
 
 ## Key Points
 
-Your tax bill __`r change_str(tax_bill_change, 'past')`__ by `r render_name(label_dol_amt(abs(tax_bill_change)),change_str(tax_bill_change, 'past'))` from `r prior_year` to `r current_year`. `r if (change_from_levy<0) "A" else "An"` `r change_str(change_from_levy, 'word')` of `r render_name(label_dol_amt(abs(change_from_levy)),change_str(change_from_levy, "past"))` was due to the changes in the amount of taxes collected by the government. `r if (change_from_share<0) "A" else "An"` `r change_str(change_from_share, 'word')` `r render_name(label_dol_amt(abs(change_from_share)),change_str(change_from_share, "past"))` was due to changes in assessed values. `r if (change_leftover<0) "A" else "An"` `r change_str(change_leftover, 'word')` of `r label_dol_amt(abs(change_leftover))` was due to other factors.
+Your tax bill __`r change_str(tax_bill_change, 'past')`__ by `r render_name(label_dol_amt(abs(tax_bill_change)),change_str(tax_bill_change, 'past'))` from `r prior_year` to `r current_year`. `r if (change_from_levy<0) "A" else "An"` `r change_str(change_from_levy, 'word')` of `r render_name(label_dol_amt(abs(change_from_levy)),change_str(change_from_levy, "past"))` was due to the changes in the amount of taxes collected by the government. `r if (change_from_share<0) "A" else "An"` `r change_str(change_from_share, 'word')` of `r render_name(label_dol_amt(abs(change_from_share)),change_str(change_from_share, "past"))` was due to changes in assessed values. `r if (change_leftover<0) "A" else "An"` `r change_str(change_leftover, 'word')` of `r label_dol_amt(abs(change_leftover))` was due to other factors.
 
 ## What are property taxes?
 
@@ -722,13 +722,13 @@ if (is.na(max_val) || max_val == 0) {
 }
 ```
 
-## How Is My Tax Determined?
+## How Is My Tax Bill Determined?
 
-Your tax bill is determined primarily by two key factors, which are represented in the figure below. First is the assessors' estimate of your property value, which is based on an analysis of other similar homes that have sold recently. Second is the amount of property taxes charged by the taxing jurisdictions that your property is within, known as the levy. Most properties to belong to multiple taxing jurisdictions, such as a county, city, and school district, and pay a separate tax to each one. 
+Your tax bill is determined primarily by two key factors, which are represented in the figure below. First is the assessors' estimate of your property value, which is based on an analysis of other similar homes that have sold recently. Second is the amount of property taxes charged by the taxing jurisdictions that your property is within, known as the levy. Most properties belong to multiple taxing jurisdictions, such as a county, city, and school district, and pay a separate tax to each one. 
 
 ![Tax Bill Calculation](https://ptaxexplainer.miurban-dashboards.org/assets/tax_bill_fig.png){fig-align="center"}
 
-Property tax bills are calculated based on the [**Tax Levy**]{style="color: #E9AA01;"}  and the value of your property. First, the government determines the [**Tax Levy**]{style="color: #E9AA01;"}, or the total amount of taxes imposed by the government. This levy is then divided among all property owners in the area. Your share of this levy depends on [**how much your property is worth compared to the total value of all properties**]{style="color: #011E56"}.
+Property tax bills are calculated based on the [**Tax Levy**]{style="color: #E9AA01;"}  and the value of your property. First, the government determines the [**Tax Levy**]{style="color: #E9AA01;"}, or the total amount of taxes imposed by the government. This levy is then divided between all property owners in the area. Your share of this levy depends on [**how much your property is worth compared to the total value of all properties**]{style="color: #011E56"}.
 
 Your final tax bill reflects your property's [**share of the total taxable value**]{style="color: #011E56;"} in the area, meaning you contribute to the Tax Levy in proportion to your property's worth.
 
@@ -742,7 +742,7 @@ The tax bill for `r render_name(render_pin14)` was approximately `r label_dol_am
 change_from_levy_text <- paste("Your tax bill ", change_str(change_from_levy, "past"), " by approximately ", render_name(label_dol_amt(abs(change_from_levy)),change_str(change_from_levy, "past")), " due to the ", change_str(change_from_levy, 'word'), " in your taxing districts' levies. ",
     "In other words, this is the part of your tax bill that went up because the government collected more taxes in ",
     current_year,
-    ". This is the change in the tax bill outside your control, is the same for everyone, and refers to the increased the cost of providing services.",
+    ". This is the change in the tax bill outside your control, is the same for everyone, and refers to the increased cost of providing services.",
     sep = ""
 )
 
@@ -786,7 +786,7 @@ quadrant_chart
 
 ## [How did changes in assessments affect my bill?]{style="color: #011E56;"}
 
-Your property’s share of the tax base also affects your bill. This share is how much your property’s taxable value, or its Equalized Assessed Value, makes up of the the taxable value of all properties, called the Tax Base. The Tax Base is the combination of the taxable value of all residential and commercial properties.
+Your property’s share of the tax base also affects your bill. This share is how much your property’s taxable value, or its Equalized Assessed Value, makes up of the taxable value of all properties, called the Tax Base. The Tax Base is the combination of the taxable value of all residential and commercial properties.
 
 This share can be broken up into three parts that impact your bill:
 
@@ -894,7 +894,7 @@ detail_str <- str_glue("From 2006 to 2025, the total amount of property taxes co
          "from {scales::dollar(val_min)} to {scales::dollar(val_max)} or {scales::percent((val_max - val_min) / val_min)}.")
 ```
 
-Typically, the tax levy for each distinct increases each year. `r detail_str`
+Typically, the tax levy for each district increases each year. `r detail_str`
 
 ```{r}
 year_totals %>%
@@ -1037,7 +1037,7 @@ tax_bill_current %>%
     )
 ```
 
-#### How much do you owe the `r render_name(first_school$agency_name)`?
+#### How much do you owe `r render_name(first_school$agency_name)`?
 
 As the owner of `r render_name(render_pin14)`, in the year `r current_year` your property is worth `r render_name(label_dol_amt(pin_details_current$av*10), render_pin14)`, of that, your taxable amount (or addition to the tax base) is `r render_name(label_dol_amt(pin_details_current$eav - pin_exe_total), render_pin14)`.
 
@@ -1047,7 +1047,7 @@ $$
 (`r label_dol_amt(pin_details_current$eav - pin_exe_total)` * `r label_p_ltx(first_school$agency_tax_rate)`) = `r label_dol_amt((pin_details_current$eav - pin_exe_total)*first_school$agency_tax_rate)`
 $$
 
-This is the part of your bill that goes to to the `r render_name(first_school$agency_name)`:
+This is the part of your bill that goes to the `r render_name(first_school$agency_name)`:
    
 ```{r increment-tax-bill-1-5}
 tax_bill_current %>%
@@ -1068,14 +1068,14 @@ tax_bill_current %>%
     )
 ```
 
-See Appendix C for a detailed view of your tax bill for each tax district your property is in. This is the same calculation as above, but done for each district your property is in and should match the your tax bill received in the mail.
+See Appendix C for a detailed view of your tax bill for each tax district your property is in. This is the same calculation as above, but done for each district your property is in and should match the tax bill you received in the mail.
 :::
 
 ### Appendix C: Property Tax Districts 
 
 ::: {.callout-note appearance="minimal"}
 
-Your property is a part of many tax districts. Your actual bill is calculated by taking the tax levy times your property's taxable value (EAV) divided by the sum of all taxable property (Tax Base) for *each tax district* you property is in. See each tax district your property is in, including the district's total tax base, levy, and the taxes owed to this district. See Appendix C below for a more detailed explanation of how your tax bill is calculated for each district.
+Your property is a part of many tax districts. Your actual bill is calculated by taking the tax levy times your property's taxable value (EAV) divided by the sum of all taxable property (Tax Base) for *each tax district* your property is in. See each tax district your property is in, including the district's total tax base, levy, and the taxes owed to this district. See Appendix C below for a more detailed explanation of how your tax bill is calculated for each district.
 
 ```{r increment-tax-bill-2}
 tax_bill_current %>%
