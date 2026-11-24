@@ -4,7 +4,7 @@ library(RSQLite)
 library(glue)
 library(ptaxsim)
 
-db_path <- "data/ptaxsim-2024.0.0-alpha.1.db"
+db_path <- "data/ptaxsim.db"
 
 ptaxsim_db_conn <- dbConnect(SQLite(), db_path, flags = RSQLite::SQLITE_RO)
 
