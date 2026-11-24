@@ -63,7 +63,7 @@ pin_14 <- str_pad(pin_14, width = 14, pad = "0", side = "left")
 current_year <- params$current_year
 prior_year <- params$prior_year
 
-if (!is.null(params$address) && nchar(params$address) > 0) {
+if (!is.null(params$address) && nchar(params$address) > 0) && (params$address != '--NOT FOUND--') {
     address <- params$address
 } else {
     address_df <- arrow::read_parquet("data/addresses_qmd_data.parquet", col_select = c("PIN", "ADDRDELIV")) %>%
