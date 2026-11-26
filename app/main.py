@@ -11,6 +11,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
 
+import sys
 import polars as pl
 import usaddress
 from dotenv import load_dotenv
@@ -715,7 +716,8 @@ def run_quarto(
             "returncode": result.returncode,
         }
     except subprocess.CalledProcessError as e:
-        print(f"Error: {e.stderr} {e.stdout}")
-        raise e
+        err_msg = f"Quarto failed (rc={e.returncode})\nSTDERR:\n{e.stderr}\nSTDOUT:\n{e.stdout}"
+        print(err_msg, file=sys.stderr, flush=True)
+        raise RuntimeError(err_msg) from e
     finally:
         shutil.rmtree(job_dir, ignore_errors=True)
