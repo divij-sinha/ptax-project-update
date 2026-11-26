@@ -87,7 +87,7 @@ muni_area_report_info <- arrow::open_dataset("data/all_pins_geo_current_muni_are
     filter(pin == {pin_14}) %>%
     collect()
 
-url_base <- "https://mansueto-institute.github.io/ward-reports/muncipality_reports/"
+url_base <- "https://mansueto-institute.github.io/ward-reports/muncipality_reports"
 
 display_name <- muni_area_report_info %>% 
     mutate(display_name =if_else(!is.na(area), area_name, display_name)) %>%
