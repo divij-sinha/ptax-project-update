@@ -715,7 +715,7 @@ def run_quarto(
             "returncode": result.returncode,
         }
     except subprocess.CalledProcessError as e:
-        print(f"Error: {e.stderr}")
+        print(f"Error: {e.stderr} {e.stdout}")
         raise e
     finally:
         shutil.rmtree(job_dir, ignore_errors=True)
