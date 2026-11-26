@@ -87,7 +87,7 @@ _MAP_DF: pl.DataFrame | None = None
 def _get_map_df() -> pl.DataFrame:
     global _MAP_DF
     if _MAP_DF is None:
-        _MAP_DF = pl.read_parquet(DATA_DIR / "all_pins_geo_current_muni_area.parquet.parquet")
+        _MAP_DF = pl.read_parquet(DATA_DIR / "all_pins_geo_current_muni_area.parquet")
     return _MAP_DF
 
 def get_neighborhood_pdf_url(pin, mode):
