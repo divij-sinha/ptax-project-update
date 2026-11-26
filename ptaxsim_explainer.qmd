@@ -81,6 +81,17 @@ if (!is.null(params$address) && nchar(params$address) > 0 && (params$address != 
 ptaxsim_db_conn <- dbConnect(SQLite(), db_path, flags = RSQLite::SQLITE_RO)
 dbExecute(ptaxsim_db_conn, "PRAGMA cache_size = -131072") # 128 MB page cache
 tax_bases_res_com_share <- readRDS("data/tax_bases_res_com_share.rds")
+
+#muni/area report details
+muni_area_report_info <- arrow::open_dataset("data/all_pins_geo_current_muni_area.parquet") %>% 
+    filter(pin == {pin_14}) %>%
+    collect()
+
+url_base <- "https://raw.githubusercontent.com/mansueto-institute/ward-reports/main/muncipality_reports"
+
+display_name <- muni_area_report_info %>% mutate(if_else(!is.na(area), area_name, display_name))
+muni_url <- str_glue("{url_base}/{muni_area_report_info %>% pull(report_url_end)})
+
 ```
 
 
@@ -573,6 +584,8 @@ Your tax bill __`r change_str(tax_bill_change, 'past')`__ by `r render_name(labe
 The property tax provides essential funding for operating local services, such as schools, public safety, sanitation, libraries, and parks.
 
 But property tax bills are complex and can be difficult to understand. The goal of this Explainer is to help property owners in Cook County understand their tax bills and why they go up or down from one year to the next.
+
+If you are interested in how property taxes have changed in your municipality or neighborhood, view our seperate report on [`r str_glue("{display_name}")` here in a new tab](`r muni_url`){target="_blank" rel="noopener noreferrer"}.
 
 ## Your Property
 
@@ -1121,3 +1134,7 @@ See the breakdown of the change in EAV Residential Share and Commercial Share fo
 If the estimated market value of your home is significantly more than what you believe your home could sell for in the current real estate market, you may [file an appeal with the Cook County Assessor's Office](https://www.cookcountyaa.gov/appeal-your-assessment) or at the [Cook County Board of Review](https://www.cookcountyboardofreview.com/).
 
 There may be exemptions that you qualify for. Learn more about exemptions, including how to apply, at the [Cook County Assessor's Office's website](https://www.cookcountyaa.gov/property-tax-exemptions).
+
+## Your Neighborhood
+
+If you are interested in how property taxes have changed in your municipality or neighborhood, view our seperate report on [`r str_glue("{display_name}")` here in a new tab](`r muni_url`){target="_blank" rel="noopener noreferrer"}.
