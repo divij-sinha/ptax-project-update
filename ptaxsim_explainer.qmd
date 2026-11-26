@@ -90,7 +90,7 @@ muni_area_report_info <- arrow::open_dataset("data/all_pins_geo_current_muni_are
 url_base <- "https://raw.githubusercontent.com/mansueto-institute/ward-reports/main/muncipality_reports"
 
 display_name <- muni_area_report_info %>% mutate(if_else(!is.na(area), area_name, display_name))
-muni_url <- str_glue("{url_base}/{muni_area_report_info %>% pull(report_url_end)})
+muni_url <- str_glue("{url_base}/{muni_area_report_info %>% pull(report_url_end)}")
 
 ```
 
